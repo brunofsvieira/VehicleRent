@@ -1,0 +1,68 @@
+@model VehicleRent.Models.ViewModels.RentalContractViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    var formAction = Model?.Id.HasValue == true ? "/RentalContracts/Update" : "/RentalContracts/Create";
+    var clients = ViewBag.Clients as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var vehicles = ViewBag.Vehicles as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+}
+
+<form id="rentalContractFormStandalone" method="post" action="@formAction" class="vehicle-form card border-0 shadow-sm p-4 p-lg-5" novalidate>
+  @Html.AntiForgeryToken()
+  <input asp-for="Id" type="hidden" />
+  <p class="form-caption mb-4">Campos com <span class="req-mark">*</span> sao obrigatorios.</p>
+
+  <div class="row g-3">
+    <div class="col-12 col-md-6 vehicle-field">
+      <label asp-for="ClientId" class="form-label mb-1">Cliente <span class="req-mark" aria-hidden="true">*</span></label>
+      <select asp-for="ClientId" id="contractClientId" class="form-select" required>
+        <option value="">-- selecione --</option>
+        @foreach (var item in clients)
+        {
+            <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+        }
+      </select>
+      <div class="field-hint mt-1" data-field-hint-for="contractClientId">Seleciona um cliente.</div>
+    </div>
+
+    <div class="col-12 col-md-6 vehicle-field">
+      <label asp-for="VehicleId" class="form-label mb-1">Veiculo <span class="req-mark" aria-hidden="true">*</span></label>
+      <select asp-for="VehicleId" id="contractVehicleId" class="form-select" required>
+        <option value="">-- selecione --</option>
+        @foreach (var item in vehicles)
+        {
+            <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+        }
+      </select>
+      <div class="field-hint mt-1" data-field-hint-for="contractVehicleId">Seleciona um veiculo.</div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="vehicle-field form-floating">
+        <input asp-for="RentalStartDate" type="date" class="form-control" id="rentalStartDate" placeholder="Data de inicio" required />
+        <label for="rentalStartDate">Data de inicio <span class="req-mark" aria-hidden="true">*</span></label>
+        <div class="field-hint" data-field-hint-for="rentalStartDate">Nao pode ser anterior a hoje.</div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="vehicle-field form-floating">
+        <input asp-for="RentalEndDate" type="date" class="form-control" id="rentalEndDate" placeholder="Data de fim" required />
+        <label for="rentalEndDate">Data de fim <span class="req-mark" aria-hidden="true">*</span></label>
+        <div class="field-hint" data-field-hint-for="rentalEndDate">Tem de ser posterior a data de inicio.</div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="vehicle-field form-floating">
+        <input asp-for="InitialMileage" type="number" class="form-control" id="initialMileage" placeholder="Quilometragem inicial" required min="0" />
+        <label for="initialMileage">Quilometragem inicial <span class="req-mark" aria-hidden="true">*</span></label>
+        <div class="field-hint" data-field-hint-for="initialMileage">Introduz um valor igual ou superior a 0.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2 mt-4">
+    <a class="btn btn-outline-secondary" href="/RentalContracts">Voltar</a>
+    <button id="btnSaveRentalContractStandalone" type="submit" class="btn btn-primary">Salvar</button>
+  </div>
+</form>

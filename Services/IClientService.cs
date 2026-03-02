@@ -6,6 +6,7 @@ namespace VehicleRent.Services
     {
         Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize);
         Task<PagedResult<Client>> GetPagedForApiAsync(int page, int pageSize);
+        Task<IReadOnlyList<Client>> GetAllForSelectionAsync();
         Task<Client?> GetByIdAsync(long id);
         Task<Client> CreateAsync(string name, string email, string phoneNumber, string driverLicense);
         Task UpdateAsync(long id, string name, string email, string phoneNumber, string driverLicense);

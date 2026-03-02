@@ -1,7 +1,7 @@
-@model VehicleRent.Models.Entities.PagedResult<VehicleRent.Models.ViewModels.VehicleViewModel>
+@model VehicleRent.Models.Entities.PagedResult<VehicleRent.Models.ViewModels.RentalContractViewModel>
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Veiculos";
+    ViewData["Title"] = "Contratos";
     var totalPages = Model.TotalPages;
     var currentPage = Model.Page <= 0 ? 1 : Model.Page;
     var pageSize = (Model.PageSize == 10 || Model.PageSize == 20 || Model.PageSize == 50) ? Model.PageSize : 10;
@@ -14,11 +14,11 @@
     <div class="page-shell page-shell-wide mx-auto" data-reveal>
       <div class="module-head d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row gap-3 mb-4">
         <div>
-          <p class="page-eyebrow mb-2">Gestao de frota</p>
-          <h1 class="page-title mb-1">Veiculos</h1>
-          <p class="page-subtitle mb-0">Lista atualizada da frota.</p>
+          <p class="page-eyebrow mb-2">Gestao de contratos</p>
+          <h1 class="page-title mb-1">Contratos de aluguer</h1>
+          <p class="page-subtitle mb-0">Lista de contratos registados na plataforma.</p>
         </div>
-        <a class="btn btn-success" asp-controller="Vehicles" asp-action="Create">+ Novo veiculo</a>
+        <a class="btn btn-success" asp-controller="RentalContracts" asp-action="Create">+ Novo contrato</a>
       </div>
 
       <div id="alerts"></div>
@@ -26,46 +26,48 @@
       @if (!Model.Items.Any())
       {
           <div class="empty-state text-center" data-reveal>
-            <h2>Sem veiculos registados</h2>
-            <p>Comeca por adicionar o primeiro veiculo da frota.</p>
-            <a class="btn btn-primary" asp-controller="Vehicles" asp-action="Create">Criar primeiro veiculo</a>
+            <h2>Sem contratos registados</h2>
+            <p>Cria o primeiro contrato de aluguer.</p>
+            <a class="btn btn-primary" asp-controller="RentalContracts" asp-action="Create">Criar primeiro contrato</a>
           </div>
       }
       else
       {
       <div class="table-shell" data-reveal>
-        <table class="table table-hover align-middle mb-0 records-table" id="vehiclesTable">
+        <table class="table table-hover align-middle mb-0 records-table" id="rentalContractsTable">
           <thead>
             <tr>
-              <th>Marca</th>
-              <th>Modelo</th>
+              <th>Nome Cliente</th>
+              <th>Email Cliente</th>
               <th>Matricula</th>
-              <th>Ano</th>
-              <th>Combustivel</th>
+              <th>Inicio</th>
+              <th>Fim</th>
               <th>Estado</th>
+              <th>Km Inicial</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            @foreach (var v in Model.Items)
+            @foreach (var rc in Model.Items)
             {
                 <tr>
-                  <td data-label="Marca">@v.Brand</td>
-                  <td data-label="Modelo">@v.Model</td>
-                  <td data-label="Matricula"><span class="record-chip">@v.LicensePlate</span></td>
-                  <td data-label="Ano">@v.ManufacturingYear</td>
-                  <td data-label="Combustivel">@v.Fuel.ToString()</td>
+                  <td data-label="Nome Cliente">@rc.ClientName</td>
+                  <td data-label="Email Cliente">@rc.ClientEmail</td>
+                  <td data-label="Matricula"><span class="record-chip">@rc.VehicleLicensePlate</span></td>
+                  <td data-label="Inicio">@rc.RentalStartDate.ToString("yyyy-MM-dd")</td>
+                  <td data-label="Fim">@rc.RentalEndDate.ToString("yyyy-MM-dd")</td>
                   <td data-label="Estado">
-                    <span class="record-chip @(v.IsCurrentlyRented ? "status-rented" : "status-available")">@v.AvailabilityStatus</span>
+                    <span class="record-chip @(rc.IsFinished ? "status-finished" : "status-active")">@rc.ContractStatus</span>
                   </td>
+                  <td data-label="Km Inicial"><span class="record-chip">@rc.InitialMileage</span></td>
                   <td class="text-end record-actions" data-label="Acoes">
-                    <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@v.Id">Editar</a>
+                    <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@rc.Id">Editar</a>
                     <form asp-action="Delete" method="post" class="d-inline-block">
                       @Html.AntiForgeryToken()
-                      <input type="hidden" name="id" value="@v.Id" />
+                      <input type="hidden" name="id" value="@rc.Id" />
                       <input type="hidden" name="page" value="@currentPage" />
                       <input type="hidden" name="pageSize" value="@pageSize" />
-                      <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this vehicle?');">Apagar</button>
+                      <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this rental contract?');">Apagar</button>
                     </form>
                   </td>
                 </tr>

@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 using VehicleRent.Models.Enumerators;
 
@@ -15,6 +16,8 @@ namespace VehicleRent.Models.Entities
         public string LicensePlate { get; private set; } = string.Empty;
         public int ManufacturingYear { get; private set; }
         public FuelType Fuel { get; private set; }
+        [NotMapped]
+        public bool IsCurrentlyRented { get; private set; }
 
         protected Vehicle() { }
 
@@ -27,6 +30,11 @@ namespace VehicleRent.Models.Entities
         {
             ValidateAndSet(brand, model, fuelType, manufacturingYear, licensePlate);
             TouchUpdate();
+        }
+
+        public void SetRentalStatus(bool isCurrentlyRented)
+        {
+            IsCurrentlyRented = isCurrentlyRented;
         }
 
         private void ValidateAndSet(string brand, string model, FuelType fuelType, int manufacturingYear, string licensePlate)

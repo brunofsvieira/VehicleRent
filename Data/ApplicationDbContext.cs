@@ -11,6 +11,7 @@ namespace VehicleRent.Data
 
         public DbSet<Vehicle> Vehicles { get; set; } = null!;
         public DbSet<Client> Clients { get; set; } = null!;
+        public DbSet<RentalContract> RentalContracts { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -66,6 +67,30 @@ namespace VehicleRent.Data
             client.Property(c => c.DriverLicense)
                 .IsRequired()
                 .HasMaxLength(30);
+
+            var rentalContract = modelBuilder.Entity<RentalContract>();
+            rentalContract.HasKey(rc => rc.Id);
+            rentalContract.Property(rc => rc.Id).ValueGeneratedOnAdd();
+
+            rentalContract.Property(rc => rc.ClientId).IsRequired();
+            rentalContract.Property(rc => rc.VehicleId).IsRequired();
+            rentalContract.Property(rc => rc.RentalStartDate).IsRequired();
+            rentalContract.Property(rc => rc.RentalEndDate).IsRequired();
+            rentalContract.Property(rc => rc.InitialMileage).IsRequired();
+
+            rentalContract.HasOne(rc => rc.Client)
+                .WithMany()
+                .HasForeignKey(rc => rc.ClientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            rentalContract.HasOne(rc => rc.Vehicle)
+                .WithMany()
+                .HasForeignKey(rc => rc.VehicleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            rentalContract.HasIndex(rc => rc.VehicleId);
+            rentalContract.HasIndex(rc => rc.ClientId);
+            rentalContract.HasIndex(rc => new { rc.VehicleId, rc.RentalStartDate, rc.RentalEndDate });
         }
     }
 }

@@ -399,6 +399,30 @@ body {
   color: #26466f;
 }
 
+.record-chip.status-rented {
+  background: #fff1ef;
+  border-color: #f2b8b0;
+  color: #962d20;
+}
+
+.record-chip.status-available {
+  background: #eefaf4;
+  border-color: #bde6cf;
+  color: #15633f;
+}
+
+.record-chip.status-finished {
+  background: #fff1ef;
+  border-color: #f2b8b0;
+  color: #962d20;
+}
+
+.record-chip.status-active {
+  background: #eefaf4;
+  border-color: #bde6cf;
+  color: #15633f;
+}
+
 .record-actions {
   white-space: nowrap;
 }

@@ -48,6 +48,11 @@ namespace VehicleRent.Services
             return _repo.GetByIdAsync(id);
         }
 
+        public Task<IReadOnlyList<Client>> GetAllForSelectionAsync()
+        {
+            return _repo.GetAllForSelectionAsync();
+        }
+
         public async Task<Client> CreateAsync(string name, string email, string phoneNumber, string driverLicense)
         {
             var normalizedEmail = (email ?? string.Empty).Trim().ToLowerInvariant();

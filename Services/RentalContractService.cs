@@ -1,0 +1,145 @@
+using Microsoft.EntityFrameworkCore;
+using VehicleRent.Models.Entities;
+using VehicleRent.Repositories;
+using VehicleRent.Services.Exceptions;
+
+namespace VehicleRent.Services
+{
+    public class RentalContractService : IRentalContractService
+    {
+        private static readonly int[] WebPageSizes = [10, 20, 50];
+        private readonly IRentalContractRepository _repo;
+        private readonly IClientRepository _clientRepo;
+        private readonly IVehicleRepository _vehicleRepo;
+
+        public RentalContractService(
+            IRentalContractRepository repo,
+            IClientRepository clientRepo,
+            IVehicleRepository vehicleRepo)
+        {
+            _repo = repo;
+            _clientRepo = clientRepo;
+            _vehicleRepo = vehicleRepo;
+        }
+
+        public async Task<PagedResult<RentalContract>> GetPagedForWebAsync(int page, int pageSize)
+        {
+            var normalizedPage = NormalizePage(page);
+            var normalizedPageSize = WebPageSizes.Contains(pageSize) ? pageSize : 10;
+
+            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize);
+            if (paged.TotalPages > 0 && normalizedPage > paged.TotalPages)
+            {
+                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize);
+            }
+
+            return paged;
+        }
+
+        public async Task<PagedResult<RentalContract>> GetPagedForApiAsync(int page, int pageSize)
+        {
+            var normalizedPage = NormalizePage(page);
+            var normalizedPageSize = pageSize <= 0 || pageSize > 100 ? 10 : pageSize;
+
+            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize);
+            if (paged.TotalPages > 0 && normalizedPage > paged.TotalPages)
+            {
+                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize);
+            }
+
+            return paged;
+        }
+
+        public Task<RentalContract?> GetByIdAsync(long id)
+        {
+            return _repo.GetByIdAsync(id);
+        }
+
+        public async Task<RentalContract> CreateAsync(long clientId, long vehicleId, DateTime rentalStartDate, DateTime rentalEndDate, int initialMileage)
+        {
+            await EnsureForeignEntitiesExistAsync(clientId, vehicleId);
+
+            if (await _repo.ExistsVehicleOverlapAsync(vehicleId, rentalStartDate, rentalEndDate))
+            {
+                throw new BusinessValidationException("Vehicle already has an overlapping rental contract.");
+            }
+
+            try
+            {
+                var contract = new RentalContract(clientId, vehicleId, rentalStartDate, rentalEndDate, initialMileage);
+                await _repo.AddAsync(contract);
+                return contract;
+            }
+            catch (ArgumentException ex)
+            {
+                throw new BusinessValidationException(ex.Message);
+            }
+            catch (DbUpdateException)
+            {
+                throw new BusinessValidationException("Unable to save rental contract.");
+            }
+        }
+
+        public async Task UpdateAsync(long id, long clientId, long vehicleId, DateTime rentalStartDate, DateTime rentalEndDate, int initialMileage)
+        {
+            var existing = await _repo.GetByIdForWriteAsync(id);
+            if (existing is null)
+            {
+                throw new EntityNotFoundException($"Rental contract with id {id} was not found.");
+            }
+
+            await EnsureForeignEntitiesExistAsync(clientId, vehicleId);
+
+            if (await _repo.ExistsVehicleOverlapAsync(vehicleId, rentalStartDate, rentalEndDate, id))
+            {
+                throw new BusinessValidationException("Vehicle already has an overlapping rental contract.");
+            }
+
+            try
+            {
+                existing.UpdateContract(clientId, vehicleId, rentalStartDate, rentalEndDate, initialMileage);
+                await _repo.UpdateAsync(existing);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new BusinessValidationException(ex.Message);
+            }
+            catch (DbUpdateException)
+            {
+                throw new BusinessValidationException("Unable to update rental contract.");
+            }
+        }
+
+        public async Task DeleteAsync(long id, bool ensureExists)
+        {
+            if (ensureExists)
+            {
+                var existing = await _repo.GetByIdForWriteAsync(id);
+                if (existing is null)
+                {
+                    throw new EntityNotFoundException($"Rental contract with id {id} was not found.");
+                }
+            }
+
+            await _repo.DeleteAsync(id);
+        }
+
+        private async Task EnsureForeignEntitiesExistAsync(long clientId, long vehicleId)
+        {
+            if (await _clientRepo.GetByIdAsync(clientId) is null)
+            {
+                throw new BusinessValidationException("Selected client does not exist.");
+            }
+
+            if (await _vehicleRepo.GetByIdAsync(vehicleId) is null)
+            {
+                throw new BusinessValidationException("Selected vehicle does not exist.");
+            }
+        }
+
+        private static int NormalizePage(int page)
+        {
+            return page <= 0 ? 1 : page;
+        }
+    }
+}

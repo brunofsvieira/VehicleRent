@@ -46,6 +46,15 @@ namespace VehicleRent.Repositories
             };
         }
 
+        public async Task<IReadOnlyList<Client>> GetAllForSelectionAsync()
+        {
+            return await _dbContext.Clients
+                .AsNoTracking()
+                .OrderBy(c => c.Name)
+                .ThenBy(c => c.Email)
+                .ToListAsync();
+        }
+
         public async Task<bool> ExistsByEmailAsync(string email, long? excludingId = null)
         {
             var normalizedEmail = (email ?? string.Empty).Trim().ToLowerInvariant();
