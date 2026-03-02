@@ -11,6 +11,10 @@ namespace VehicleRent.Profiles
             CreateMap<Vehicle, VehicleDto>();
             CreateMap<CreateVehicleDto, Vehicle>(MemberList.None)
                 .ConstructUsing(dto => new Vehicle(dto.Brand, dto.Model, dto.Fuel, dto.ManufacturingYear, dto.LicensePlate));
+
+            CreateMap<Client, ClientDto>();
+            CreateMap<CreateClientDto, Client>(MemberList.None)
+                .ConstructUsing(dto => new Client(dto.Name, dto.Email, dto.PhoneNumber, dto.DriverLicense));
         }
     }
 }

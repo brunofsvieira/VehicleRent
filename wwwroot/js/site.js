@@ -223,8 +223,141 @@
     refreshButtonState();
   }
 
+  function initClientFormUx() {
+    var form = document.getElementById('clientFormStandalone');
+    var saveBtn = document.getElementById('btnSaveClientStandalone');
+    if (!form || !saveBtn) return;
+
+    var phonePattern = /^\+\d{1,3}\d{9}$/;
+    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var fields = [
+      { id: 'clientName', missing: 'Obrigatorio.' },
+      { id: 'clientEmail', missing: 'Obrigatorio.', invalid: 'Email invalido.' },
+      { id: 'clientPhoneNumber', missing: 'Obrigatorio.', invalid: 'Formato: +351912345678' },
+      { id: 'clientDriverLicense', missing: 'Obrigatorio.' }
+    ].map(function(cfg){
+      var el = form.querySelector('#' + cfg.id);
+      var field = el ? el.closest('.vehicle-field') : null;
+      var hint = field ? field.querySelector('[data-field-hint-for="' + cfg.id + '"]') : null;
+      return { cfg: cfg, el: el, field: field, hint: hint, touched: false };
+    }).filter(function(item){ return !!item.el; });
+
+    var submitted = false;
+
+    function setState(item, state, message) {
+      if (!item.field) return;
+      item.field.classList.remove('field-warning', 'field-ok');
+      if (state === 'warning') item.field.classList.add('field-warning');
+      if (state === 'ok') item.field.classList.add('field-ok');
+      if (item.hint && message) item.hint.textContent = message;
+      if (state === 'warning') {
+        item.el.classList.remove('is-valid');
+        item.el.classList.add('is-invalid');
+      } else if (state === 'ok') {
+        item.el.classList.remove('is-invalid');
+        item.el.classList.add('is-valid');
+      } else {
+        item.el.classList.remove('is-invalid');
+        item.el.classList.remove('is-valid');
+      }
+    }
+
+    function valueMissing(el) {
+      return !el || !el.value || el.value.toString().trim() === '';
+    }
+
+    function isInvalid(item) {
+      if (item.cfg.id === 'clientEmail') {
+        return !emailPattern.test((item.el.value || '').toString().trim());
+      }
+      if (item.cfg.id === 'clientPhoneNumber') {
+        return !phonePattern.test((item.el.value || '').toString().trim());
+      }
+      return false;
+    }
+
+    function evaluate(item) {
+      var shouldShow = item.touched || submitted;
+      if (!shouldShow) {
+        setState(item, 'neutral', '');
+        return !valueMissing(item.el);
+      }
+
+      if (valueMissing(item.el)) {
+        setState(item, 'warning', item.cfg.missing);
+        return false;
+      }
+
+      if (isInvalid(item)) {
+        setState(item, 'warning', item.cfg.invalid);
+        return false;
+      }
+
+      setState(item, 'ok', 'OK');
+      return true;
+    }
+
+    function refreshButtonState() {
+      var valid = true;
+      fields.forEach(function(item){
+        var itemValid = evaluate(item);
+        if (!itemValid) valid = false;
+      });
+      saveBtn.disabled = !valid;
+    }
+
+    fields.forEach(function(item){
+      ['blur', 'input', 'change'].forEach(function(evt){
+        item.el.addEventListener(evt, function(){
+          item.touched = true;
+          refreshButtonState();
+        });
+      });
+    });
+
+    form.addEventListener('submit', function(e){
+      submitted = true;
+      fields.forEach(function(item){ item.touched = true; });
+      refreshButtonState();
+
+      if (saveBtn.disabled) {
+        e.preventDefault();
+        var firstInvalid = fields.find(function(item){
+          return item.el && item.el.classList.contains('is-invalid');
+        });
+        if (firstInvalid && firstInvalid.el && typeof firstInvalid.el.focus === 'function') {
+          firstInvalid.el.focus();
+        }
+      }
+    });
+
+    refreshButtonState();
+  }
+
+  function initRevealAnimations() {
+    var items = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
+    if (!items.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      items.forEach(function(item){ item.classList.add('is-visible'); });
+      return;
+    }
+
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.12 });
+
+    items.forEach(function(item){ observer.observe(item); });
+  }
+
   $(function(){
     suppressClientValidationMessages();
     initVehicleFormUx();
+    initClientFormUx();
+    initRevealAnimations();
   });
 })(jQuery);

@@ -10,6 +10,7 @@ namespace VehicleRent.Data
         }
 
         public DbSet<Vehicle> Vehicles { get; set; } = null!;
+        public DbSet<Client> Clients { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,6 +43,29 @@ namespace VehicleRent.Data
 
             vehicle.Property(v => v.ManufacturingYear)
                 .IsRequired();
+
+            var client = modelBuilder.Entity<Client>();
+            client.HasKey(c => c.Id);
+            client.Property(c => c.Id).ValueGeneratedOnAdd();
+
+            client.Property(c => c.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            client.Property(c => c.Email)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            client.HasIndex(c => c.Email)
+                .IsUnique();
+
+            client.Property(c => c.PhoneNumber)
+                .IsRequired()
+                .HasMaxLength(16);
+
+            client.Property(c => c.DriverLicense)
+                .IsRequired()
+                .HasMaxLength(30);
         }
     }
 }

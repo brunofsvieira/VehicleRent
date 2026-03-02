@@ -1,38 +1,85 @@
-@{
+ï»¿@{
     ViewData["Title"] = "Inicio";
 }
 
 <section class="home-page py-4 py-lg-5">
     <div class="container">
-        <div class="home-hero mx-auto">
-            <p class="page-eyebrow mb-2">Plataforma de aluguer de veículos</p>
-            <h1 class="home-title mb-3">Gestao do aluguer, rapida e clara.</h1>
-            <p class="home-subtitle mb-4">Base para a tua plataforma de aluguer, pronta para crescer com clientes, reservas e pagamentos.</p>
-            <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
-                <a class="btn btn-primary btn-lg" asp-controller="Vehicles" asp-action="Index">Abrir Veiculos</a>
-                <a class="btn btn-outline-secondary btn-lg" asp-controller="Vehicles" asp-action="Create">Novo Veiculo</a>
+        <div class="home-hero home-hero-grid mx-auto mb-4" data-reveal>
+            <div>
+                <p class="page-eyebrow mb-2">Plataforma de aluguer de veiculos</p>
+                <h1 class="home-title mb-3">Operacao mais rapida, visual mais claro.</h1>
+                <p class="home-subtitle mb-4">Gerir frota e clientes num unico painel, com foco em produtividade e crescimento do negocio.</p>
+                <div class="d-flex flex-column flex-sm-row gap-2">
+                    <a class="btn btn-primary btn-lg" asp-controller="Vehicles" asp-action="Index">Gerir veiculos</a>
+                    <a class="btn btn-outline-secondary btn-lg" asp-controller="Clients" asp-action="Index">Gerir clientes</a>
+                </div>
+            </div>
+            <aside class="home-kpis" aria-label="Resumo da plataforma">
+                <div class="kpi-tile" data-reveal>
+                    <small>Modulo pronto</small>
+                    <strong>Veiculos</strong>
+                </div>
+                <div class="kpi-tile" data-reveal>
+                    <small>Modulo pronto</small>
+                    <strong>Clientes</strong>
+                </div>
+                <div class="kpi-tile" data-reveal>
+                    <small>Paginacao</small>
+                    <strong>10 / 20 / 50</strong>
+                </div>
+                <div class="kpi-tile" data-reveal>
+                    <small>Experiencia</small>
+                    <strong>100% responsiva</strong>
+                </div>
+            </aside>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-md-4" data-reveal>
+                <article class="feature-card h-100">
+                    <h3>Registo rapido</h3>
+                    <p>Formularios com validacao visual para preencher com menos erros.</p>
+                </article>
+            </div>
+            <div class="col-12 col-md-4" data-reveal>
+                <article class="feature-card h-100">
+                    <h3>Estrutura preparada</h3>
+                    <p>Backend separado em API e Views para escalar com seguranca.</p>
+                </article>
+            </div>
+            <div class="col-12 col-md-4" data-reveal>
+                <article class="feature-card h-100">
+                    <h3>Fluxo moderno</h3>
+                    <p>Base pronta para adicionar reservas, pagamentos e contratos.</p>
+                </article>
             </div>
         </div>
 
-        <div class="row g-3 mt-2">
-            <div class="col-12 col-md-4">
-                <article class="feature-card h-100">
-                    <h3>Cadastro rapido</h3>
-                    <p>Formulario com validacao visual para reduzir erros no preenchimento.</p>
-                </article>
+        <section class="home-actions" data-reveal>
+            <div class="home-actions-head">
+                <h2>Atalhos rapidos</h2>
+                <p>Acede ao que usas mais no dia a dia.</p>
             </div>
-            <div class="col-12 col-md-4">
-                <article class="feature-card h-100">
-                    <h3>Paginacao flexivel</h3>
-                    <p>Escolhe quantos registos queres por pagina: 10, 20 ou 50.</p>
-                </article>
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <a class="action-tile" asp-controller="Vehicles" asp-action="Create">
+                        <h3>Novo veiculo</h3>
+                        <p>Adiciona um novo elemento a frota.</p>
+                    </a>
+                </div>
+                <div class="col-12 col-md-4">
+                    <a class="action-tile" asp-controller="Clients" asp-action="Create">
+                        <h3>Novo cliente</h3>
+                        <p>Regista o cliente com validacao completa.</p>
+                    </a>
+                </div>
+                <div class="col-12 col-md-4">
+                    <a class="action-tile" asp-controller="Home" asp-action="Privacy">
+                        <h3>Privacidade</h3>
+                        <p>Consulta a politica e as regras de dados.</p>
+                    </a>
+                </div>
             </div>
-            <div class="col-12 col-md-4">
-                <article class="feature-card h-100">
-                    <h3>100% responsivo</h3>
-                    <p>Experiencia otimizada para desktop, tablet e telemovel.</p>
-                </article>
-            </div>
-        </div>
+        </section>
     </div>
 </section>
