@@ -1,0 +1,23 @@
+﻿@model VehicleRent.Models.ViewModels.ClientViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Editar Cliente";
+}
+
+<section class="vehicle-page py-4 py-lg-5">
+  <div class="container">
+    <div class="page-shell mx-auto" data-reveal>
+      <div class="module-head mb-4">
+        <p class="page-eyebrow mb-2">Gestao de clientes</p>
+        <h1 class="page-title mb-2">Editar cliente</h1>
+        <p class="page-subtitle mb-0">Atualize os dados e guarde as alteracoes.</p>
+      </div>
+      <div id="alerts"></div>
+      @await Html.PartialAsync("~/Views/Shared/_ClientForm.cshtml", Model)
+    </div>
+  </div>
+</section>
+
+@section Scripts {
+  @await Html.PartialAsync("~/Views/Shared/_ValidationScriptsPartial.cshtml")
+}

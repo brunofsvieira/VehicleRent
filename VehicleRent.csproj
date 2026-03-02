@@ -26,6 +26,12 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="VehicleRent.Tests\**\*.cs" />
+    <EmbeddedResource Remove="VehicleRent.Tests\**\*" />
+    <None Remove="VehicleRent.Tests\**\*" />
+  </ItemGroup>
+
   <!-- Build React client into wwwroot during publish -->
   <Target Name="BuildClient" BeforeTargets="Publish">
     <Exec WorkingDirectory="$(ProjectDir)client" Command="npm ci" />

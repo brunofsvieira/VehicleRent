@@ -47,6 +47,16 @@ namespace VehicleRent.Repositories
             };
         }
 
+        public async Task<IReadOnlyList<Vehicle>> GetAllForSelectionAsync()
+        {
+            return await _dbContext.Vehicles
+                .AsNoTracking()
+                .OrderBy(v => v.Brand)
+                .ThenBy(v => v.Model)
+                .ThenBy(v => v.LicensePlate)
+                .ToListAsync();
+        }
+
         public async Task<bool> ExistsByLicensePlateAsync(string licensePlate, long? excludingId = null)
         {
             var normalized = (licensePlate ?? string.Empty).Trim().ToUpperInvariant();

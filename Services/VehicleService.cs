@@ -10,10 +10,12 @@ namespace VehicleRent.Services
     {
         private static readonly int[] WebPageSizes = [10, 20, 50];
         private readonly IVehicleRepository _repo;
+        private readonly IRentalContractRepository _rentalContractRepo;
 
-        public VehicleService(IVehicleRepository repo)
+        public VehicleService(IVehicleRepository repo, IRentalContractRepository rentalContractRepo)
         {
             _repo = repo;
+            _rentalContractRepo = rentalContractRepo;
         }
 
         public async Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize)
@@ -27,6 +29,7 @@ namespace VehicleRent.Services
                 paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize);
             }
 
+            await ApplyRentalStatusAsync(paged.Items);
             return paged;
         }
 
@@ -41,12 +44,24 @@ namespace VehicleRent.Services
                 paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize);
             }
 
+            await ApplyRentalStatusAsync(paged.Items);
             return paged;
         }
 
-        public Task<Vehicle?> GetByIdAsync(long id)
+        public async Task<IReadOnlyList<Vehicle>> GetAllForSelectionAsync()
         {
-            return _repo.GetByIdAsync(id);
+            var vehicles = await _repo.GetAllForSelectionAsync();
+            await ApplyRentalStatusAsync(vehicles);
+            return vehicles;
+        }
+
+        public async Task<Vehicle?> GetByIdAsync(long id)
+        {
+            var vehicle = await _repo.GetByIdAsync(id);
+            if (vehicle is null) return null;
+
+            await ApplyRentalStatusAsync([vehicle]);
+            return vehicle;
         }
 
         public async Task<Vehicle> CreateAsync(string brand, string model, string licensePlate, FuelType fuel, int manufacturingYear)
@@ -119,6 +134,15 @@ namespace VehicleRent.Services
         private static int NormalizePage(int page)
         {
             return page <= 0 ? 1 : page;
+        }
+
+        private async Task ApplyRentalStatusAsync(IEnumerable<Vehicle> vehicles)
+        {
+            var rentedVehicleIds = await _rentalContractRepo.GetCurrentlyRentedVehicleIdsAsync(DateTime.UtcNow.Date);
+            foreach (var vehicle in vehicles)
+            {
+                vehicle.SetRentalStatus(rentedVehicleIds.Contains(vehicle.Id));
+            }
         }
     }
 }

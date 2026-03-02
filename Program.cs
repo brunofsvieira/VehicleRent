@@ -22,6 +22,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IRentalContractRepository, RentalContractRepository>();
+builder.Services.AddScoped<IRentalContractService, RentalContractService>();
 
 // AutoMapper: register profile and services
 

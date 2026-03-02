@@ -1,0 +1,125 @@
+@model VehicleRent.Models.Entities.PagedResult<VehicleRent.Models.ViewModels.RentalContractViewModel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Contratos";
+    var totalPages = Model.TotalPages;
+    var currentPage = Model.Page <= 0 ? 1 : Model.Page;
+    var pageSize = (Model.PageSize == 10 || Model.PageSize == 20 || Model.PageSize == 50) ? Model.PageSize : 10;
+    var startPage = Math.Max(1, currentPage - 2);
+    var endPage = Math.Min(totalPages, currentPage + 2);
+}
+
+<section class="vehicle-page py-4 py-lg-5">
+  <div class="container">
+    <div class="page-shell page-shell-wide mx-auto" data-reveal>
+      <div class="module-head d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row gap-3 mb-4">
+        <div>
+          <p class="page-eyebrow mb-2">Gestao de contratos</p>
+          <h1 class="page-title mb-1">Contratos de aluguer</h1>
+          <p class="page-subtitle mb-0">Lista de contratos registados na plataforma.</p>
+        </div>
+        <a class="btn btn-success" asp-controller="RentalContracts" asp-action="Create">+ Novo contrato</a>
+      </div>
+
+      <div id="alerts"></div>
+
+      @if (!Model.Items.Any())
+      {
+          <div class="empty-state text-center" data-reveal>
+            <h2>Sem contratos registados</h2>
+            <p>Cria o primeiro contrato de aluguer.</p>
+            <a class="btn btn-primary" asp-controller="RentalContracts" asp-action="Create">Criar primeiro contrato</a>
+          </div>
+      }
+      else
+      {
+      <div class="table-shell" data-reveal>
+        <table class="table table-hover align-middle mb-0 records-table" id="rentalContractsTable">
+          <thead>
+            <tr>
+              <th>Nome Cliente</th>
+              <th>Email Cliente</th>
+              <th>Matricula</th>
+              <th>Inicio</th>
+              <th>Fim</th>
+              <th>Estado</th>
+              <th>Km Inicial</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var rc in Model.Items)
+            {
+                <tr>
+                  <td data-label="Nome Cliente">@rc.ClientName</td>
+                  <td data-label="Email Cliente">@rc.ClientEmail</td>
+                  <td data-label="Matricula"><span class="record-chip">@rc.VehicleLicensePlate</span></td>
+                  <td data-label="Inicio">@rc.RentalStartDate.ToString("yyyy-MM-dd")</td>
+                  <td data-label="Fim">@rc.RentalEndDate.ToString("yyyy-MM-dd")</td>
+                  <td data-label="Estado">
+                    <span class="record-chip @(rc.IsFinished ? "status-finished" : "status-active")">@rc.ContractStatus</span>
+                  </td>
+                  <td data-label="Km Inicial"><span class="record-chip">@rc.InitialMileage</span></td>
+                  <td class="text-end record-actions" data-label="Acoes">
+                    <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@rc.Id">Editar</a>
+                    <form asp-action="Delete" method="post" class="d-inline-block">
+                      @Html.AntiForgeryToken()
+                      <input type="hidden" name="id" value="@rc.Id" />
+                      <input type="hidden" name="page" value="@currentPage" />
+                      <input type="hidden" name="pageSize" value="@pageSize" />
+                      <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this rental contract?');">Apagar</button>
+                    </form>
+                  </td>
+                </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mt-3 pagination-shell" data-reveal>
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+          <label for="pageSize" class="paging-note mb-0">Registos por pagina</label>
+          <select id="pageSize" name="pageSize" class="form-select form-select-sm page-size-select" onchange="this.form.submit()">
+            <option value="10" selected="@(pageSize == 10)">10</option>
+            <option value="20" selected="@(pageSize == 20)">20</option>
+            <option value="50" selected="@(pageSize == 50)">50</option>
+          </select>
+          <input type="hidden" name="page" value="1" />
+        </form>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-md-end">
+          <span class="paging-note me-1">Pagina @currentPage de @(totalPages == 0 ? 1 : totalPages)</span>
+
+          <a class="btn btn-sm btn-outline-secondary @(currentPage <= 1 ? "disabled" : "")"
+             asp-action="Index"
+             asp-route-page="@(currentPage - 1)"
+             asp-route-pageSize="@pageSize"
+             aria-disabled="@(currentPage <= 1)">
+            Anterior
+          </a>
+
+          @if (totalPages > 0)
+          {
+              @for (var i = startPage; i <= endPage; i++)
+              {
+                  var activeClass = i == currentPage ? "btn-primary" : "btn-outline-secondary";
+                  <a class="btn btn-sm @activeClass"
+                     asp-action="Index"
+                     asp-route-page="@i"
+                     asp-route-pageSize="@pageSize">@i</a>
+              }
+          }
+
+          <a class="btn btn-sm btn-outline-secondary @(currentPage >= totalPages ? "disabled" : "")"
+             asp-action="Index"
+             asp-route-page="@(currentPage + 1)"
+             asp-route-pageSize="@pageSize"
+             aria-disabled="@(currentPage >= totalPages)">
+            Seguinte
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

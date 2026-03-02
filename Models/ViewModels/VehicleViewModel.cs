@@ -32,6 +32,9 @@ namespace VehicleRent.Models.ViewModels
         [EnsureFuelNotNone]
         public required FuelType Fuel { get; set; }
 
+        public bool IsCurrentlyRented { get; set; }
+        public string AvailabilityStatus => IsCurrentlyRented ? "Alugado" : "Disponivel";
+
         // Map view model -> new entity (creates entity without Id; repository sets Id)
         public Vehicle ToEntity() =>
             new Vehicle(Brand, Model, Fuel, ManufacturingYear, LicensePlate);
@@ -45,7 +48,8 @@ namespace VehicleRent.Models.ViewModels
                 Model = vehicle.Model,
                 LicensePlate = vehicle.LicensePlate,
                 ManufacturingYear = vehicle.ManufacturingYear,
-                Fuel = vehicle.Fuel
+                Fuel = vehicle.Fuel,
+                IsCurrentlyRented = vehicle.IsCurrentlyRented
             };
     }
 }
