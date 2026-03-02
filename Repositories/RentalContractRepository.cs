@@ -33,16 +33,31 @@ namespace VehicleRent.Repositories
             return _dbContext.RentalContracts.FirstOrDefaultAsync(rc => rc.Id == id);
         }
 
-        public async Task<PagedResult<RentalContract>> GetAllAsync(int page, int pageSize)
+        public async Task<PagedResult<RentalContract>> GetAllAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
         {
             if (page <= 0) page = 1;
             if (pageSize <= 0) pageSize = 10;
 
-            var total = await _dbContext.RentalContracts.CountAsync();
-            var items = await _dbContext.RentalContracts
+            var query = _dbContext.RentalContracts
                 .AsNoTracking()
                 .Include(rc => rc.Client)
                 .Include(rc => rc.Vehicle)
+                .AsQueryable();
+
+            if (clientId.HasValue && clientId.Value > 0)
+            {
+                var cid = clientId.Value;
+                query = query.Where(rc => rc.ClientId == cid);
+            }
+
+            if (vehicleId.HasValue && vehicleId.Value > 0)
+            {
+                var vid = vehicleId.Value;
+                query = query.Where(rc => rc.VehicleId == vid);
+            }
+
+            var total = await query.CountAsync();
+            var items = await query
                 .OrderByDescending(rc => rc.RentalStartDate)
                 .ThenBy(rc => rc.Id)
                 .Skip((page - 1) * pageSize)

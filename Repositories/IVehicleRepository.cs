@@ -29,7 +29,7 @@ namespace VehicleRent.Repositories
         /// <param name="page">1-based page index.</param>
         /// <param name="pageSize">Number of items per page.</param>
         /// <returns>Paged result with items and total count.</returns>
-        Task<PagedResult<Vehicle>> GetAllAsync(int page, int pageSize);
+        Task<PagedResult<Vehicle>> GetAllAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null);
         Task<IReadOnlyList<Vehicle>> GetAllForSelectionAsync();
         Task<bool> ExistsByLicensePlateAsync(string licensePlate, long? excludingId = null);
 
