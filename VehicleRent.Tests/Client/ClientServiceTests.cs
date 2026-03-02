@@ -7,11 +7,16 @@ namespace VehicleRent.Tests;
 
 public class ClientServiceTests
 {
+    private static ClientService CreateSut(InMemoryClientRepository repo)
+    {
+        return new ClientService(repo, TestDistributedCacheFactory.Create());
+    }
+
     [Fact]
     public async Task GetPagedForWebAsync_NormalizesInvalidInput()
     {
         var repo = new InMemoryClientRepository(SeedClients(12));
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         var result = await sut.GetPagedForWebAsync(page: 0, pageSize: 13);
 
@@ -24,7 +29,7 @@ public class ClientServiceTests
     public async Task GetPagedForWebAsync_ClampsPageToLastPage()
     {
         var repo = new InMemoryClientRepository(SeedClients(15));
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         var result = await sut.GetPagedForWebAsync(page: 99, pageSize: 10);
 
@@ -38,7 +43,7 @@ public class ClientServiceTests
     public async Task GetPagedForApiAsync_NormalizesPageSize()
     {
         var repo = new InMemoryClientRepository(SeedClients(5));
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         var result = await sut.GetPagedForApiAsync(page: 1, pageSize: 999);
 
@@ -50,7 +55,7 @@ public class ClientServiceTests
     public async Task CreateAsync_PersistsAndReturnsEntity()
     {
         var repo = new InMemoryClientRepository();
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         var created = await sut.CreateAsync("Ana Silva", "ANA@EXAMPLE.COM", "+351912345678", "DL123");
 
@@ -64,7 +69,7 @@ public class ClientServiceTests
     {
         var existing = SeedClients(1).Single();
         var repo = new InMemoryClientRepository([existing]);
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         await Assert.ThrowsAsync<BusinessValidationException>(() =>
             sut.CreateAsync("Novo", existing.Email, "+351987654321", "DL999"));
@@ -74,7 +79,7 @@ public class ClientServiceTests
     public async Task UpdateAsync_NotFound_ThrowsEntityNotFound()
     {
         var repo = new InMemoryClientRepository();
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         await Assert.ThrowsAsync<EntityNotFoundException>(() =>
             sut.UpdateAsync(999, "Ana", "ana@example.com", "+351912345678", "DL123"));
@@ -85,7 +90,7 @@ public class ClientServiceTests
     {
         var clients = SeedClients(2).ToArray();
         var repo = new InMemoryClientRepository(clients);
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         await Assert.ThrowsAsync<BusinessValidationException>(() =>
             sut.UpdateAsync(clients[1].Id, "Nome", clients[0].Email, "+351987654321", "DL999"));
@@ -96,7 +101,7 @@ public class ClientServiceTests
     {
         var client = SeedClients(1).Single();
         var repo = new InMemoryClientRepository([client]);
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         await sut.UpdateAsync(client.Id, "Ana Maria", "ana.maria@example.com", "+351987654321", "DL777");
 
@@ -112,7 +117,7 @@ public class ClientServiceTests
     public async Task DeleteAsync_EnsureExistsTrue_NotFound_Throws()
     {
         var repo = new InMemoryClientRepository();
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         await Assert.ThrowsAsync<EntityNotFoundException>(() => sut.DeleteAsync(12, ensureExists: true));
     }
@@ -121,7 +126,7 @@ public class ClientServiceTests
     public async Task DeleteAsync_EnsureExistsFalse_DoesNotThrowForMissing()
     {
         var repo = new InMemoryClientRepository();
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         await sut.DeleteAsync(12, ensureExists: false);
 
@@ -133,7 +138,7 @@ public class ClientServiceTests
     {
         var client = SeedClients(1).Single();
         var repo = new InMemoryClientRepository([client]);
-        var sut = new ClientService(repo);
+        var sut = CreateSut(repo);
 
         await sut.DeleteAsync(client.Id, ensureExists: true);
 

@@ -35,15 +35,27 @@ internal sealed class InMemoryClientRepository : IClientRepository
         return Task.FromResult(_items.FirstOrDefault(c => c.Id == id));
     }
 
-    public Task<PagedResult<Client>> GetAllAsync(int page, int pageSize)
+    public Task<PagedResult<Client>> GetAllAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
     {
         _pagedCalls.Add((page, pageSize));
 
         if (page <= 0) page = 1;
         if (pageSize <= 0) pageSize = 10;
 
-        var total = _items.Count;
-        var pageItems = _items
+        IEnumerable<Client> query = _items;
+
+        if (!string.IsNullOrWhiteSpace(nameOrEmail))
+        {
+            var term = nameOrEmail.Trim();
+            query = query.Where(c =>
+                c.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                c.Email.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // vehicleId filter is ignored in this in-memory double because there is no relation graph here.
+        var filtered = query.ToList();
+        var total = filtered.Count;
+        var pageItems = filtered
             .OrderBy(c => c.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -66,6 +78,21 @@ internal sealed class InMemoryClientRepository : IClientRepository
             (!excludingId.HasValue || c.Id != excludingId.Value));
 
         return Task.FromResult(exists);
+    }
+
+    public Task<bool> ExistsByDriverLicenseAsync(string driverLicense, long? excludingId = null)
+    {
+        var normalized = (driverLicense ?? string.Empty).Trim().ToUpperInvariant();
+        var exists = _items.Any(c =>
+            c.DriverLicense.Equals(normalized, StringComparison.OrdinalIgnoreCase) &&
+            (!excludingId.HasValue || c.Id != excludingId.Value));
+
+        return Task.FromResult(exists);
+    }
+
+    public Task<IReadOnlyList<Client>> GetAllForSelectionAsync()
+    {
+        return Task.FromResult<IReadOnlyList<Client>>(_items.OrderBy(c => c.Id).ToList());
     }
 
     public Task UpdateAsync(Client client)

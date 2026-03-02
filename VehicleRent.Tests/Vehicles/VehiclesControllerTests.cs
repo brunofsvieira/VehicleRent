@@ -15,7 +15,7 @@ public class VehiclesControllerTests
     {
         var service = new StubVehicleService
         {
-            OnGetPagedForWeb = (_, _) => Task.FromResult(new PagedResult<Vehicle>
+            OnGetPagedForWeb = (_, _, _, _) => Task.FromResult(new PagedResult<Vehicle>
             {
                 Items = new[] { BuildVehicle(1, "B1", "M1") },
                 TotalCount = 1,
@@ -24,8 +24,7 @@ public class VehiclesControllerTests
             })
         };
 
-        var sut = new VehiclesController(service);
-
+        var sut = CreateSut(service);
         var result = await sut.Index();
 
         var view = Assert.IsType<ViewResult>(result);
@@ -38,9 +37,9 @@ public class VehiclesControllerTests
     {
         var service = new StubVehicleService
         {
-            OnGetPagedForWeb = (_, _) => Task.FromResult(new PagedResult<Vehicle>())
+            OnGetPagedForWeb = (_, _, _, _) => Task.FromResult(new PagedResult<Vehicle>())
         };
-        var sut = new VehiclesController(service);
+        var sut = CreateSut(service);
 
         var result = sut.Create();
 
@@ -55,9 +54,9 @@ public class VehiclesControllerTests
     {
         var service = new StubVehicleService
         {
-            OnCreate = (_, _, _, _, _) => throw new BusinessValidationException("invalid")
+            OnCreate = (_, _, _, _, _) => throw new BusinessValidationException(BusinessErrorCodes.VehicleLicensePlateAlreadyExists, "duplicate")
         };
-        var sut = new VehiclesController(service);
+        var sut = CreateSut(service);
         var vm = new VehicleViewModel { Brand = "B", Model = "M", LicensePlate = "AA-00-AA", Fuel = FuelType.Petrol, ManufacturingYear = 2022 };
 
         var result = await sut.Create(vm);
@@ -74,7 +73,7 @@ public class VehiclesControllerTests
         {
             OnUpdate = (_, _, _, _, _, _) => throw new EntityNotFoundException("missing")
         };
-        var sut = new VehiclesController(service);
+        var sut = CreateSut(service);
         var vm = new VehicleViewModel { Id = 9, Brand = "B", Model = "M", LicensePlate = "AA-00-AA", Fuel = FuelType.Petrol, ManufacturingYear = 2022 };
 
         var result = await sut.Update(vm);
@@ -89,7 +88,7 @@ public class VehiclesControllerTests
         {
             OnDelete = (_, _) => Task.CompletedTask
         };
-        var sut = new VehiclesController(service);
+        var sut = CreateSut(service);
 
         var result = await sut.Delete(3, 2, 20);
 
@@ -97,6 +96,15 @@ public class VehiclesControllerTests
         Assert.Equal("Index", redirect.ActionName);
         Assert.Equal(2, redirect.RouteValues!["page"]);
         Assert.Equal(20, redirect.RouteValues["pageSize"]);
+    }
+
+    private static VehiclesController CreateSut(StubVehicleService service)
+    {
+        var clientService = new StubClientService
+        {
+            OnGetAllForSelection = () => Task.FromResult<IReadOnlyList<Client>>(Array.Empty<Client>())
+        };
+        return new VehiclesController(service, clientService, TestDistributedCacheFactory.Create());
     }
 
     private static Vehicle BuildVehicle(long id, string brand, string model)

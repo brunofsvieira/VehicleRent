@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VehicleRent.Controllers;
 using VehicleRent.Models.Entities;
+using VehicleRent.Models.Enumerators;
 using VehicleRent.Models.ViewModels;
 using VehicleRent.Services.Exceptions;
 using VehicleRent.Tests.TestDoubles;
@@ -14,7 +15,7 @@ public class ClientsControllerTests
     {
         var service = new StubClientService
         {
-            OnGetPagedForWeb = (_, _) => Task.FromResult(new PagedResult<Client>
+            OnGetPagedForWeb = (_, _, _, _) => Task.FromResult(new PagedResult<Client>
             {
                 Items = new[] { BuildClient(1, "Ana", "ana@example.com") },
                 TotalCount = 1,
@@ -22,7 +23,7 @@ public class ClientsControllerTests
                 PageSize = 10
             })
         };
-        var sut = new ClientsController(service);
+        var sut = CreateSut(service);
 
         var result = await sut.Index();
 
@@ -36,9 +37,9 @@ public class ClientsControllerTests
     {
         var service = new StubClientService
         {
-            OnGetPagedForWeb = (_, _) => Task.FromResult(new PagedResult<Client>())
+            OnGetPagedForWeb = (_, _, _, _) => Task.FromResult(new PagedResult<Client>())
         };
-        var sut = new ClientsController(service);
+        var sut = CreateSut(service);
 
         var result = sut.Create();
 
@@ -53,9 +54,9 @@ public class ClientsControllerTests
     {
         var service = new StubClientService
         {
-            OnCreate = (_, _, _, _) => throw new BusinessValidationException("invalid")
+            OnCreate = (_, _, _, _) => throw new BusinessValidationException(BusinessErrorCodes.ClientEmailAlreadyExists, "duplicate")
         };
-        var sut = new ClientsController(service);
+        var sut = CreateSut(service);
         var vm = new ClientViewModel
         {
             Name = "Ana",
@@ -78,7 +79,7 @@ public class ClientsControllerTests
         {
             OnUpdate = (_, _, _, _, _) => throw new EntityNotFoundException("missing")
         };
-        var sut = new ClientsController(service);
+        var sut = CreateSut(service);
         var vm = new ClientViewModel
         {
             Id = 9,
@@ -100,7 +101,7 @@ public class ClientsControllerTests
         {
             OnDelete = (_, _) => Task.CompletedTask
         };
-        var sut = new ClientsController(service);
+        var sut = CreateSut(service);
 
         var result = await sut.Delete(3, 2, 20);
 
@@ -108,6 +109,34 @@ public class ClientsControllerTests
         Assert.Equal("Index", redirect.ActionName);
         Assert.Equal(2, redirect.RouteValues!["page"]);
         Assert.Equal(20, redirect.RouteValues["pageSize"]);
+    }
+
+    private static ClientsController CreateSut(StubClientService service)
+    {
+        var vehicleService = new StubVehicleService
+        {
+            OnGetAllForSelection = () => Task.FromResult<IReadOnlyList<Vehicle>>(Array.Empty<Vehicle>()),
+            OnGetPagedForWeb = (_, _, _, _) => Task.FromResult(new PagedResult<Vehicle>
+            {
+                Items = Array.Empty<Vehicle>(),
+                Page = 1,
+                PageSize = 10,
+                TotalCount = 0
+            }),
+            OnGetPagedForApi = (_, _, _, _) => Task.FromResult(new PagedResult<Vehicle>
+            {
+                Items = Array.Empty<Vehicle>(),
+                Page = 1,
+                PageSize = 10,
+                TotalCount = 0
+            }),
+            OnGetById = _ => Task.FromResult<Vehicle?>(null),
+            OnCreate = (_, _, _, _, _) => Task.FromResult(new Vehicle("B", "M", FuelType.Petrol, 2020, "AA-00-AA")),
+            OnUpdate = (_, _, _, _, _, _) => Task.CompletedTask,
+            OnDelete = (_, _) => Task.CompletedTask
+        };
+
+        return new ClientsController(service, vehicleService, TestDistributedCacheFactory.Create());
     }
 
     private static Client BuildClient(long id, string name, string email)

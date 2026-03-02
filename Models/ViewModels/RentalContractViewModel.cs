@@ -7,21 +7,21 @@ namespace VehicleRent.Models.ViewModels
     {
         public long? Id { get; set; }
 
-        [Required(ErrorMessage = "O campo Cliente e obrigatório.")]
+        [Required(ErrorMessage = "O campo Cliente é obrigatório.")]
         public long ClientId { get; set; }
 
-        [Required(ErrorMessage = "O campo Veículo e obrigatório.")]
+        [Required(ErrorMessage = "O campo Veículo é obrigatório.")]
         public long VehicleId { get; set; }
 
-        [Required(ErrorMessage = "A Data de inicio e obrigatoria.")]
+        [Required(ErrorMessage = "A Data de inicio é obrigatória.")]
         [DataType(DataType.Date)]
         public DateTime RentalStartDate { get; set; }
 
-        [Required(ErrorMessage = "A Data de fim e obrigatoria.")]
+        [Required(ErrorMessage = "A Data de fim é obrigatória.")]
         [DataType(DataType.Date)]
         public DateTime RentalEndDate { get; set; }
 
-        [Required(ErrorMessage = "A Quilometragem inicial e obrigatoria.")]
+        [Required(ErrorMessage = "A Quilometragem inicial é obrigatória.")]
         [Range(0, int.MaxValue, ErrorMessage = "A Quilometragem inicial deve ser igual ou superior a 0.")]
         public int InitialMileage { get; set; }
 

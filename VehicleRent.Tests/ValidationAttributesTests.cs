@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Models.Validation;
 
-namespace VehicleRent.Tests.Vehicles;
+namespace VehicleRent.Tests;
 
 public class ValidationAttributesTests
 {

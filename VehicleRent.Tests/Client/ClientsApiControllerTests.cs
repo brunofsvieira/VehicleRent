@@ -25,7 +25,7 @@ public class ClientsApiControllerTests
     {
         var service = new StubClientService
         {
-            OnGetPagedForApi = (_, _) => Task.FromResult(new PagedResult<Client>
+            OnGetPagedForApi = (_, _, _, _) => Task.FromResult(new PagedResult<Client>
             {
                 Items = new[] { BuildClient(1, "Ana", "ana@example.com") },
                 TotalCount = 1,

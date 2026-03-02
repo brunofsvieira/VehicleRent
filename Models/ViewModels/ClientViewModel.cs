@@ -17,7 +17,7 @@ namespace VehicleRent.Models.ViewModels
         public required string Email { get; set; }
 
         [Required]
-        [RegularExpression(@"^\+\d{1,3}\d{9}$", ErrorMessage = "Formato inválido. Use +<codigo-pais><9 digitos>.")]
+        [RegularExpression(@"^\+\d{1,3}\d{9}$", ErrorMessage = "Formato inválido. Use +<código-pais><9 digitos>.")]
         public required string PhoneNumber { get; set; }
 
         [Required(ErrorMessage = "O campo Carta de Condução e obrigatório.")]

@@ -31,6 +31,7 @@
     <Compile Remove=".github\**" />
     <Compile Remove="VehicleRent.Tests\**\*.cs" />
     <Content Remove=".github\**" />
+    <Content Remove="VehicleRent.Tests\**\*" />
     <EmbeddedResource Remove=".github\**" />
     <EmbeddedResource Remove="VehicleRent.Tests\**\*" />
     <None Remove=".github\**" />

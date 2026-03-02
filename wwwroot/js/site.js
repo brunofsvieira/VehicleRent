@@ -365,7 +365,7 @@
     var fields = [
       { id: 'contractClientId', missing: 'obrigatório.' },
       { id: 'contractVehicleId', missing: 'obrigatório.' },
-      { id: 'rentalStartDate', missing: 'obrigatório.', invalid: 'Nao pode ser anterior a hoje.' },
+      { id: 'rentalStartDate', missing: 'obrigatório.', invalid: 'Não pode ser anterior a hoje.' },
       { id: 'rentalEndDate', missing: 'obrigatório.', invalid: 'Tem de ser posterior a data de inicio.' },
       { id: 'initialMileage', missing: 'obrigatório.', invalid: 'Tem de ser 0 ou superior.' }
     ].map(function(cfg){

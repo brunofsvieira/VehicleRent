@@ -38,15 +38,24 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
         return Task.FromResult(_items.FirstOrDefault(v => v.Id == id));
     }
 
-    public Task<PagedResult<Vehicle>> GetAllAsync(int page, int pageSize)
+    public Task<PagedResult<Vehicle>> GetAllAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
     {
         _pagedCalls.Add((page, pageSize));
 
         if (page <= 0) page = 1;
         if (pageSize <= 0) pageSize = 10;
 
-        var total = _items.Count;
-        var pageItems = _items
+        IEnumerable<Vehicle> query = _items;
+        if (!string.IsNullOrWhiteSpace(licensePlate))
+        {
+            var plate = licensePlate.Trim();
+            query = query.Where(v => v.LicensePlate.Contains(plate, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // clientId filter is ignored in this in-memory double because there is no relation graph here.
+        var filtered = query.ToList();
+        var total = filtered.Count;
+        var pageItems = filtered
             .OrderBy(v => v.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -69,6 +78,11 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
             (!excludingId.HasValue || v.Id != excludingId.Value));
 
         return Task.FromResult(exists);
+    }
+
+    public Task<IReadOnlyList<Vehicle>> GetAllForSelectionAsync()
+    {
+        return Task.FromResult<IReadOnlyList<Vehicle>>(_items.OrderBy(v => v.Id).ToList());
     }
 
     public Task UpdateAsync(Vehicle vehicle)
