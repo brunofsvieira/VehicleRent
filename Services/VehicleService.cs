@@ -3,6 +3,8 @@ using VehicleRent.Models.Enumerators;
 using VehicleRent.Repositories;
 using VehicleRent.Services.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
+using VehicleRent.Infrastructure;
 
 namespace VehicleRent.Services
 {
@@ -11,37 +13,45 @@ namespace VehicleRent.Services
         private static readonly int[] WebPageSizes = [10, 20, 50];
         private readonly IVehicleRepository _repo;
         private readonly IRentalContractRepository _rentalContractRepo;
+        private readonly IDistributedCache _cache;
 
-        public VehicleService(IVehicleRepository repo, IRentalContractRepository rentalContractRepo)
+        public VehicleService(IVehicleRepository repo, IRentalContractRepository rentalContractRepo, IDistributedCache cache)
         {
             _repo = repo;
             _rentalContractRepo = rentalContractRepo;
+            _cache = cache;
         }
 
-        public async Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize)
+        public async Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
         {
             var normalizedPage = NormalizePage(page);
             var normalizedPageSize = WebPageSizes.Contains(pageSize) ? pageSize : 10;
 
-            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize);
+            var normalizedLicensePlate = string.IsNullOrWhiteSpace(licensePlate) ? null : licensePlate.Trim().ToUpperInvariant();
+            var normalizedClientId = clientId.HasValue && clientId.Value > 0 ? clientId : null;
+
+            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize, normalizedLicensePlate, normalizedClientId);
             if (paged.TotalPages > 0 && normalizedPage > paged.TotalPages)
             {
-                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize);
+                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize, normalizedLicensePlate, normalizedClientId);
             }
 
             await ApplyRentalStatusAsync(paged.Items);
             return paged;
         }
 
-        public async Task<PagedResult<Vehicle>> GetPagedForApiAsync(int page, int pageSize)
+        public async Task<PagedResult<Vehicle>> GetPagedForApiAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
         {
             var normalizedPage = NormalizePage(page);
             var normalizedPageSize = pageSize <= 0 || pageSize > 100 ? 10 : pageSize;
 
-            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize);
+            var normalizedLicensePlate = string.IsNullOrWhiteSpace(licensePlate) ? null : licensePlate.Trim().ToUpperInvariant();
+            var normalizedClientId = clientId.HasValue && clientId.Value > 0 ? clientId : null;
+
+            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize, normalizedLicensePlate, normalizedClientId);
             if (paged.TotalPages > 0 && normalizedPage > paged.TotalPages)
             {
-                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize);
+                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize, normalizedLicensePlate, normalizedClientId);
             }
 
             await ApplyRentalStatusAsync(paged.Items);
@@ -76,6 +86,7 @@ namespace VehicleRent.Services
             {
                 var entity = new Vehicle(brand, model, fuel, manufacturingYear, normalizedPlate);
                 await _repo.AddAsync(entity);
+                await InvalidateVehicleFilterCachesAsync();
                 return entity;
             }
             catch (ArgumentException ex)
@@ -106,6 +117,7 @@ namespace VehicleRent.Services
             {
                 entity.UpdateVehicle(brand, model, fuel, manufacturingYear, normalizedPlate);
                 await _repo.UpdateAsync(entity);
+                await InvalidateVehicleFilterCachesAsync();
             }
             catch (ArgumentException ex)
             {
@@ -129,6 +141,7 @@ namespace VehicleRent.Services
             }
 
             await _repo.DeleteAsync(id);
+            await InvalidateVehicleFilterCachesAsync();
         }
 
         private static int NormalizePage(int page)
@@ -143,6 +156,12 @@ namespace VehicleRent.Services
             {
                 vehicle.SetRentalStatus(rentedVehicleIds.Contains(vehicle.Id));
             }
+        }
+
+        private async Task InvalidateVehicleFilterCachesAsync()
+        {
+            await _cache.RemoveAsync(CacheKeys.ClientVehicleFilterOptions);
+            await _cache.RemoveAsync(CacheKeys.RentalContractVehicleFilterOptions);
         }
     }
 }

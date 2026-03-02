@@ -1,4 +1,5 @@
 @model VehicleRent.Models.Entities.PagedResult<VehicleRent.Models.ViewModels.VehicleViewModel>
+@using Microsoft.AspNetCore.Mvc.Rendering
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Veiculos";
@@ -7,6 +8,9 @@
     var pageSize = (Model.PageSize == 10 || Model.PageSize == 20 || Model.PageSize == 50) ? Model.PageSize : 10;
     var startPage = Math.Max(1, currentPage - 2);
     var endPage = Math.Min(totalPages, currentPage + 2);
+    var currentClientId = ViewBag.CurrentClientId as long?;
+    var currentLicensePlate = ViewBag.CurrentLicensePlate as string ?? string.Empty;
+    var clientFilterOptions = ViewBag.ClientFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
 }
 
 <section class="vehicle-page py-4 py-lg-5">
@@ -22,6 +26,30 @@
       </div>
 
       <div id="alerts"></div>
+
+      <form method="get" asp-action="Index" class="module-head mb-3">
+        <div class="row g-2 align-items-end">
+          <div class="col-12 col-md-5">
+            <label for="licensePlateFilter" class="form-label mb-1">Matricula</label>
+            <input id="licensePlateFilter" name="licensePlate" class="form-control" value="@currentLicensePlate" placeholder="Filtrar por matricula..." />
+          </div>
+          <div class="col-12 col-md-5">
+            <label for="clientIdFilter" class="form-label mb-1">Cliente</label>
+            <select id="clientIdFilter" name="clientId" class="form-select">
+              <option value="">-- todos os clientes --</option>
+              @foreach (var item in clientFilterOptions)
+              {
+                  <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+              }
+            </select>
+          </div>
+          <div class="col-12 col-md-2 d-flex gap-2">
+            <input type="hidden" name="pageSize" value="@pageSize" />
+            <button class="btn btn-primary flex-fill" type="submit">Filtrar</button>
+            <a class="btn btn-outline-secondary flex-fill" asp-action="Index" asp-route-pageSize="@pageSize">Limpar</a>
+          </div>
+        </div>
+      </form>
 
       @if (!Model.Items.Any())
       {
@@ -65,6 +93,8 @@
                       <input type="hidden" name="id" value="@v.Id" />
                       <input type="hidden" name="page" value="@currentPage" />
                       <input type="hidden" name="pageSize" value="@pageSize" />
+                      <input type="hidden" name="licensePlate" value="@currentLicensePlate" />
+                      <input type="hidden" name="clientId" value="@currentClientId" />
                       <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this vehicle?');">Apagar</button>
                     </form>
                   </td>
@@ -84,6 +114,8 @@
             <option value="50" selected="@(pageSize == 50)">50</option>
           </select>
           <input type="hidden" name="page" value="1" />
+          <input type="hidden" name="licensePlate" value="@currentLicensePlate" />
+          <input type="hidden" name="clientId" value="@currentClientId" />
         </form>
 
         <div class="d-flex align-items-center gap-2 flex-wrap justify-content-md-end">
@@ -93,6 +125,8 @@
              asp-action="Index"
              asp-route-page="@(currentPage - 1)"
              asp-route-pageSize="@pageSize"
+             asp-route-licensePlate="@currentLicensePlate"
+             asp-route-clientId="@currentClientId"
              aria-disabled="@(currentPage <= 1)">
             Anterior
           </a>
@@ -105,6 +139,8 @@
                   <a class="btn btn-sm @activeClass"
                      asp-action="Index"
                      asp-route-page="@i"
+                     asp-route-licensePlate="@currentLicensePlate"
+                     asp-route-clientId="@currentClientId"
                      asp-route-pageSize="@pageSize">@i</a>
               }
           }
@@ -113,6 +149,8 @@
              asp-action="Index"
              asp-route-page="@(currentPage + 1)"
              asp-route-pageSize="@pageSize"
+             asp-route-licensePlate="@currentLicensePlate"
+             asp-route-clientId="@currentClientId"
              aria-disabled="@(currentPage >= totalPages)">
             Seguinte
           </a>

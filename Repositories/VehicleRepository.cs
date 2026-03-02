@@ -25,15 +25,30 @@ namespace VehicleRent.Repositories
             return await _dbContext.Vehicles.FindAsync(id);
         }
 
-        public async Task<PagedResult<Vehicle>> GetAllAsync(int page, int pageSize)
+        public async Task<PagedResult<Vehicle>> GetAllAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
         {
             if (page <= 0) page = 1;
             if (pageSize <= 0) pageSize = 10;
 
-            var total = await _dbContext.Vehicles.CountAsync();
-            var items = await _dbContext.Vehicles
-                .AsNoTracking()
-                .OrderBy(v => v.Id)
+            var query = _dbContext.Vehicles.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(licensePlate))
+            {
+                var normalizedLicensePlate = licensePlate.Trim().ToUpperInvariant();
+                query = query.Where(v => v.LicensePlate.Contains(normalizedLicensePlate));
+            }
+
+            if (clientId.HasValue && clientId.Value > 0)
+            {
+                var cid = clientId.Value;
+                query = query.Where(v => _dbContext.RentalContracts.Any(rc => rc.VehicleId == v.Id && rc.ClientId == cid));
+            }
+
+            var total = await query.CountAsync();
+            var items = await query
+                .OrderBy(v => v.Brand)
+                .ThenBy(v => v.Model)
+                .ThenBy(v => v.LicensePlate)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

@@ -1,4 +1,5 @@
 @model VehicleRent.Models.Entities.PagedResult<VehicleRent.Models.ViewModels.ClientViewModel>
+@using Microsoft.AspNetCore.Mvc.Rendering
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Clientes";
@@ -7,6 +8,9 @@
     var pageSize = (Model.PageSize == 10 || Model.PageSize == 20 || Model.PageSize == 50) ? Model.PageSize : 10;
     var startPage = Math.Max(1, currentPage - 2);
     var endPage = Math.Min(totalPages, currentPage + 2);
+    var currentVehicleId = ViewBag.CurrentVehicleId as long?;
+    var currentNameOrEmail = ViewBag.CurrentNameOrEmail as string ?? string.Empty;
+    var vehicleFilterOptions = ViewBag.VehicleFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
 }
 
 <section class="vehicle-page py-4 py-lg-5">
@@ -22,6 +26,30 @@
       </div>
 
       <div id="alerts"></div>
+
+      <form method="get" asp-action="Index" class="module-head mb-3">
+        <div class="row g-2 align-items-end">
+          <div class="col-12 col-md-5">
+            <label for="nameOrEmailFilter" class="form-label mb-1">Nome ou Email</label>
+            <input id="nameOrEmailFilter" name="nameOrEmail" class="form-control" value="@currentNameOrEmail" placeholder="Filtrar por nome ou email..." />
+          </div>
+          <div class="col-12 col-md-5">
+            <label for="vehicleIdFilter" class="form-label mb-1">Veiculo</label>
+            <select id="vehicleIdFilter" name="vehicleId" class="form-select">
+              <option value="">-- todos os veiculos --</option>
+              @foreach (var item in vehicleFilterOptions)
+              {
+                  <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+              }
+            </select>
+          </div>
+          <div class="col-12 col-md-2 d-flex gap-2">
+            <input type="hidden" name="pageSize" value="@pageSize" />
+            <button class="btn btn-primary flex-fill" type="submit">Filtrar</button>
+            <a class="btn btn-outline-secondary flex-fill" asp-action="Index" asp-route-pageSize="@pageSize">Limpar</a>
+          </div>
+        </div>
+      </form>
 
       @if (!Model.Items.Any())
       {
@@ -59,6 +87,8 @@
                       <input type="hidden" name="id" value="@c.Id" />
                       <input type="hidden" name="page" value="@currentPage" />
                       <input type="hidden" name="pageSize" value="@pageSize" />
+                      <input type="hidden" name="nameOrEmail" value="@currentNameOrEmail" />
+                      <input type="hidden" name="vehicleId" value="@currentVehicleId" />
                       <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this client?');">Apagar</button>
                     </form>
                   </td>
@@ -78,6 +108,8 @@
             <option value="50" selected="@(pageSize == 50)">50</option>
           </select>
           <input type="hidden" name="page" value="1" />
+          <input type="hidden" name="nameOrEmail" value="@currentNameOrEmail" />
+          <input type="hidden" name="vehicleId" value="@currentVehicleId" />
         </form>
 
         <div class="d-flex align-items-center gap-2 flex-wrap justify-content-md-end">
@@ -87,6 +119,8 @@
              asp-action="Index"
              asp-route-page="@(currentPage - 1)"
              asp-route-pageSize="@pageSize"
+             asp-route-nameOrEmail="@currentNameOrEmail"
+             asp-route-vehicleId="@currentVehicleId"
              aria-disabled="@(currentPage <= 1)">
             Anterior
           </a>
@@ -99,6 +133,8 @@
                   <a class="btn btn-sm @activeClass"
                      asp-action="Index"
                      asp-route-page="@i"
+                     asp-route-nameOrEmail="@currentNameOrEmail"
+                     asp-route-vehicleId="@currentVehicleId"
                      asp-route-pageSize="@pageSize">@i</a>
               }
           }
@@ -107,6 +143,8 @@
              asp-action="Index"
              asp-route-page="@(currentPage + 1)"
              asp-route-pageSize="@pageSize"
+             asp-route-nameOrEmail="@currentNameOrEmail"
+             asp-route-vehicleId="@currentVehicleId"
              aria-disabled="@(currentPage >= totalPages)">
             Seguinte
           </a>

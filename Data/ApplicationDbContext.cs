@@ -68,6 +68,9 @@ namespace VehicleRent.Data
                 .IsRequired()
                 .HasMaxLength(30);
 
+            client.HasIndex(c => c.DriverLicense)
+                .IsUnique();
+
             var rentalContract = modelBuilder.Entity<RentalContract>();
             rentalContract.HasKey(rc => rc.Id);
             rentalContract.Property(rc => rc.Id).ValueGeneratedOnAdd();

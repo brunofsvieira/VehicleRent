@@ -31,7 +31,7 @@ namespace VehicleRent.Models.Entities
             var normalizedName = (name ?? string.Empty).Trim();
             var normalizedEmail = (email ?? string.Empty).Trim().ToLowerInvariant();
             var normalizedPhone = (phoneNumber ?? string.Empty).Trim();
-            var normalizedLicense = (driverLicense ?? string.Empty).Trim();
+            var normalizedLicense = (driverLicense ?? string.Empty).Trim().ToUpperInvariant();
 
             switch (true)
             {

@@ -14,6 +14,7 @@
     <PackageReference Include="AutoMapper" Version="16.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -27,8 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove=".github\**" />
     <Compile Remove="VehicleRent.Tests\**\*.cs" />
+    <Content Remove=".github\**" />
+    <EmbeddedResource Remove=".github\**" />
     <EmbeddedResource Remove="VehicleRent.Tests\**\*" />
+    <None Remove=".github\**" />
     <None Remove="VehicleRent.Tests\**\*" />
   </ItemGroup>
 
