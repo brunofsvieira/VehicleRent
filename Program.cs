@@ -1,8 +1,37 @@
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
+using VehicleRent.Data;
+using VehicleRent.Repositories;
+using VehicleRent.Profiles;
+using AutoMapper;
+using VehicleRent.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(opts =>
+    {
+        opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
+// DbContext
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+       options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
+
+// AutoMapper: register profile and services
+
+builder.Services.AddAutoMapper((serviceProvider, cfg) =>
+{
+    cfg.AllowNullCollections = true;
+    cfg.AddProfile<EntitiesProfile>();
+}, typeof(EntitiesProfile).Assembly);
+
+// Build app
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -24,6 +53,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();

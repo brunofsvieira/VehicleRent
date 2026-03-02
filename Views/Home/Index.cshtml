@@ -1,8 +1,38 @@
-ï»¿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="home-page py-4 py-lg-5">
+    <div class="container">
+        <div class="home-hero mx-auto">
+            <p class="page-eyebrow mb-2">Plataforma de aluguer de veículos</p>
+            <h1 class="home-title mb-3">Gestao do aluguer, rapida e clara.</h1>
+            <p class="home-subtitle mb-4">Base para a tua plataforma de aluguer, pronta para crescer com clientes, reservas e pagamentos.</p>
+            <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+                <a class="btn btn-primary btn-lg" asp-controller="Vehicles" asp-action="Index">Abrir Veiculos</a>
+                <a class="btn btn-outline-secondary btn-lg" asp-controller="Vehicles" asp-action="Create">Novo Veiculo</a>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+            <div class="col-12 col-md-4">
+                <article class="feature-card h-100">
+                    <h3>Cadastro rapido</h3>
+                    <p>Formulario com validacao visual para reduzir erros no preenchimento.</p>
+                </article>
+            </div>
+            <div class="col-12 col-md-4">
+                <article class="feature-card h-100">
+                    <h3>Paginacao flexivel</h3>
+                    <p>Escolhe quantos registos queres por pagina: 10, 20 ou 50.</p>
+                </article>
+            </div>
+            <div class="col-12 col-md-4">
+                <article class="feature-card h-100">
+                    <h3>100% responsivo</h3>
+                    <p>Experiencia otimizada para desktop, tablet e telemovel.</p>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
