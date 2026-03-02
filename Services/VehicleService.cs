@@ -79,7 +79,7 @@ namespace VehicleRent.Services
             var normalizedPlate = (licensePlate ?? string.Empty).Trim().ToUpperInvariant();
             if (await _repo.ExistsByLicensePlateAsync(normalizedPlate))
             {
-                throw new BusinessValidationException("License plate already exists.");
+                throw new BusinessValidationException(BusinessErrorCodes.VehicleLicensePlateAlreadyExists, "License plate already exists.");
             }
 
             try
@@ -91,11 +91,11 @@ namespace VehicleRent.Services
             }
             catch (ArgumentException ex)
             {
-                throw new BusinessValidationException(ex.Message);
+                throw new BusinessValidationException(MapVehicleValidationCode(ex), ex.Message);
             }
             catch (DbUpdateException)
             {
-                throw new BusinessValidationException("License plate already exists.");
+                throw new BusinessValidationException(BusinessErrorCodes.VehicleLicensePlateAlreadyExists, "License plate already exists.");
             }
         }
 
@@ -110,7 +110,7 @@ namespace VehicleRent.Services
             var normalizedPlate = (licensePlate ?? string.Empty).Trim().ToUpperInvariant();
             if (await _repo.ExistsByLicensePlateAsync(normalizedPlate, id))
             {
-                throw new BusinessValidationException("License plate already exists.");
+                throw new BusinessValidationException(BusinessErrorCodes.VehicleLicensePlateAlreadyExists, "License plate already exists.");
             }
 
             try
@@ -121,11 +121,11 @@ namespace VehicleRent.Services
             }
             catch (ArgumentException ex)
             {
-                throw new BusinessValidationException(ex.Message);
+                throw new BusinessValidationException(MapVehicleValidationCode(ex), ex.Message);
             }
             catch (DbUpdateException)
             {
-                throw new BusinessValidationException("License plate already exists.");
+                throw new BusinessValidationException(BusinessErrorCodes.VehicleLicensePlateAlreadyExists, "License plate already exists.");
             }
         }
 
@@ -162,6 +162,21 @@ namespace VehicleRent.Services
         {
             await _cache.RemoveAsync(CacheKeys.ClientVehicleFilterOptions);
             await _cache.RemoveAsync(CacheKeys.RentalContractVehicleFilterOptions);
+        }
+
+        private static string MapVehicleValidationCode(ArgumentException ex)
+        {
+            return ex.ParamName switch
+            {
+                "brand" => BusinessErrorCodes.VehicleBrandRequired,
+                "model" => BusinessErrorCodes.VehicleModelRequired,
+                "licensePlate" => ex.Message.Contains("format", StringComparison.OrdinalIgnoreCase)
+                    ? BusinessErrorCodes.VehicleLicensePlateInvalidFormat
+                    : BusinessErrorCodes.VehicleLicensePlateRequired,
+                "fuelType" => BusinessErrorCodes.VehicleFuelInvalid,
+                "manufacturingYear" => BusinessErrorCodes.VehicleManufacturingYearInvalid,
+                _ => BusinessErrorCodes.GenericValidation
+            };
         }
     }
 }

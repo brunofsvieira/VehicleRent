@@ -9,7 +9,7 @@
 <form id="rentalContractFormStandalone" method="post" action="@formAction" class="vehicle-form card border-0 shadow-sm p-4 p-lg-5" novalidate>
   @Html.AntiForgeryToken()
   <input asp-for="Id" type="hidden" />
-  <p class="form-caption mb-4">Campos com <span class="req-mark">*</span> sao obrigatorios.</p>
+  <p class="form-caption mb-4">Campos com <span class="req-mark">*</span> sao obrigatórios.</p>
   <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
 
   <div class="row g-3">
@@ -26,7 +26,7 @@
     </div>
 
     <div class="col-12 col-md-6 vehicle-field">
-      <label asp-for="VehicleId" class="form-label mb-1">Veiculo <span class="req-mark" aria-hidden="true">*</span></label>
+      <label asp-for="VehicleId" class="form-label mb-1">Veículo <span class="req-mark" aria-hidden="true">*</span></label>
       <select asp-for="VehicleId" id="contractVehicleId" class="form-select" required>
         <option value="">-- selecione --</option>
         @foreach (var item in vehicles)
@@ -34,7 +34,7 @@
             <option value="@item.Value" selected="@item.Selected">@item.Text</option>
         }
       </select>
-      <div class="field-hint mt-1" data-field-hint-for="contractVehicleId">Seleciona um veiculo.</div>
+      <div class="field-hint mt-1" data-field-hint-for="contractVehicleId">Seleciona um Veículo.</div>
     </div>
 
     <div class="col-12 col-md-6">

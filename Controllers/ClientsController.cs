@@ -93,7 +93,7 @@ namespace VehicleRent.Controllers
             }
             catch (BusinessValidationException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                ModelState.AddModelError(string.Empty, FrontendErrorMessages.ToPt(ex.ErrorCode));
                 return View(client);
             }
 
@@ -128,7 +128,7 @@ namespace VehicleRent.Controllers
             }
             catch (BusinessValidationException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                ModelState.AddModelError(string.Empty, FrontendErrorMessages.ToPt(ex.ErrorCode));
                 return View(client);
             }
 

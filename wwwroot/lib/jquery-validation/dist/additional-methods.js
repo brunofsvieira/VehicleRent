@@ -357,7 +357,7 @@ $.validator.addMethod( "cnpjBR", function( value, element ) {
 		return false;
 	}
 
-	// Elimina values invalidos conhecidos
+	// Elimina values inválidos conhecidos
 	if ( value === "00000000000000" ||
 		value === "11111111111111" ||
 		value === "22222222222222" ||

@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Mvc.Rendering
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Veiculos";
+    ViewData["Title"] = "Veículos";
     var totalPages = Model.TotalPages;
     var currentPage = Model.Page <= 0 ? 1 : Model.Page;
     var pageSize = (Model.PageSize == 10 || Model.PageSize == 20 || Model.PageSize == 50) ? Model.PageSize : 10;
@@ -18,11 +18,11 @@
     <div class="page-shell page-shell-wide mx-auto" data-reveal>
       <div class="module-head d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row gap-3 mb-4">
         <div>
-          <p class="page-eyebrow mb-2">Gestao de frota</p>
-          <h1 class="page-title mb-1">Veiculos</h1>
+          <p class="page-eyebrow mb-2">Gestão de frota</p>
+          <h1 class="page-title mb-1">Veículos</h1>
           <p class="page-subtitle mb-0">Lista atualizada da frota.</p>
         </div>
-        <a class="btn btn-success" asp-controller="Vehicles" asp-action="Create">+ Novo veiculo</a>
+        <a class="btn btn-success" asp-controller="Vehicles" asp-action="Create">+ Novo Veículo</a>
       </div>
 
       <div id="alerts"></div>
@@ -30,8 +30,8 @@
       <form method="get" asp-action="Index" class="module-head mb-3">
         <div class="row g-2 align-items-end">
           <div class="col-12 col-md-5">
-            <label for="licensePlateFilter" class="form-label mb-1">Matricula</label>
-            <input id="licensePlateFilter" name="licensePlate" class="form-control" value="@currentLicensePlate" placeholder="Filtrar por matricula..." />
+            <label for="licensePlateFilter" class="form-label mb-1">Matrícula</label>
+            <input id="licensePlateFilter" name="licensePlate" class="form-control" value="@currentLicensePlate" placeholder="Filtrar por matrícula..." />
           </div>
           <div class="col-12 col-md-5">
             <label for="clientIdFilter" class="form-label mb-1">Cliente</label>
@@ -54,9 +54,9 @@
       @if (!Model.Items.Any())
       {
           <div class="empty-state text-center" data-reveal>
-            <h2>Sem veiculos registados</h2>
-            <p>Comeca por adicionar o primeiro veiculo da frota.</p>
-            <a class="btn btn-primary" asp-controller="Vehicles" asp-action="Create">Criar primeiro veiculo</a>
+            <h2>Sem veículos registados</h2>
+            <p>Comeca por adicionar o primeiro veículo da frota.</p>
+            <a class="btn btn-primary" asp-controller="Vehicles" asp-action="Create">Criar primeiro veículo</a>
           </div>
       }
       else
@@ -67,7 +67,7 @@
             <tr>
               <th>Marca</th>
               <th>Modelo</th>
-              <th>Matricula</th>
+              <th>Matrícula</th>
               <th>Ano</th>
               <th>Combustivel</th>
               <th>Estado</th>
@@ -80,7 +80,7 @@
                 <tr>
                   <td data-label="Marca">@v.Brand</td>
                   <td data-label="Modelo">@v.Model</td>
-                  <td data-label="Matricula"><span class="record-chip">@v.LicensePlate</span></td>
+                  <td data-label="Matrícula"><span class="record-chip">@v.LicensePlate</span></td>
                   <td data-label="Ano">@v.ManufacturingYear</td>
                   <td data-label="Combustivel">@v.Fuel.ToString()</td>
                   <td data-label="Estado">

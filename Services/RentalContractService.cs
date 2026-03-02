@@ -67,7 +67,7 @@ namespace VehicleRent.Services
 
             if (await _repo.ExistsVehicleOverlapAsync(vehicleId, rentalStartDate, rentalEndDate))
             {
-                throw new BusinessValidationException("Vehicle already has an overlapping rental contract.");
+                throw new BusinessValidationException(BusinessErrorCodes.RentalVehicleOverlap, "Vehicle already has an overlapping rental contract.");
             }
 
             try
@@ -78,11 +78,11 @@ namespace VehicleRent.Services
             }
             catch (ArgumentException ex)
             {
-                throw new BusinessValidationException(ex.Message);
+                throw new BusinessValidationException(MapRentalValidationCode(ex), ex.Message);
             }
             catch (DbUpdateException)
             {
-                throw new BusinessValidationException("Unable to save rental contract.");
+                throw new BusinessValidationException(BusinessErrorCodes.RentalSaveFailed, "Unable to save rental contract.");
             }
         }
 
@@ -98,7 +98,7 @@ namespace VehicleRent.Services
 
             if (await _repo.ExistsVehicleOverlapAsync(vehicleId, rentalStartDate, rentalEndDate, id))
             {
-                throw new BusinessValidationException("Vehicle already has an overlapping rental contract.");
+                throw new BusinessValidationException(BusinessErrorCodes.RentalVehicleOverlap, "Vehicle already has an overlapping rental contract.");
             }
 
             try
@@ -108,11 +108,11 @@ namespace VehicleRent.Services
             }
             catch (ArgumentException ex)
             {
-                throw new BusinessValidationException(ex.Message);
+                throw new BusinessValidationException(MapRentalValidationCode(ex), ex.Message);
             }
             catch (DbUpdateException)
             {
-                throw new BusinessValidationException("Unable to update rental contract.");
+                throw new BusinessValidationException(BusinessErrorCodes.RentalUpdateFailed, "Unable to update rental contract.");
             }
         }
 
@@ -134,18 +134,31 @@ namespace VehicleRent.Services
         {
             if (await _clientRepo.GetByIdAsync(clientId) is null)
             {
-                throw new BusinessValidationException("Selected client does not exist.");
+                throw new BusinessValidationException(BusinessErrorCodes.RentalClientNotFound, "Selected client does not exist.");
             }
 
             if (await _vehicleRepo.GetByIdAsync(vehicleId) is null)
             {
-                throw new BusinessValidationException("Selected vehicle does not exist.");
+                throw new BusinessValidationException(BusinessErrorCodes.RentalVehicleNotFound, "Selected vehicle does not exist.");
             }
         }
 
         private static int NormalizePage(int page)
         {
             return page <= 0 ? 1 : page;
+        }
+
+        private static string MapRentalValidationCode(ArgumentException ex)
+        {
+            return ex.ParamName switch
+            {
+                "clientId" => BusinessErrorCodes.RentalClientRequired,
+                "vehicleId" => BusinessErrorCodes.RentalVehicleRequired,
+                "rentalStartDate" => BusinessErrorCodes.RentalStartDatePast,
+                "rentalEndDate" => BusinessErrorCodes.RentalEndDateInvalid,
+                "initialMileage" => BusinessErrorCodes.RentalInitialMileageInvalid,
+                _ => BusinessErrorCodes.GenericValidation
+            };
         }
     }
 }

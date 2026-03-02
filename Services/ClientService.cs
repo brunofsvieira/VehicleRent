@@ -69,11 +69,11 @@ namespace VehicleRent.Services
             var normalizedDriverLicense = (driverLicense ?? string.Empty).Trim().ToUpperInvariant();
             if (await _repo.ExistsByEmailAsync(normalizedEmail))
             {
-                throw new BusinessValidationException("Email already exists.");
+                throw new BusinessValidationException(BusinessErrorCodes.ClientEmailAlreadyExists, "Email already exists.");
             }
             if (await _repo.ExistsByDriverLicenseAsync(normalizedDriverLicense))
             {
-                throw new BusinessValidationException("Driver license already exists.");
+                throw new BusinessValidationException(BusinessErrorCodes.ClientDriverLicenseAlreadyExists, "Driver license already exists.");
             }
 
             try
@@ -85,11 +85,11 @@ namespace VehicleRent.Services
             }
             catch (ArgumentException ex)
             {
-                throw new BusinessValidationException(ex.Message);
+                throw new BusinessValidationException(MapClientValidationCode(ex), ex.Message);
             }
             catch (DbUpdateException)
             {
-                throw new BusinessValidationException("Email or driver license already exists.");
+                throw new BusinessValidationException(BusinessErrorCodes.ClientEmailOrDriverLicenseAlreadyExists, "Email or driver license already exists.");
             }
         }
 
@@ -105,11 +105,11 @@ namespace VehicleRent.Services
             var normalizedDriverLicense = (driverLicense ?? string.Empty).Trim().ToUpperInvariant();
             if (await _repo.ExistsByEmailAsync(normalizedEmail, id))
             {
-                throw new BusinessValidationException("Email already exists.");
+                throw new BusinessValidationException(BusinessErrorCodes.ClientEmailAlreadyExists, "Email already exists.");
             }
             if (await _repo.ExistsByDriverLicenseAsync(normalizedDriverLicense, id))
             {
-                throw new BusinessValidationException("Driver license already exists.");
+                throw new BusinessValidationException(BusinessErrorCodes.ClientDriverLicenseAlreadyExists, "Driver license already exists.");
             }
 
             try
@@ -120,11 +120,11 @@ namespace VehicleRent.Services
             }
             catch (ArgumentException ex)
             {
-                throw new BusinessValidationException(ex.Message);
+                throw new BusinessValidationException(MapClientValidationCode(ex), ex.Message);
             }
             catch (DbUpdateException)
             {
-                throw new BusinessValidationException("Email or driver license already exists.");
+                throw new BusinessValidationException(BusinessErrorCodes.ClientEmailOrDriverLicenseAlreadyExists, "Email or driver license already exists.");
             }
         }
 
@@ -152,6 +152,26 @@ namespace VehicleRent.Services
         {
             await _cache.RemoveAsync(CacheKeys.VehicleClientFilterOptions);
             await _cache.RemoveAsync(CacheKeys.RentalContractClientFilterOptions);
+        }
+
+        private static string MapClientValidationCode(ArgumentException ex)
+        {
+            return ex.ParamName switch
+            {
+                "name" => ex.Message.Contains("at most", StringComparison.OrdinalIgnoreCase)
+                    ? BusinessErrorCodes.ClientNameTooLong
+                    : BusinessErrorCodes.ClientNameRequired,
+                "email" => ex.Message.Contains("at most", StringComparison.OrdinalIgnoreCase)
+                    ? BusinessErrorCodes.ClientEmailTooLong
+                    : ex.Message.Contains("format", StringComparison.OrdinalIgnoreCase)
+                        ? BusinessErrorCodes.ClientEmailInvalidFormat
+                        : BusinessErrorCodes.ClientEmailRequired,
+                "phoneNumber" => ex.Message.Contains("format", StringComparison.OrdinalIgnoreCase)
+                    ? BusinessErrorCodes.ClientPhoneInvalidFormat
+                    : BusinessErrorCodes.ClientPhoneRequired,
+                "driverLicense" => BusinessErrorCodes.ClientDriverLicenseRequired,
+                _ => BusinessErrorCodes.GenericValidation
+            };
         }
     }
 }
