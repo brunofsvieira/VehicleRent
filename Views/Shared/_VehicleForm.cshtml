@@ -1,0 +1,71 @@
+@model VehicleRent.Models.ViewModels.VehicleViewModel
+@using VehicleRent.Models.Enumerators
+@* Partial: reusable vehicle form. Uses tag helpers to bind the model when the Create view supplies one. *@
+@{
+    var formAction = Model?.Id.HasValue == true ? "/Vehicles/Update" : "/Vehicles/Create";
+}
+
+<form id="vehicleFormStandalone" method="post" action="@formAction" class="vehicle-form card border-0 shadow-sm p-4 p-lg-5" novalidate>
+  @Html.AntiForgeryToken()
+  <input asp-for="Id" type="hidden" id="vehicleId" />
+  <p class="form-caption mb-4">Campos com <span class="req-mark">*</span> sao obrigatorios.</p>
+
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      <div class="vehicle-field form-floating">
+        <input asp-for="Brand" class="form-control" id="brand" placeholder="Marca" required />
+        <label for="brand">Marca <span class="req-mark" aria-hidden="true">*</span></label>
+        <div class="field-hint" data-field-hint-for="brand">Preenche este campo.</div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="vehicle-field form-floating">
+        <input asp-for="Model" class="form-control" id="model" placeholder="Modelo" required />
+        <label for="model">Modelo <span class="req-mark" aria-hidden="true">*</span></label>
+        <div class="field-hint" data-field-hint-for="model">Preenche este campo.</div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="vehicle-field form-floating">
+        <input asp-for="LicensePlate" class="form-control text-uppercase" id="licensePlate" placeholder="Matricula" required maxlength="8" />
+        <label for="licensePlate">Matricula <span class="req-mark" aria-hidden="true">*</span></label>
+        <div class="field-hint" data-field-hint-for="licensePlate">Formato: 11-AA-11, AA-11-11, 11-11-AA ou AA-11-AA.</div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <div class="vehicle-field form-floating">
+        <input asp-for="ManufacturingYear" type="number" class="form-control" id="year" placeholder="Ano" required min="1901" max="@(DateTime.Now.Year)" />
+        <label for="year">Ano de Fabrico <span class="req-mark" aria-hidden="true">*</span></label>
+        <div class="field-hint" data-field-hint-for="year">Usa um ano entre 1901 e @DateTime.Now.Year.</div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 vehicle-field">
+      <label asp-for="Fuel" class="form-label mb-1">Combustivel <span class="req-mark" aria-hidden="true">*</span></label>
+      <select asp-for="Fuel" id="fuel" class="form-select" aria-label="Tipo de combustivel" required>
+        <option value="">-- selecione --</option>
+        @foreach (var name in Enum.GetNames(typeof(FuelType)))
+        {
+            if (name == FuelType.None.ToString()) continue;
+            if (Model != null && Model.Fuel.ToString() == name)
+            {
+                <option value="@name" selected>@name</option>
+            }
+            else
+            {
+                <option value="@name">@name</option>
+            }
+        }
+      </select>
+      <div class="field-hint mt-1" data-field-hint-for="fuel">Seleciona uma opcao.</div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2 mt-4">
+    <a class="btn btn-outline-secondary" href="/Vehicles">Voltar</a>
+    <button id="btnSaveStandalone" type="submit" class="btn btn-primary">Salvar</button>
+  </div>
+</form>

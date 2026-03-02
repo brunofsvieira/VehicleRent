@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Ignore Copilot instruction file and generated docs
+.github/copilot-instructions.md
+Docs/EFCore.md
