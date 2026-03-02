@@ -9,6 +9,7 @@ namespace VehicleRent.Repositories
         Task<PagedResult<Client>> GetAllAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null);
         Task<IReadOnlyList<Client>> GetAllForSelectionAsync();
         Task<bool> ExistsByEmailAsync(string email, long? excludingId = null);
+        Task<bool> ExistsByDriverLicenseAsync(string driverLicense, long? excludingId = null);
         Task UpdateAsync(Client client);
         Task DeleteAsync(long id);
     }

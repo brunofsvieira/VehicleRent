@@ -66,14 +66,19 @@ namespace VehicleRent.Services
         public async Task<Client> CreateAsync(string name, string email, string phoneNumber, string driverLicense)
         {
             var normalizedEmail = (email ?? string.Empty).Trim().ToLowerInvariant();
+            var normalizedDriverLicense = (driverLicense ?? string.Empty).Trim().ToUpperInvariant();
             if (await _repo.ExistsByEmailAsync(normalizedEmail))
             {
                 throw new BusinessValidationException("Email already exists.");
             }
+            if (await _repo.ExistsByDriverLicenseAsync(normalizedDriverLicense))
+            {
+                throw new BusinessValidationException("Driver license already exists.");
+            }
 
             try
             {
-                var entity = new Client(name, normalizedEmail, phoneNumber, driverLicense);
+                var entity = new Client(name, normalizedEmail, phoneNumber, normalizedDriverLicense);
                 await _repo.AddAsync(entity);
                 await InvalidateClientFilterCachesAsync();
                 return entity;
@@ -84,7 +89,7 @@ namespace VehicleRent.Services
             }
             catch (DbUpdateException)
             {
-                throw new BusinessValidationException("Email already exists.");
+                throw new BusinessValidationException("Email or driver license already exists.");
             }
         }
 
@@ -97,14 +102,19 @@ namespace VehicleRent.Services
             }
 
             var normalizedEmail = (email ?? string.Empty).Trim().ToLowerInvariant();
+            var normalizedDriverLicense = (driverLicense ?? string.Empty).Trim().ToUpperInvariant();
             if (await _repo.ExistsByEmailAsync(normalizedEmail, id))
             {
                 throw new BusinessValidationException("Email already exists.");
             }
+            if (await _repo.ExistsByDriverLicenseAsync(normalizedDriverLicense, id))
+            {
+                throw new BusinessValidationException("Driver license already exists.");
+            }
 
             try
             {
-                entity.UpdateClient(name, normalizedEmail, phoneNumber, driverLicense);
+                entity.UpdateClient(name, normalizedEmail, phoneNumber, normalizedDriverLicense);
                 await _repo.UpdateAsync(entity);
                 await InvalidateClientFilterCachesAsync();
             }
@@ -114,7 +124,7 @@ namespace VehicleRent.Services
             }
             catch (DbUpdateException)
             {
-                throw new BusinessValidationException("Email already exists.");
+                throw new BusinessValidationException("Email or driver license already exists.");
             }
         }
 

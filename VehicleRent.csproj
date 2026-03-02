@@ -28,8 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove=".github\**" />
     <Compile Remove="VehicleRent.Tests\**\*.cs" />
+    <Content Remove=".github\**" />
+    <EmbeddedResource Remove=".github\**" />
     <EmbeddedResource Remove="VehicleRent.Tests\**\*" />
+    <None Remove=".github\**" />
     <None Remove="VehicleRent.Tests\**\*" />
   </ItemGroup>
 

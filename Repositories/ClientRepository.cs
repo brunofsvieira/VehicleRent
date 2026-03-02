@@ -79,6 +79,16 @@ namespace VehicleRent.Repositories
             return await query.AnyAsync();
         }
 
+        public async Task<bool> ExistsByDriverLicenseAsync(string driverLicense, long? excludingId = null)
+        {
+            var normalizedLicense = (driverLicense ?? string.Empty).Trim().ToUpperInvariant();
+            if (string.IsNullOrWhiteSpace(normalizedLicense)) return false;
+
+            var query = _dbContext.Clients.AsNoTracking().Where(c => c.DriverLicense == normalizedLicense);
+            if (excludingId.HasValue) query = query.Where(c => c.Id != excludingId.Value);
+            return await query.AnyAsync();
+        }
+
         public async Task UpdateAsync(Client client)
         {
             _dbContext.Clients.Update(client);

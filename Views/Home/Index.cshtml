@@ -7,25 +7,26 @@
         <div class="home-hero home-hero-grid mx-auto mb-4" data-reveal>
             <div>
                 <p class="page-eyebrow mb-2">Plataforma de aluguer de veiculos</p>
-                <h1 class="home-title mb-3">Operacao mais rapida, visual mais claro.</h1>
-                <p class="home-subtitle mb-4">Gerir frota e clientes num unico painel, com foco em produtividade e crescimento do negocio.</p>
+                <h1 class="home-title mb-3">Tudo o que precisas para gerir alugueres.</h1>
+                <p class="home-subtitle mb-4">Organiza clientes, veiculos e contratos de forma simples, rapida e clara.</p>
                 <div class="d-flex flex-column flex-sm-row gap-2">
-                    <a class="btn btn-primary btn-lg" asp-controller="Vehicles" asp-action="Index">Gerir veiculos</a>
+                    <a class="btn btn-outline-secondary btn-lg" asp-controller="Vehicles" asp-action="Index">Gerir veiculos</a>
                     <a class="btn btn-outline-secondary btn-lg" asp-controller="Clients" asp-action="Index">Gerir clientes</a>
+                    <a class="btn btn-outline-secondary btn-lg" asp-controller="RentalContracts" asp-action="Index">Gerir contratos</a>
                 </div>
             </div>
             <aside class="home-kpis" aria-label="Resumo da plataforma">
                 <div class="kpi-tile" data-reveal>
-                    <small>Modulo pronto</small>
+                    <small>Gestao de</small>
                     <strong>Veiculos</strong>
                 </div>
                 <div class="kpi-tile" data-reveal>
-                    <small>Modulo pronto</small>
+                    <small>Gestao de</small>
                     <strong>Clientes</strong>
                 </div>
                 <div class="kpi-tile" data-reveal>
-                    <small>Paginacao</small>
-                    <strong>10 / 20 / 50</strong>
+                    <small>Gestao de</small>
+                    <strong>Contratos</strong>
                 </div>
                 <div class="kpi-tile" data-reveal>
                     <small>Experiencia</small>
@@ -43,14 +44,14 @@
             </div>
             <div class="col-12 col-md-4" data-reveal>
                 <article class="feature-card h-100">
-                    <h3>Estrutura preparada</h3>
-                    <p>Backend separado em API e Views para escalar com seguranca.</p>
+                    <h3>Organizacao clara</h3>
+                    <p>Consulta rapidamente o que esta disponivel e o que esta atualmente alugado.</p>
                 </article>
             </div>
             <div class="col-12 col-md-4" data-reveal>
                 <article class="feature-card h-100">
-                    <h3>Fluxo moderno</h3>
-                    <p>Base pronta para adicionar reservas, pagamentos e contratos.</p>
+                    <h3>Controlo total</h3>
+                    <p>Acompanha os contratos ativos e os terminados num unico local.</p>
                 </article>
             </div>
         </div>
@@ -74,9 +75,9 @@
                     </a>
                 </div>
                 <div class="col-12 col-md-4">
-                    <a class="action-tile" asp-controller="Home" asp-action="Privacy">
-                        <h3>Privacidade</h3>
-                        <p>Consulta a politica e as regras de dados.</p>
+                    <a class="action-tile" asp-controller="RentalContracts" asp-action="Create">
+                        <h3>Novo contrato</h3>
+                        <p>Cria um aluguer com cliente, matricula e datas.</p>
                     </a>
                 </div>
             </div>
