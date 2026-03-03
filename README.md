@@ -180,6 +180,18 @@ A migration de soft delete já foi criada.
 
 - adicionar autenticação/autorização (roles)
 - adicionar observabilidade (logs estruturados + métricas)
+- separar API em projeto dedicado para melhor organização e versionamento
+- separa camadas de serviço e repositório em projetos dedicados para melhor modularização e testes
+- melhorar filtros e paginação nos endpoints API (ex: filtros combinados, paginação cursor-based)
 - adicionar paginação/sorting mais avançados nos endpoints API
 - criar frontend SPA consumindo os endpoints já existentes
 - adicionar testes de integração (API + EF + SQL/containers)
+- dicionar CI/CD para build/test/deploy automático
+- otimizar cache Redis para cenários de alta concorrência
+- adicionar mais regras de negócio (ex: penalizações por atraso, categorias de veículos, etc)
+- refatorar para DDD se o domínio crescer significativamente
+- adicionar documentação Swagger para API
+- adicionar versionamento à API para futuras mudanças sem quebrar clientes existentes
+- monitorar e otimizar consultas SQL geradas pelo EF para garantir performance em produção
+- adicionar suporte a múltiplas línguas (localização) para mensagens de validação e UI
+- adicionar testes de carga para avaliar o comportamento da aplicação sob alta demanda, especialmente em relação ao cache Redis e à base de dados SQL Server

@@ -106,7 +106,8 @@ namespace VehicleRent.Controllers
                 {
                     Value = v.LicensePlate.ToString(),
                     Text = v.LicensePlate,
-                    Selected = (string.IsNullOrEmpty(licensePlate) && licensePlate == v.LicensePlate) && (availabilityStatus.HasValue && availabilityStatus.Value == v.availabilityStatus)
+                    Selected = !string.IsNullOrWhiteSpace(licensePlate) &&
+                               string.Equals(licensePlate.Trim(), v.LicensePlate, StringComparison.OrdinalIgnoreCase)
                 })
                 .ToList();
 

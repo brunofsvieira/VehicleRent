@@ -30,18 +30,18 @@ namespace VehicleRent.Services
         /// <summary>
         /// Executes the GetPagedForWebAsync operation.
         /// </summary>
-        public async Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
+        public async Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
         {
             var normalizedPage = NormalizePage(page);
             var normalizedPageSize = WebPageSizes.Contains(pageSize) ? pageSize : 10;
 
-            var normalizedNameOrEmail = string.IsNullOrWhiteSpace(nameOrEmail) ? null : nameOrEmail.Trim();
             var normalizedVehicleId = vehicleId.HasValue && vehicleId.Value > 0 ? vehicleId : null;
+            var normalizedClientId = clientId.HasValue && clientId.Value > 0 ? clientId : null;
 
-            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize, normalizedNameOrEmail, normalizedVehicleId);
+            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize, normalizedClientId, normalizedVehicleId);
             if (paged.TotalPages > 0 && normalizedPage > paged.TotalPages)
             {
-                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize, normalizedNameOrEmail, normalizedVehicleId);
+                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize, normalizedClientId, normalizedVehicleId);
             }
 
             return paged;
@@ -50,18 +50,18 @@ namespace VehicleRent.Services
         /// <summary>
         /// Executes the GetPagedForApiAsync operation.
         /// </summary>
-        public async Task<PagedResult<Client>> GetPagedForApiAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
+        public async Task<PagedResult<Client>> GetPagedForApiAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
         {
             var normalizedPage = NormalizePage(page);
             var normalizedPageSize = pageSize <= 0 || pageSize > 100 ? 10 : pageSize;
 
-            var normalizedNameOrEmail = string.IsNullOrWhiteSpace(nameOrEmail) ? null : nameOrEmail.Trim();
+            var normalizedClientId = clientId.HasValue && clientId.Value > 0 ? clientId : null;
             var normalizedVehicleId = vehicleId.HasValue && vehicleId.Value > 0 ? vehicleId : null;
 
-            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize, normalizedNameOrEmail, normalizedVehicleId);
+            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize, normalizedClientId, normalizedVehicleId);
             if (paged.TotalPages > 0 && normalizedPage > paged.TotalPages)
             {
-                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize, normalizedNameOrEmail, normalizedVehicleId);
+                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize, normalizedClientId, normalizedVehicleId);
             }
 
             return paged;

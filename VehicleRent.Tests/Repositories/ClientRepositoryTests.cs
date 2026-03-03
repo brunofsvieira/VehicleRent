@@ -30,9 +30,9 @@ public class ClientRepositoryTests
 
     [Fact]
     /// <summary>
-    /// Executes the GetAllAsync_FiltersByNameOrEmailAndVehicle test operation.
+    /// Executes the GetAllAsync_FiltersByClientAndVehicle test operation.
     /// </summary>
-    public async Task GetAllAsync_FiltersByNameOrEmailAndVehicle()
+    public async Task GetAllAsync_FiltersByClientAndVehicle()
     {
         using var ctx = TestDbContextFactory.Create();
         var c1 = new Client("Ana", "ana@example.com", "+351912345678", "DL001");
@@ -45,7 +45,7 @@ public class ClientRepositoryTests
         await ctx.SaveChangesAsync();
 
         var repo = new ClientRepository(ctx);
-        var result = await repo.GetAllAsync(1, 10, "bruno", vehicle.Id);
+        var result = await repo.GetAllAsync(1, 10, c2.Id, vehicle.Id);
 
         var item = Assert.Single(result.Items);
         Assert.Equal("Bruno", item.Name);
