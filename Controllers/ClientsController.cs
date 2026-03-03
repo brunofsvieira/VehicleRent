@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 using VehicleRent.Infrastructure;
@@ -36,9 +38,9 @@ namespace VehicleRent.Controllers
         /// <summary>
         /// Executes the Index operation.
         /// </summary>
-        public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] long? vehicleId = null, [FromQuery] string? nameOrEmail = null)
+        public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] long? vehicleId = null, [FromQuery] long? clientId = null)
         {
-            var paged = await _service.GetPagedForWebAsync(page, pageSize, nameOrEmail, vehicleId);
+            var paged = await _service.GetPagedForWebAsync(page, pageSize, clientId, vehicleId);
 
             var cached = await _cache.GetStringAsync(CacheKeys.ClientVehicleFilterOptions);
             List<VehicleFilterCacheItem>? vehicleOptions = null;
@@ -67,15 +69,58 @@ namespace VehicleRent.Controllers
                     });
             }
 
+            var cachedClients = await _cache.GetStringAsync(CacheKeys.RentalContractClientFilterOptions);
+            List<ClientFilterCacheItem>? clientOptions = null;
+            if (!string.IsNullOrWhiteSpace(cachedClients))
+            {
+                clientOptions = JsonSerializer.Deserialize<List<ClientFilterCacheItem>>(cachedClients);
+            }
+            if (clientOptions is null)
+            {
+                var clients = await _service.GetAllForSelectionAsync();
+                clientOptions = clients
+                    .OrderBy(c => c.Name)
+                    .ThenBy(c => c.Email)
+                    .Select(c => new ClientFilterCacheItem(c.Id, $"{c.Name} ({c.Email})"))
+                    .ToList();
+
+                await _cache.SetStringAsync(
+                    CacheKeys.RentalContractClientFilterOptions,
+                    JsonSerializer.Serialize(clientOptions),
+                    new DistributedCacheEntryOptions
+                    {
+                        SlidingExpiration = TimeSpan.FromMinutes(20),
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2)
+                    });
+            }
+
             ViewBag.VehicleFilterOptions = vehicleOptions.Select(v => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
             {
                 Value = v.Id.ToString(),
                 Text = v.LicensePlate,
                 Selected = vehicleId.HasValue && vehicleId.Value == v.Id
             }).ToList();
+
             ViewBag.CurrentVehicleId = vehicleId;
-            ViewBag.CurrentNameOrEmail = nameOrEmail ?? string.Empty;
+            ViewBag.CurrentClientId = clientId;
             ViewBag.ActiveClientIds = await _rentalContractRepository.GetCurrentlyActiveClientIdsAsync(DateTime.UtcNow.Date);
+
+
+            ViewBag.ClientFilterOptions = clientOptions.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Display,
+                Selected = clientId.HasValue && clientId.Value == c.Id
+            }).ToList();
+
+            ViewBag.VehicleFilterOptions = vehicleOptions
+                .Select(v => new SelectListItem
+                {
+                    Value = v.Id.ToString(),
+                    Text = v.LicensePlate,
+                    Selected = vehicleId.HasValue && vehicleId.Value == v.Id
+                })
+                .ToList();
 
             var vmPaged = new PagedResult<ClientViewModel>
             {
@@ -190,5 +235,6 @@ namespace VehicleRent.Controllers
         }
 
         private sealed record VehicleFilterCacheItem(long Id, string LicensePlate);
+        private sealed record ClientFilterCacheItem(long Id, string Display);
     }
 }
