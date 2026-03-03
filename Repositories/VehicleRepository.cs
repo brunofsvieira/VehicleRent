@@ -1,29 +1,44 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VehicleRent.Data;
 using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Repositories
 {
+    /// <summary>
+    /// Represents the VehicleRepository component.
+    /// </summary>
     public class VehicleRepository : IVehicleRepository
     {
         private readonly ApplicationDbContext _dbContext;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VehicleRepository"/> class.
+        /// </summary>
         public VehicleRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
+        /// <summary>
+        /// Executes the AddAsync operation.
+        /// </summary>
         public async Task AddAsync(Vehicle vehicle)
         {
             _dbContext.Vehicles.Add(vehicle);
             await _dbContext.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Executes the GetByIdAsync operation.
+        /// </summary>
         public async Task<Vehicle?> GetByIdAsync(long id)
         {
             return await _dbContext.Vehicles.FindAsync(id);
         }
 
+        /// <summary>
+        /// Executes the GetAllAsync operation.
+        /// </summary>
         public async Task<PagedResult<Vehicle>> GetAllAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
         {
             if (page <= 0) page = 1;
@@ -61,6 +76,9 @@ namespace VehicleRent.Repositories
             };
         }
 
+        /// <summary>
+        /// Executes the GetAllForSelectionAsync operation.
+        /// </summary>
         public async Task<IReadOnlyList<Vehicle>> GetAllForSelectionAsync()
         {
             return await _dbContext.Vehicles
@@ -71,6 +89,9 @@ namespace VehicleRent.Repositories
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Executes the ExistsByLicensePlateAsync operation.
+        /// </summary>
         public async Task<bool> ExistsByLicensePlateAsync(string licensePlate, long? excludingId = null)
         {
             var normalized = (licensePlate ?? string.Empty).Trim().ToUpperInvariant();
@@ -81,12 +102,18 @@ namespace VehicleRent.Repositories
             return await query.AnyAsync();
         }
 
+        /// <summary>
+        /// Executes the UpdateAsync operation.
+        /// </summary>
         public async Task UpdateAsync(Vehicle vehicle)
         {
             _dbContext.Vehicles.Update(vehicle);
             await _dbContext.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Executes the DeleteAsync operation.
+        /// </summary>
         public async Task DeleteAsync(long id)
         {
             var existing = await _dbContext.Vehicles.FindAsync(id);

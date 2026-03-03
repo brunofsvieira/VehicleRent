@@ -1,9 +1,12 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Models.Validation;
 
 namespace VehicleRent.Models.DTOs
 {
+    /// <summary>
+    /// Represents the UpdateVehicleDto component.
+    /// </summary>
     public class UpdateVehicleDto
     {
         [Required, StringLength(30)]

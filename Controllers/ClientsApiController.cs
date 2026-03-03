@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using VehicleRent.Models.DTOs;
 using VehicleRent.Models.Entities;
@@ -9,11 +9,17 @@ namespace VehicleRent.Controllers
 {
     [ApiController]
     [Route("api/clients")]
+    /// <summary>
+    /// Represents the ClientsApiController component.
+    /// </summary>
     public class ClientsApiController : ControllerBase
     {
         private readonly IClientService _service;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientsApiController"/> class.
+        /// </summary>
         public ClientsApiController(IClientService service, IMapper mapper)
         {
             _service = service;
@@ -21,6 +27,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet]
+        /// <summary>
+        /// Executes the Get operation.
+        /// </summary>
         public async Task<ActionResult<PagedResult<ClientDto>>> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? nameOrEmail = null, [FromQuery] long? vehicleId = null)
         {
             var paged = await _service.GetPagedForApiAsync(page, pageSize, nameOrEmail, vehicleId);
@@ -35,6 +44,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet("{id:long}")]
+        /// <summary>
+        /// Executes the GetById operation.
+        /// </summary>
         public async Task<ActionResult<ClientDto>> GetById(long id)
         {
             var entity = await _service.GetByIdAsync(id);
@@ -43,6 +55,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpPost]
+        /// <summary>
+        /// Executes the Post operation.
+        /// </summary>
         public async Task<IActionResult> Post([FromBody] CreateClientDto dto)
         {
             try
@@ -59,6 +74,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpPut("{id:long}")]
+        /// <summary>
+        /// Executes the Put operation.
+        /// </summary>
         public async Task<IActionResult> Put(long id, [FromBody] UpdateClientDto dto)
         {
             try
@@ -78,6 +96,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpDelete("{id:long}")]
+        /// <summary>
+        /// Executes the Delete operation.
+        /// </summary>
         public async Task<IActionResult> Delete(long id)
         {
             try

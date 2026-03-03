@@ -1,5 +1,8 @@
-namespace VehicleRent.Models.DTOs
+﻿namespace VehicleRent.Models.DTOs
 {
+    /// <summary>
+    /// Represents the ClientDto component.
+    /// </summary>
     public class ClientDto
     {
         public long? Id { get; set; }

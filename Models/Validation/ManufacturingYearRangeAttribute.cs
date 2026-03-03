@@ -1,14 +1,20 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace VehicleRent.Models.Validation
 {
+    /// <summary>
+    /// Represents the ManufacturingYearRangeAttribute component.
+    /// </summary>
     public class ManufacturingYearRangeAttribute : ValidationAttribute, IClientModelValidator
     {
         private const int MinYear = 1900;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ManufacturingYearRangeAttribute"/> class.
+        /// </summary>
         public ManufacturingYearRangeAttribute()
             : base("Manufacturing year must be between {0} and {1}.")
         {
@@ -35,6 +41,9 @@ namespace VehicleRent.Models.Validation
             return ValidationResult.Success;
         }
 
+        /// <summary>
+        /// Executes the AddValidation operation.
+        /// </summary>
         public void AddValidation(ClientModelValidationContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));

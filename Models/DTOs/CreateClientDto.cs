@@ -1,7 +1,10 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace VehicleRent.Models.DTOs
 {
+    /// <summary>
+    /// Represents the CreateClientDto component.
+    /// </summary>
     public class CreateClientDto
     {
         [Required, StringLength(50)]

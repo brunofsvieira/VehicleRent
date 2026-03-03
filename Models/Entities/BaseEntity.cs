@@ -32,6 +32,9 @@ namespace VehicleRent.Models.Entities
             UpdateDate = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Executes the MarkDeleted operation.
+        /// </summary>
         public void MarkDeleted()
         {
             Deleted = true;

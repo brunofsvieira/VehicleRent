@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VehicleRent.Models.Entities;
 using VehicleRent.Services;
 using VehicleRent.Services.Exceptions;
@@ -6,6 +6,9 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for ClientServiceTests.
+/// </summary>
 public class ClientServiceTests
 {
     private static ClientService CreateSut(InMemoryClientRepository repo)
@@ -14,6 +17,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForWebAsync_NormalizesInvalidInput test operation.
+    /// </summary>
     public async Task GetPagedForWebAsync_NormalizesInvalidInput()
     {
         var repo = new InMemoryClientRepository(SeedClients(12));
@@ -27,6 +33,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForWebAsync_ClampsPageToLastPage test operation.
+    /// </summary>
     public async Task GetPagedForWebAsync_ClampsPageToLastPage()
     {
         var repo = new InMemoryClientRepository(SeedClients(15));
@@ -41,6 +50,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForApiAsync_NormalizesPageSize test operation.
+    /// </summary>
     public async Task GetPagedForApiAsync_NormalizesPageSize()
     {
         var repo = new InMemoryClientRepository(SeedClients(5));
@@ -53,6 +65,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_PersistsAndReturnsEntity test operation.
+    /// </summary>
     public async Task CreateAsync_PersistsAndReturnsEntity()
     {
         var repo = new InMemoryClientRepository();
@@ -66,6 +81,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_DuplicateEmail_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task CreateAsync_DuplicateEmail_ThrowsBusinessValidation()
     {
         var existing = SeedClients(1).Single();
@@ -77,6 +95,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_DuplicateDriverLicense_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task CreateAsync_DuplicateDriverLicense_ThrowsBusinessValidation()
     {
         var existing = SeedClients(1).Single();
@@ -98,6 +119,9 @@ public class ClientServiceTests
     [InlineData("Ana", "ana@example.com", "", "DL123", BusinessErrorCodes.ClientPhoneRequired)]
     [InlineData("Ana", "ana@example.com", "912345678", "DL123", BusinessErrorCodes.ClientPhoneInvalidFormat)]
     [InlineData("Ana", "ana@example.com", "+351912345678", "", BusinessErrorCodes.ClientDriverLicenseRequired)]
+    /// <summary>
+    /// Executes the CreateAsync_InvalidPayload_ReturnsMappedBusinessError test operation.
+    /// </summary>
     public async Task CreateAsync_InvalidPayload_ReturnsMappedBusinessError(
         string name,
         string email,
@@ -115,6 +139,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_WhenDbUpdateFails_ReturnsCombinedDuplicateCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenDbUpdateFails_ReturnsCombinedDuplicateCode()
     {
         var repo = new InMemoryClientRepository { AddException = new DbUpdateException("db") };
@@ -127,6 +154,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode()
     {
         var repo = new InMemoryClientRepository { AddException = new ArgumentException("bad", "unknown") };
@@ -139,6 +169,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_NotFound_ThrowsEntityNotFound test operation.
+    /// </summary>
     public async Task UpdateAsync_NotFound_ThrowsEntityNotFound()
     {
         var repo = new InMemoryClientRepository();
@@ -149,6 +182,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_DuplicateEmail_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task UpdateAsync_DuplicateEmail_ThrowsBusinessValidation()
     {
         var clients = SeedClients(2).ToArray();
@@ -160,6 +196,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_DuplicateDriverLicense_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task UpdateAsync_DuplicateDriverLicense_ThrowsBusinessValidation()
     {
         var clients = SeedClients(2).ToArray();
@@ -173,6 +212,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_ValidPayload_UpdatesEntity test operation.
+    /// </summary>
     public async Task UpdateAsync_ValidPayload_UpdatesEntity()
     {
         var client = SeedClients(1).Single();
@@ -190,6 +232,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_WhenDbUpdateFails_ReturnsCombinedDuplicateCode test operation.
+    /// </summary>
     public async Task UpdateAsync_WhenDbUpdateFails_ReturnsCombinedDuplicateCode()
     {
         var client = SeedClients(1).Single();
@@ -203,6 +248,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode test operation.
+    /// </summary>
     public async Task UpdateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode()
     {
         var client = SeedClients(1).Single();
@@ -216,6 +264,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_EnsureExistsTrue_NotFound_Throws test operation.
+    /// </summary>
     public async Task DeleteAsync_EnsureExistsTrue_NotFound_Throws()
     {
         var repo = new InMemoryClientRepository();
@@ -225,6 +276,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_EnsureExistsFalse_DoesNotThrowForMissing test operation.
+    /// </summary>
     public async Task DeleteAsync_EnsureExistsFalse_DoesNotThrowForMissing()
     {
         var repo = new InMemoryClientRepository();
@@ -236,6 +290,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_EnsureExistsTrue_DeletesWhenPresent test operation.
+    /// </summary>
     public async Task DeleteAsync_EnsureExistsTrue_DeletesWhenPresent()
     {
         var client = SeedClients(1).Single();
@@ -248,6 +305,9 @@ public class ClientServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_WhenClientHasActiveRental_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task DeleteAsync_WhenClientHasActiveRental_ThrowsBusinessValidation()
     {
         var client = SeedClients(1).Single();

@@ -1,9 +1,12 @@
-using System.Reflection;
+﻿using System.Reflection;
 using VehicleRent.Models.Entities;
 using VehicleRent.Repositories;
 
 namespace VehicleRent.Tests.TestDoubles;
 
+/// <summary>
+/// Represents a test double for InMemoryClientRepository.
+/// </summary>
 internal sealed class InMemoryClientRepository : IClientRepository
 {
     private readonly List<Client> _items = new();
@@ -12,8 +15,14 @@ internal sealed class InMemoryClientRepository : IClientRepository
     public Exception? AddException { get; set; }
     public Exception? UpdateException { get; set; }
 
+    /// <summary>
+    /// Executes the member test operation.
+    /// </summary>
     public IReadOnlyList<(int page, int pageSize)> PagedCalls => _pagedCalls;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InMemoryClientRepository"/> class.
+    /// </summary>
     public InMemoryClientRepository(IEnumerable<Client>? seed = null)
     {
         if (seed is null) return;
@@ -25,6 +34,9 @@ internal sealed class InMemoryClientRepository : IClientRepository
         }
     }
 
+    /// <summary>
+    /// Executes the AddAsync test operation.
+    /// </summary>
     public Task AddAsync(Client client)
     {
         if (AddException is not null) throw AddException;
@@ -33,11 +45,17 @@ internal sealed class InMemoryClientRepository : IClientRepository
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Executes the GetByIdAsync test operation.
+    /// </summary>
     public Task<Client?> GetByIdAsync(long id)
     {
         return Task.FromResult(_items.FirstOrDefault(c => c.Id == id));
     }
 
+    /// <summary>
+    /// Executes the GetAllAsync test operation.
+    /// </summary>
     public Task<PagedResult<Client>> GetAllAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
     {
         _pagedCalls.Add((page, pageSize));
@@ -72,6 +90,9 @@ internal sealed class InMemoryClientRepository : IClientRepository
         });
     }
 
+    /// <summary>
+    /// Executes the ExistsByEmailAsync test operation.
+    /// </summary>
     public Task<bool> ExistsByEmailAsync(string email, long? excludingId = null)
     {
         var normalized = (email ?? string.Empty).Trim().ToLowerInvariant();
@@ -82,6 +103,9 @@ internal sealed class InMemoryClientRepository : IClientRepository
         return Task.FromResult(exists);
     }
 
+    /// <summary>
+    /// Executes the ExistsByDriverLicenseAsync test operation.
+    /// </summary>
     public Task<bool> ExistsByDriverLicenseAsync(string driverLicense, long? excludingId = null)
     {
         var normalized = (driverLicense ?? string.Empty).Trim().ToUpperInvariant();
@@ -92,17 +116,26 @@ internal sealed class InMemoryClientRepository : IClientRepository
         return Task.FromResult(exists);
     }
 
+    /// <summary>
+    /// Executes the GetAllForSelectionAsync test operation.
+    /// </summary>
     public Task<IReadOnlyList<Client>> GetAllForSelectionAsync()
     {
         return Task.FromResult<IReadOnlyList<Client>>(_items.OrderBy(c => c.Id).ToList());
     }
 
+    /// <summary>
+    /// Executes the UpdateAsync test operation.
+    /// </summary>
     public Task UpdateAsync(Client client)
     {
         if (UpdateException is not null) throw UpdateException;
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Executes the DeleteAsync test operation.
+    /// </summary>
     public Task DeleteAsync(long id)
     {
         var existing = _items.FirstOrDefault(c => c.Id == id);
@@ -110,6 +143,9 @@ internal sealed class InMemoryClientRepository : IClientRepository
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Executes the Count test operation.
+    /// </summary>
     public int Count() => _items.Count;
 
     private static void SetId(Client client, long id)

@@ -2,8 +2,14 @@
 
 namespace VehicleRent.Infrastructure
 {
+    /// <summary>
+    /// Represents the FrontendErrorMessages component.
+    /// </summary>
     public static class FrontendErrorMessages
     {
+        /// <summary>
+        /// Executes the ToPt operation.
+        /// </summary>
         public static string ToPt(string? errorCode)
         {
             return errorCode switch

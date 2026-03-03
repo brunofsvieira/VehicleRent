@@ -1,8 +1,11 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Models.ViewModels
 {
+    /// <summary>
+    /// Represents the RentalContractViewModel component.
+    /// </summary>
     public class RentalContractViewModel
     {
         public long? Id { get; set; }
@@ -31,6 +34,9 @@ namespace VehicleRent.Models.ViewModels
         public bool IsFinished => RentalEndDate.Date < DateTime.UtcNow.Date;
         public string ContractStatus => IsFinished ? "Terminado" : "Em curso";
 
+        /// <summary>
+        /// Executes the FromEntity operation.
+        /// </summary>
         public static RentalContractViewModel FromEntity(RentalContract contract)
         {
             return new RentalContractViewModel

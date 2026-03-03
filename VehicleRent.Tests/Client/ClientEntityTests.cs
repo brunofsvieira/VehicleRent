@@ -1,10 +1,16 @@
-using VehicleRent.Models.Entities;
+﻿using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for ClientEntityTests.
+/// </summary>
 public class ClientEntityTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the Constructor_WithValidData_CreatesClient test operation.
+    /// </summary>
     public void Constructor_WithValidData_CreatesClient()
     {
         var client = new Client("Ana Silva", "ana@example.com", "+351912345678", "DL12345");
@@ -16,6 +22,9 @@ public class ClientEntityTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Constructor_WithInvalidEmail_Throws test operation.
+    /// </summary>
     public void Constructor_WithInvalidEmail_Throws()
     {
         Assert.Throws<ArgumentException>(() =>
@@ -28,6 +37,9 @@ public class ClientEntityTests
     [InlineData("+35191234567890")]
     [InlineData("+35191A345678")]
     [InlineData("+351-912345678")]
+    /// <summary>
+    /// Executes the Constructor_WithInvalidPhone_Throws test operation.
+    /// </summary>
     public void Constructor_WithInvalidPhone_Throws(string phone)
     {
         Assert.Throws<ArgumentException>(() =>
@@ -35,6 +47,9 @@ public class ClientEntityTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Constructor_WithEmptyDriverLicense_Throws test operation.
+    /// </summary>
     public void Constructor_WithEmptyDriverLicense_Throws()
     {
         Assert.Throws<ArgumentException>(() =>
@@ -42,6 +57,9 @@ public class ClientEntityTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateClient_WithValidData_UpdatesFields test operation.
+    /// </summary>
     public void UpdateClient_WithValidData_UpdatesFields()
     {
         var client = new Client("Ana", "ana@example.com", "+351912345678", "DL123");

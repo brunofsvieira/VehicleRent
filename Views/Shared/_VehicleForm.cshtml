@@ -46,7 +46,7 @@
 
     <div class="col-12 col-md-6 vehicle-field">
       <label asp-for="Fuel" class="form-label mb-1">Combustível <span class="req-mark" aria-hidden="true">*</span></label>
-      <select asp-for="Fuel" id="fuel" class="form-select" aria-label="Tipo de combustivel" required>
+      <select asp-for="Fuel" id="fuel" class="form-select" aria-label="Tipo de combustível" required>
         <option value="">-- selecione --</option>
         @foreach (var name in Enum.GetNames(typeof(FuelType)))
         {

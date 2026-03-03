@@ -1,12 +1,18 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using VehicleRent.Models.Enumerators;
 
 namespace VehicleRent.Models.Validation
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+    /// <summary>
+    /// Represents the EnsureFuelNotNoneAttribute component.
+    /// </summary>
     public class EnsureFuelNotNoneAttribute : ValidationAttribute
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EnsureFuelNotNoneAttribute"/> class.
+        /// </summary>
         public EnsureFuelNotNoneAttribute()
             : base("Select a valid fuel type.")
         {

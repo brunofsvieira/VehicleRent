@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.Extensions.Logging.Abstractions;
 using VehicleRent.Models.DTOs;
 using VehicleRent.Models.Entities;
@@ -7,10 +7,16 @@ using VehicleRent.Profiles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for EntitiesProfileTests.
+/// </summary>
 public class EntitiesProfileTests
 {
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EntitiesProfileTests"/> class.
+    /// </summary>
     public EntitiesProfileTests()
     {
         var config = new MapperConfiguration(cfg => cfg.AddProfile<EntitiesProfile>(), NullLoggerFactory.Instance);
@@ -19,6 +25,9 @@ public class EntitiesProfileTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the MapsVehicleToVehicleDto test operation.
+    /// </summary>
     public void MapsVehicleToVehicleDto()
     {
         var vehicle = new Vehicle("Toyota", "Yaris", FuelType.Hybrid, 2021, "AB-12-CD");
@@ -36,6 +45,9 @@ public class EntitiesProfileTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the MapsCreateVehicleDtoToVehicle test operation.
+    /// </summary>
     public void MapsCreateVehicleDtoToVehicle()
     {
         var dto = new CreateVehicleDto
@@ -57,6 +69,9 @@ public class EntitiesProfileTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the MapsClientToClientDto test operation.
+    /// </summary>
     public void MapsClientToClientDto()
     {
         var client = new Client("Ana Silva", "ana@example.com", "+351912345678", "DL123");
@@ -73,6 +88,9 @@ public class EntitiesProfileTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the MapsCreateClientDtoToClient test operation.
+    /// </summary>
     public void MapsCreateClientDtoToClient()
     {
         var dto = new CreateClientDto

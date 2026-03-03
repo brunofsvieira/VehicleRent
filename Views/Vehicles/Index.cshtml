@@ -89,7 +89,7 @@
               <th>Modelo</th>
               <th>Matrícula</th>
               <th>Ano</th>
-              <th>Combustivel</th>
+              <th>Combustível</th>
               <th>Estado</th>
               <th></th>
             </tr>
@@ -102,7 +102,7 @@
                   <td data-label="Modelo">@v.Model</td>
                   <td data-label="Matrícula"><span class="record-chip">@v.LicensePlate</span></td>
                   <td data-label="Ano">@v.ManufacturingYear</td>
-                  <td data-label="Combustivel">@v.Fuel.ToString()</td>
+                  <td data-label="Combustível">@v.Fuel.ToString()</td>
                   <td data-label="Estado">
                     <span class="record-chip @(v.IsCurrentlyRented ? "status-rented" : "status-available")">@v.AvailabilityStatus</span>
                   </td>

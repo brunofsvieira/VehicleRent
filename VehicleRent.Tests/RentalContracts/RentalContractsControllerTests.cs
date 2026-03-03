@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using VehicleRent.Controllers;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
@@ -8,9 +8,15 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for RentalContractsControllerTests.
+/// </summary>
 public class RentalContractsControllerTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the Index_ReturnsViewWithPagedViewModel test operation.
+    /// </summary>
     public async Task Index_ReturnsViewWithPagedViewModel()
     {
         var today = DateTime.UtcNow.Date;
@@ -34,6 +40,9 @@ public class RentalContractsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Index_ForwardsIsFinishedFilterToService test operation.
+    /// </summary>
     public async Task Index_ForwardsIsFinishedFilterToService()
     {
         bool? capturedIsFinished = null;
@@ -59,6 +68,9 @@ public class RentalContractsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Create_Post_WhenBusinessValidationFails_AddsTranslatedModelError test operation.
+    /// </summary>
     public async Task Create_Post_WhenBusinessValidationFails_AddsTranslatedModelError()
     {
         var service = new StubRentalContractService
@@ -85,6 +97,9 @@ public class RentalContractsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Update_Post_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Update_Post_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubRentalContractService
@@ -109,6 +124,9 @@ public class RentalContractsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Update_Get_WithoutId_ReturnsDefaultModel test operation.
+    /// </summary>
     public async Task Update_Get_WithoutId_ReturnsDefaultModel()
     {
         var service = new StubRentalContractService
@@ -126,6 +144,9 @@ public class RentalContractsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Update_Post_WhenBusinessValidationFails_ReturnsViewWithTranslatedError test operation.
+    /// </summary>
     public async Task Update_Post_WhenBusinessValidationFails_ReturnsViewWithTranslatedError()
     {
         var service = new StubRentalContractService
@@ -152,6 +173,9 @@ public class RentalContractsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_Post_RedirectsToIndex test operation.
+    /// </summary>
     public async Task Delete_Post_RedirectsToIndex()
     {
         var service = new StubRentalContractService

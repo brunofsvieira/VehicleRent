@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Models.ViewModels
@@ -32,8 +32,14 @@ namespace VehicleRent.Models.ViewModels
         [StringLength(30, ErrorMessage = "A Carta de Condução deve ter no máximo 30 caracteres.")]
         public required string DriverLicense { get; set; }
 
+        /// <summary>
+        /// Executes the ToEntity operation.
+        /// </summary>
         public Client ToEntity() => new Client(Name, Email, PhoneNumber, DriverLicense);
 
+        /// <summary>
+        /// Executes the FromEntity operation.
+        /// </summary>
         public static ClientViewModel FromEntity(Client client) =>
             new ClientViewModel
             {

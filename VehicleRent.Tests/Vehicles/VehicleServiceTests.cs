@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Services;
@@ -7,6 +7,9 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for VehicleServiceTests.
+/// </summary>
 public class VehicleServiceTests
 {
     private static VehicleService CreateSut(InMemoryVehicleRepository repo, InMemoryRentalContractRepository? rentalRepo = null)
@@ -15,6 +18,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForWebAsync_NormalizesInvalidInput test operation.
+    /// </summary>
     public async Task GetPagedForWebAsync_NormalizesInvalidInput()
     {
         var repo = new InMemoryVehicleRepository(SeedVehicles(12));
@@ -28,6 +34,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForWebAsync_ClampsPageToLastPage test operation.
+    /// </summary>
     public async Task GetPagedForWebAsync_ClampsPageToLastPage()
     {
         var repo = new InMemoryVehicleRepository(SeedVehicles(15));
@@ -42,6 +51,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForApiAsync_NormalizesPageSize test operation.
+    /// </summary>
     public async Task GetPagedForApiAsync_NormalizesPageSize()
     {
         var repo = new InMemoryVehicleRepository(SeedVehicles(5));
@@ -54,6 +66,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForWebAsync_WhenAvailabilityStatusProvided_FiltersByRentalState test operation.
+    /// </summary>
     public async Task GetPagedForWebAsync_WhenAvailabilityStatusProvided_FiltersByRentalState()
     {
         var vehicles = SeedVehicles(2).ToArray();
@@ -72,6 +87,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetAllForSelectionAsync_AppliesRentalStatus test operation.
+    /// </summary>
     public async Task GetAllForSelectionAsync_AppliesRentalStatus()
     {
         var vehicles = SeedVehicles(2).ToArray();
@@ -87,6 +105,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetByIdAsync_ReturnsEntityWhenExists test operation.
+    /// </summary>
     public async Task GetByIdAsync_ReturnsEntityWhenExists()
     {
         var vehicle = SeedVehicles(1).Single();
@@ -100,6 +121,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetByIdAsync_WhenMissing_ReturnsNull test operation.
+    /// </summary>
     public async Task GetByIdAsync_WhenMissing_ReturnsNull()
     {
         var repo = new InMemoryVehicleRepository();
@@ -111,6 +135,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_PersistsAndReturnsEntity test operation.
+    /// </summary>
     public async Task CreateAsync_PersistsAndReturnsEntity()
     {
         var repo = new InMemoryVehicleRepository();
@@ -125,6 +152,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_InvalidEntity_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task CreateAsync_InvalidEntity_ThrowsBusinessValidation()
     {
         var repo = new InMemoryVehicleRepository();
@@ -142,6 +172,9 @@ public class VehicleServiceTests
     [InlineData("Ford", "Fiesta", "AA00AA", FuelType.Petrol, 2020, BusinessErrorCodes.VehicleLicensePlateInvalidFormat)]
     [InlineData("Ford", "Fiesta", "AA-00-AA", FuelType.None, 2020, BusinessErrorCodes.VehicleFuelInvalid)]
     [InlineData("Ford", "Fiesta", "AA-00-AA", FuelType.Petrol, 1890, BusinessErrorCodes.VehicleManufacturingYearInvalid)]
+    /// <summary>
+    /// Executes the CreateAsync_InvalidPayload_ReturnsMappedBusinessError test operation.
+    /// </summary>
     public async Task CreateAsync_InvalidPayload_ReturnsMappedBusinessError(
         string brand,
         string model,
@@ -160,6 +193,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_WhenDbUpdateFails_ReturnsDuplicatePlateCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenDbUpdateFails_ReturnsDuplicatePlateCode()
     {
         var repo = new InMemoryVehicleRepository { AddException = new DbUpdateException("db") };
@@ -172,6 +208,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode()
     {
         var repo = new InMemoryVehicleRepository { AddException = new ArgumentException("bad", "unknown") };
@@ -184,6 +223,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_NotFound_ThrowsEntityNotFound test operation.
+    /// </summary>
     public async Task UpdateAsync_NotFound_ThrowsEntityNotFound()
     {
         var repo = new InMemoryVehicleRepository();
@@ -194,6 +236,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_InvalidPayload_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task UpdateAsync_InvalidPayload_ThrowsBusinessValidation()
     {
         var vehicle = SeedVehicles(1).Single();
@@ -205,6 +250,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_WhenDbUpdateFails_ReturnsDuplicatePlateCode test operation.
+    /// </summary>
     public async Task UpdateAsync_WhenDbUpdateFails_ReturnsDuplicatePlateCode()
     {
         var vehicle = SeedVehicles(1).Single();
@@ -218,6 +266,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_ValidPayload_UpdatesEntity test operation.
+    /// </summary>
     public async Task UpdateAsync_ValidPayload_UpdatesEntity()
     {
         var vehicle = SeedVehicles(1).Single();
@@ -236,6 +287,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_DuplicateLicensePlate_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task CreateAsync_DuplicateLicensePlate_ThrowsBusinessValidation()
     {
         var existing = SeedVehicles(1).Single();
@@ -247,6 +301,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_DuplicateLicensePlate_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task UpdateAsync_DuplicateLicensePlate_ThrowsBusinessValidation()
     {
         var vehicles = SeedVehicles(2).ToArray();
@@ -258,6 +315,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_EnsureExistsTrue_NotFound_Throws test operation.
+    /// </summary>
     public async Task DeleteAsync_EnsureExistsTrue_NotFound_Throws()
     {
         var repo = new InMemoryVehicleRepository();
@@ -267,6 +327,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_EnsureExistsFalse_DoesNotThrowForMissing test operation.
+    /// </summary>
     public async Task DeleteAsync_EnsureExistsFalse_DoesNotThrowForMissing()
     {
         var repo = new InMemoryVehicleRepository();
@@ -278,6 +341,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_EnsureExistsTrue_DeletesWhenPresent test operation.
+    /// </summary>
     public async Task DeleteAsync_EnsureExistsTrue_DeletesWhenPresent()
     {
         var vehicle = SeedVehicles(1).Single();
@@ -290,6 +356,9 @@ public class VehicleServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_WhenVehicleIsRented_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task DeleteAsync_WhenVehicleIsRented_ThrowsBusinessValidation()
     {
         var vehicle = SeedVehicles(1).Single();

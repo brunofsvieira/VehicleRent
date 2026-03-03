@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Repositories;
@@ -6,9 +6,15 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for RentalContractRepositoryTests.
+/// </summary>
 public class RentalContractRepositoryTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the AddAndGetById_LoadsNavigation test operation.
+    /// </summary>
     public async Task AddAndGetById_LoadsNavigation()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -30,6 +36,9 @@ public class RentalContractRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetAllAsync_FiltersAndOrdersByStartDateDesc test operation.
+    /// </summary>
     public async Task GetAllAsync_FiltersAndOrdersByStartDateDesc()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -53,6 +62,9 @@ public class RentalContractRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetAllAsync_NormalizesInvalidPagingArguments test operation.
+    /// </summary>
     public async Task GetAllAsync_NormalizesInvalidPagingArguments()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -75,6 +87,9 @@ public class RentalContractRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the ExistsVehicleOverlapAsync_RespectsExcludingId test operation.
+    /// </summary>
     public async Task ExistsVehicleOverlapAsync_RespectsExcludingId()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -98,6 +113,9 @@ public class RentalContractRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetCurrentlyRentedVehicleIdsAsync_ReturnsDistinctVehicleIds test operation.
+    /// </summary>
     public async Task GetCurrentlyRentedVehicleIdsAsync_ReturnsDistinctVehicleIds()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -123,6 +141,9 @@ public class RentalContractRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetByIdForWriteAsync_ReturnsTrackedEntity test operation.
+    /// </summary>
     public async Task GetByIdForWriteAsync_ReturnsTrackedEntity()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -145,6 +166,9 @@ public class RentalContractRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetAllAsync_WhenIsFinishedFilterProvided_FiltersByContractStatus test operation.
+    /// </summary>
     public async Task GetAllAsync_WhenIsFinishedFilterProvided_FiltersByContractStatus()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -177,6 +201,9 @@ public class RentalContractRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_PersistsChanges test operation.
+    /// </summary>
     public async Task UpdateAsync_PersistsChanges()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -203,6 +230,9 @@ public class RentalContractRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_WhenMissing_DoesNothing_And_WhenExists_SoftDeletes test operation.
+    /// </summary>
     public async Task DeleteAsync_WhenMissing_DoesNothing_And_WhenExists_SoftDeletes()
     {
         using var ctx = TestDbContextFactory.Create();

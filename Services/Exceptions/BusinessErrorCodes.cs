@@ -1,5 +1,8 @@
-namespace VehicleRent.Services.Exceptions
+﻿namespace VehicleRent.Services.Exceptions
 {
+    /// <summary>
+    /// Represents the BusinessErrorCodes component.
+    /// </summary>
     public static class BusinessErrorCodes
     {
         public const string GenericValidation = "generic.validation";

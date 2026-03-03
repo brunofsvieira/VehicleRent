@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using VehicleRent.Controllers;
 using VehicleRent.Models.Entities;
@@ -9,9 +9,15 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for ClientsControllerTests.
+/// </summary>
 public class ClientsControllerTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the Index_ReturnsViewWithPagedViewModel test operation.
+    /// </summary>
     public async Task Index_ReturnsViewWithPagedViewModel()
     {
         var service = new StubClientService
@@ -34,6 +40,9 @@ public class ClientsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Create_Get_ReturnsDefaultModel test operation.
+    /// </summary>
     public void Create_Get_ReturnsDefaultModel()
     {
         var service = new StubClientService
@@ -51,6 +60,9 @@ public class ClientsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Create_Post_WhenBusinessValidationFails_ReturnsViewWithModelError test operation.
+    /// </summary>
     public async Task Create_Post_WhenBusinessValidationFails_ReturnsViewWithModelError()
     {
         var service = new StubClientService
@@ -74,6 +86,9 @@ public class ClientsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Update_Post_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Update_Post_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubClientService
@@ -96,6 +111,9 @@ public class ClientsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_Post_RedirectsToIndex test operation.
+    /// </summary>
     public async Task Delete_Post_RedirectsToIndex()
     {
         var service = new StubClientService
@@ -113,6 +131,9 @@ public class ClientsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_Post_WhenBlockedByBusinessRule_RedirectsWithTempDataError test operation.
+    /// </summary>
     public async Task Delete_Post_WhenBlockedByBusinessRule_RedirectsWithTempDataError()
     {
         var service = new StubClientService
@@ -171,7 +192,13 @@ public class ClientsControllerTests
 
     private sealed class NullTempDataProvider : Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataProvider
     {
+        /// <summary>
+        /// Executes the LoadTempData test operation.
+        /// </summary>
         public IDictionary<string, object> LoadTempData(HttpContext context) => new Dictionary<string, object>();
+        /// <summary>
+        /// Executes the SaveTempData test operation.
+        /// </summary>
         public void SaveTempData(HttpContext context, IDictionary<string, object> values) { }
     }
 }

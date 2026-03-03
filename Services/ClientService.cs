@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using VehicleRent.Infrastructure;
 using VehicleRent.Models.Entities;
@@ -7,6 +7,9 @@ using VehicleRent.Services.Exceptions;
 
 namespace VehicleRent.Services
 {
+    /// <summary>
+    /// Represents the ClientService component.
+    /// </summary>
     public class ClientService : IClientService
     {
         private static readonly int[] WebPageSizes = [10, 20, 50];
@@ -14,6 +17,9 @@ namespace VehicleRent.Services
         private readonly IRentalContractRepository _rentalContractRepo;
         private readonly IDistributedCache _cache;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientService"/> class.
+        /// </summary>
         public ClientService(IClientRepository repo, IRentalContractRepository rentalContractRepo, IDistributedCache cache)
         {
             _repo = repo;
@@ -21,6 +27,9 @@ namespace VehicleRent.Services
             _cache = cache;
         }
 
+        /// <summary>
+        /// Executes the GetPagedForWebAsync operation.
+        /// </summary>
         public async Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
         {
             var normalizedPage = NormalizePage(page);
@@ -38,6 +47,9 @@ namespace VehicleRent.Services
             return paged;
         }
 
+        /// <summary>
+        /// Executes the GetPagedForApiAsync operation.
+        /// </summary>
         public async Task<PagedResult<Client>> GetPagedForApiAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
         {
             var normalizedPage = NormalizePage(page);
@@ -55,16 +67,25 @@ namespace VehicleRent.Services
             return paged;
         }
 
+        /// <summary>
+        /// Executes the GetByIdAsync operation.
+        /// </summary>
         public Task<Client?> GetByIdAsync(long id)
         {
             return _repo.GetByIdAsync(id);
         }
 
+        /// <summary>
+        /// Executes the GetAllForSelectionAsync operation.
+        /// </summary>
         public Task<IReadOnlyList<Client>> GetAllForSelectionAsync()
         {
             return _repo.GetAllForSelectionAsync();
         }
 
+        /// <summary>
+        /// Executes the CreateAsync operation.
+        /// </summary>
         public async Task<Client> CreateAsync(string name, string email, string phoneNumber, string driverLicense)
         {
             var normalizedEmail = (email ?? string.Empty).Trim().ToLowerInvariant();
@@ -95,6 +116,9 @@ namespace VehicleRent.Services
             }
         }
 
+        /// <summary>
+        /// Executes the UpdateAsync operation.
+        /// </summary>
         public async Task UpdateAsync(long id, string name, string email, string phoneNumber, string driverLicense)
         {
             var entity = await _repo.GetByIdAsync(id);
@@ -130,6 +154,9 @@ namespace VehicleRent.Services
             }
         }
 
+        /// <summary>
+        /// Executes the DeleteAsync operation.
+        /// </summary>
         public async Task DeleteAsync(long id, bool ensureExists)
         {
             if (ensureExists)

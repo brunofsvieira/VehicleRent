@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Repositories;
@@ -6,9 +6,15 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for ClientRepositoryTests.
+/// </summary>
 public class ClientRepositoryTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the AddAndGetById_Work test operation.
+    /// </summary>
     public async Task AddAndGetById_Work()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -23,6 +29,9 @@ public class ClientRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetAllAsync_FiltersByNameOrEmailAndVehicle test operation.
+    /// </summary>
     public async Task GetAllAsync_FiltersByNameOrEmailAndVehicle()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -43,6 +52,9 @@ public class ClientRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the ExistsByEmailAndDriverLicense_RespectExcludingId test operation.
+    /// </summary>
     public async Task ExistsByEmailAndDriverLicense_RespectExcludingId()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -58,6 +70,9 @@ public class ClientRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_WhenMissing_DoesNotThrow test operation.
+    /// </summary>
     public async Task DeleteAsync_WhenMissing_DoesNotThrow()
     {
         using var ctx = TestDbContextFactory.Create();
@@ -69,6 +84,9 @@ public class ClientRepositoryTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_SoftDeletesClient test operation.
+    /// </summary>
     public async Task DeleteAsync_SoftDeletesClient()
     {
         using var ctx = TestDbContextFactory.Create();

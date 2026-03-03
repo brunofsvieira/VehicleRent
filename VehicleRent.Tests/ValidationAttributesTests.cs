@@ -1,12 +1,18 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Models.Validation;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for ValidationAttributesTests.
+/// </summary>
 public class ValidationAttributesTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the ManufacturingYearRange_WithValidYear_ReturnsSuccess test operation.
+    /// </summary>
     public void ManufacturingYearRange_WithValidYear_ReturnsSuccess()
     {
         var attr = new ManufacturingYearRangeAttribute();
@@ -18,6 +24,9 @@ public class ValidationAttributesTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the ManufacturingYearRange_WithInvalidYear_ReturnsError test operation.
+    /// </summary>
     public void ManufacturingYearRange_WithInvalidYear_ReturnsError()
     {
         var attr = new ManufacturingYearRangeAttribute();
@@ -29,6 +38,9 @@ public class ValidationAttributesTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the EnsureFuelNotNone_WithNoneEnum_ReturnsError test operation.
+    /// </summary>
     public void EnsureFuelNotNone_WithNoneEnum_ReturnsError()
     {
         var attr = new EnsureFuelNotNoneAttribute();
@@ -40,6 +52,9 @@ public class ValidationAttributesTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the EnsureFuelNotNone_WithValidEnum_ReturnsSuccess test operation.
+    /// </summary>
     public void EnsureFuelNotNone_WithValidEnum_ReturnsSuccess()
     {
         var attr = new EnsureFuelNotNoneAttribute();
@@ -51,6 +66,9 @@ public class ValidationAttributesTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the EnsureFuelNotNone_WithStringNone_ReturnsError test operation.
+    /// </summary>
     public void EnsureFuelNotNone_WithStringNone_ReturnsError()
     {
         var attr = new EnsureFuelNotNoneAttribute();
@@ -66,6 +84,9 @@ public class ValidationAttributesTests
     [InlineData("AA-11-11")]
     [InlineData("11-11-AA")]
     [InlineData("AA-11-AA")]
+    /// <summary>
+    /// Executes the LicensePlateFormat_WithValidPatterns_ReturnsSuccess test operation.
+    /// </summary>
     public void LicensePlateFormat_WithValidPatterns_ReturnsSuccess(string plate)
     {
         var attr = new LicensePlateFormatAttribute();
@@ -82,6 +103,9 @@ public class ValidationAttributesTests
     [InlineData("11-AA-111")]
     [InlineData("A1-11-AA")]
     [InlineData("11AA11")]
+    /// <summary>
+    /// Executes the LicensePlateFormat_WithInvalidPatterns_ReturnsError test operation.
+    /// </summary>
     public void LicensePlateFormat_WithInvalidPatterns_ReturnsError(string plate)
     {
         var attr = new LicensePlateFormatAttribute();

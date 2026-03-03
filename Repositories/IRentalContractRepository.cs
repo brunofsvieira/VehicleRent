@@ -1,7 +1,10 @@
-using VehicleRent.Models.Entities;
+﻿using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Repositories
 {
+    /// <summary>
+    /// Defines operations for IRentalContractRepository.
+    /// </summary>
     public interface IRentalContractRepository
     {
         Task AddAsync(RentalContract contract);

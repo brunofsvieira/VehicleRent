@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using VehicleRent.Controllers;
@@ -10,10 +10,16 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for ClientsApiControllerTests.
+/// </summary>
 public class ClientsApiControllerTests
 {
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ClientsApiControllerTests"/> class.
+    /// </summary>
     public ClientsApiControllerTests()
     {
         var config = new MapperConfiguration(cfg => cfg.AddProfile<EntitiesProfile>(), NullLoggerFactory.Instance);
@@ -21,6 +27,9 @@ public class ClientsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Get_ReturnsOkWithPagedDtos test operation.
+    /// </summary>
     public async Task Get_ReturnsOkWithPagedDtos()
     {
         var service = new StubClientService
@@ -44,6 +53,9 @@ public class ClientsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetById_WhenMissing_ReturnsNotFound test operation.
+    /// </summary>
     public async Task GetById_WhenMissing_ReturnsNotFound()
     {
         var service = new StubClientService { OnGetById = _ => Task.FromResult<Client?>(null) };
@@ -55,6 +67,9 @@ public class ClientsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetById_WhenExists_ReturnsOk test operation.
+    /// </summary>
     public async Task GetById_WhenExists_ReturnsOk()
     {
         var service = new StubClientService { OnGetById = _ => Task.FromResult<Client?>(BuildClient(4, "Ana", "ana@example.com")) };
@@ -68,6 +83,9 @@ public class ClientsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Post_WhenValid_ReturnsCreatedAtAction test operation.
+    /// </summary>
     public async Task Post_WhenValid_ReturnsCreatedAtAction()
     {
         var service = new StubClientService
@@ -89,6 +107,9 @@ public class ClientsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Post_WhenBusinessValidationFails_ReturnsValidationProblem test operation.
+    /// </summary>
     public async Task Post_WhenBusinessValidationFails_ReturnsValidationProblem()
     {
         var service = new StubClientService
@@ -111,6 +132,9 @@ public class ClientsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Put_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Put_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubClientService
@@ -131,6 +155,9 @@ public class ClientsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Put_WhenBusinessValidationFails_ReturnsValidationProblem test operation.
+    /// </summary>
     public async Task Put_WhenBusinessValidationFails_ReturnsValidationProblem()
     {
         var service = new StubClientService
@@ -153,6 +180,9 @@ public class ClientsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Delete_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubClientService
@@ -167,6 +197,9 @@ public class ClientsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenFound_ReturnsNoContent test operation.
+    /// </summary>
     public async Task Delete_WhenFound_ReturnsNoContent()
     {
         var service = new StubClientService
@@ -181,6 +214,9 @@ public class ClientsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem test operation.
+    /// </summary>
     public async Task Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem()
     {
         var service = new StubClientService

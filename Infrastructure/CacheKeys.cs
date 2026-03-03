@@ -1,5 +1,8 @@
-namespace VehicleRent.Infrastructure
+﻿namespace VehicleRent.Infrastructure
 {
+    /// <summary>
+    /// Represents the CacheKeys component.
+    /// </summary>
     public static class CacheKeys
     {
         public const string ClientVehicleFilterOptions = "clients:vehicle-filter-options";

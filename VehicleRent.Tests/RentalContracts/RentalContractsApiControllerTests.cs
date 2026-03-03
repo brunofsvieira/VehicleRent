@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using VehicleRent.Controllers;
@@ -11,10 +11,16 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for RentalContractsApiControllerTests.
+/// </summary>
 public class RentalContractsApiControllerTests
 {
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RentalContractsApiControllerTests"/> class.
+    /// </summary>
     public RentalContractsApiControllerTests()
     {
         var config = new MapperConfiguration(cfg => cfg.AddProfile<EntitiesProfile>(), NullLoggerFactory.Instance);
@@ -22,6 +28,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Get_ReturnsOkWithPagedDtos test operation.
+    /// </summary>
     public async Task Get_ReturnsOkWithPagedDtos()
     {
         var today = DateTime.UtcNow.Date;
@@ -45,6 +54,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Get_ForwardsIsFinishedFilterToService test operation.
+    /// </summary>
     public async Task Get_ForwardsIsFinishedFilterToService()
     {
         bool? capturedIsFinished = null;
@@ -70,6 +82,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetById_WhenMissing_ReturnsNotFound test operation.
+    /// </summary>
     public async Task GetById_WhenMissing_ReturnsNotFound()
     {
         var service = new StubRentalContractService
@@ -84,6 +99,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Post_WhenBusinessValidationFails_ReturnsValidationProblemWithErrorCodeKey test operation.
+    /// </summary>
     public async Task Post_WhenBusinessValidationFails_ReturnsValidationProblemWithErrorCodeKey()
     {
         var service = new StubRentalContractService
@@ -108,6 +126,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Put_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Put_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubRentalContractService
@@ -130,6 +151,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Put_WhenBusinessValidationFails_ReturnsValidationProblem test operation.
+    /// </summary>
     public async Task Put_WhenBusinessValidationFails_ReturnsValidationProblem()
     {
         var service = new StubRentalContractService
@@ -154,6 +178,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenFound_ReturnsNoContent test operation.
+    /// </summary>
     public async Task Delete_WhenFound_ReturnsNoContent()
     {
         var service = new StubRentalContractService
@@ -168,6 +195,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenMissing_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Delete_WhenMissing_ReturnsNotFound()
     {
         var service = new StubRentalContractService
@@ -182,6 +212,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem test operation.
+    /// </summary>
     public async Task Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem()
     {
         var service = new StubRentalContractService

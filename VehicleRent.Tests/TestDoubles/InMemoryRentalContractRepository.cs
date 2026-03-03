@@ -1,9 +1,12 @@
-using System.Reflection;
+﻿using System.Reflection;
 using VehicleRent.Models.Entities;
 using VehicleRent.Repositories;
 
 namespace VehicleRent.Tests.TestDoubles;
 
+/// <summary>
+/// Represents a test double for InMemoryRentalContractRepository.
+/// </summary>
 internal sealed class InMemoryRentalContractRepository : IRentalContractRepository
 {
     private readonly List<RentalContract> _items = new();
@@ -14,8 +17,14 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
     public Exception? AddException { get; set; }
     public Exception? UpdateException { get; set; }
     public HashSet<long> CurrentlyRentedVehicleIds { get; } = new();
+    /// <summary>
+    /// Executes the member test operation.
+    /// </summary>
     public IReadOnlyList<(int page, int pageSize, bool? isFinished)> PagedCalls => _pagedCalls;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InMemoryRentalContractRepository"/> class.
+    /// </summary>
     public InMemoryRentalContractRepository(IEnumerable<RentalContract>? seed = null)
     {
         if (seed is null) return;
@@ -27,6 +36,9 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         }
     }
 
+    /// <summary>
+    /// Executes the AddAsync test operation.
+    /// </summary>
     public Task AddAsync(RentalContract contract)
     {
         if (AddException is not null) throw AddException;
@@ -35,16 +47,25 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Executes the GetByIdAsync test operation.
+    /// </summary>
     public Task<RentalContract?> GetByIdAsync(long id)
     {
         return Task.FromResult(_items.FirstOrDefault(c => c.Id == id));
     }
 
+    /// <summary>
+    /// Executes the GetByIdForWriteAsync test operation.
+    /// </summary>
     public Task<RentalContract?> GetByIdForWriteAsync(long id)
     {
         return Task.FromResult(_items.FirstOrDefault(c => c.Id == id));
     }
 
+    /// <summary>
+    /// Executes the GetAllAsync test operation.
+    /// </summary>
     public Task<PagedResult<RentalContract>> GetAllAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null, bool? isFinished = null)
     {
         _pagedCalls.Add((page, pageSize, isFinished));
@@ -88,12 +109,18 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         });
     }
 
+    /// <summary>
+    /// Executes the UpdateAsync test operation.
+    /// </summary>
     public Task UpdateAsync(RentalContract contract)
     {
         if (UpdateException is not null) throw UpdateException;
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Executes the DeleteAsync test operation.
+    /// </summary>
     public Task DeleteAsync(long id)
     {
         var existing = _items.FirstOrDefault(c => c.Id == id);
@@ -101,6 +128,9 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Executes the ExistsVehicleOverlapAsync test operation.
+    /// </summary>
     public Task<bool> ExistsVehicleOverlapAsync(long vehicleId, DateTime rentalStartDate, DateTime rentalEndDate, long? excludingId = null)
     {
         if (ForceOverlap) return Task.FromResult(true);
@@ -114,11 +144,17 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         return Task.FromResult(overlaps);
     }
 
+    /// <summary>
+    /// Executes the GetCurrentlyRentedVehicleIdsAsync test operation.
+    /// </summary>
     public Task<HashSet<long>> GetCurrentlyRentedVehicleIdsAsync(DateTime onDate)
     {
         return Task.FromResult(new HashSet<long>(CurrentlyRentedVehicleIds));
     }
 
+    /// <summary>
+    /// Executes the GetCurrentlyActiveClientIdsAsync test operation.
+    /// </summary>
     public Task<HashSet<long>> GetCurrentlyActiveClientIdsAsync(DateTime onDate)
     {
         var date = onDate.Date;
@@ -130,6 +166,9 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         return Task.FromResult(ids);
     }
 
+    /// <summary>
+    /// Executes the HasActiveRentalForVehicleAsync test operation.
+    /// </summary>
     public Task<bool> HasActiveRentalForVehicleAsync(long vehicleId, DateTime onDate)
     {
         var date = onDate.Date;
@@ -138,6 +177,9 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         return Task.FromResult(activeFromItems || activeFromSet);
     }
 
+    /// <summary>
+    /// Executes the HasActiveRentalForClientAsync test operation.
+    /// </summary>
     public Task<bool> HasActiveRentalForClientAsync(long clientId, DateTime onDate)
     {
         var date = onDate.Date;
@@ -145,6 +187,9 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         return Task.FromResult(active);
     }
 
+    /// <summary>
+    /// Executes the IsContractActiveAsync test operation.
+    /// </summary>
     public Task<bool> IsContractActiveAsync(long contractId, DateTime onDate)
     {
         var date = onDate.Date;

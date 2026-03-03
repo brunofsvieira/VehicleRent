@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
@@ -11,6 +11,9 @@ using VehicleRent.Services.Exceptions;
 namespace VehicleRent.Controllers
 {
     [Route("RentalContracts")]
+    /// <summary>
+    /// Represents the RentalContractsController component.
+    /// </summary>
     public class RentalContractsController : Controller
     {
         private readonly IRentalContractService _service;
@@ -18,6 +21,9 @@ namespace VehicleRent.Controllers
         private readonly IVehicleService _vehicleService;
         private readonly IDistributedCache _cache;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RentalContractsController"/> class.
+        /// </summary>
         public RentalContractsController(
             IRentalContractService service,
             IClientService clientService,
@@ -31,6 +37,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet("")]
+        /// <summary>
+        /// Executes the Index operation.
+        /// </summary>
         public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] long? clientId = null, [FromQuery] long? vehicleId = null, [FromQuery] bool? isFinished = null)
         {
             var paged = await _service.GetPagedForWebAsync(page, pageSize, clientId, vehicleId, isFinished);
@@ -116,6 +125,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet("Create")]
+        /// <summary>
+        /// Executes the Create operation.
+        /// </summary>
         public async Task<IActionResult> Create()
         {
             var vm = NewDefaults();
@@ -125,6 +137,9 @@ namespace VehicleRent.Controllers
 
         [HttpPost("Create")]
         [ValidateAntiForgeryToken]
+        /// <summary>
+        /// Executes the Create operation.
+        /// </summary>
         public async Task<IActionResult> Create([FromForm] RentalContractViewModel contract)
         {
             if (!ModelState.IsValid)
@@ -147,6 +162,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet("Update")]
+        /// <summary>
+        /// Executes the Update operation.
+        /// </summary>
         public async Task<IActionResult> Update(long? id)
         {
             if (!id.HasValue)
@@ -166,6 +184,9 @@ namespace VehicleRent.Controllers
 
         [HttpPost("Update")]
         [ValidateAntiForgeryToken]
+        /// <summary>
+        /// Executes the Update operation.
+        /// </summary>
         public async Task<IActionResult> Update([FromForm] RentalContractViewModel contract)
         {
             if (!ModelState.IsValid)
@@ -194,6 +215,9 @@ namespace VehicleRent.Controllers
 
         [HttpPost("Delete")]
         [ValidateAntiForgeryToken]
+        /// <summary>
+        /// Executes the Delete operation.
+        /// </summary>
         public async Task<IActionResult> Delete([FromForm] long id, [FromForm] int page = 1, [FromForm] int pageSize = 10, [FromForm] long? clientId = null, [FromForm] long? vehicleId = null, [FromForm] bool? isFinished = null)
         {
             try

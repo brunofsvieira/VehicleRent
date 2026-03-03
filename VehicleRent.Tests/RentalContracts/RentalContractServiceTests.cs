@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Services;
@@ -7,9 +7,15 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for RentalContractServiceTests.
+/// </summary>
 public class RentalContractServiceTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForWebAsync_NormalizesInvalidInput test operation.
+    /// </summary>
     public async Task GetPagedForWebAsync_NormalizesInvalidInput()
     {
         var repo = new InMemoryRentalContractRepository();
@@ -23,6 +29,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForWebAsync_ClampsPageToLastPage test operation.
+    /// </summary>
     public async Task GetPagedForWebAsync_ClampsPageToLastPage()
     {
         var seed = SeedContracts(15);
@@ -37,6 +46,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForApiAsync_NormalizesPageSize test operation.
+    /// </summary>
     public async Task GetPagedForApiAsync_NormalizesPageSize()
     {
         var repo = new InMemoryRentalContractRepository(SeedContracts(5));
@@ -49,6 +61,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForWebAsync_PropagatesIsFinishedFilterOnClampedPage test operation.
+    /// </summary>
     public async Task GetPagedForWebAsync_PropagatesIsFinishedFilterOnClampedPage()
     {
         var repo = new InMemoryRentalContractRepository(SeedContracts(15));
@@ -61,6 +76,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetPagedForApiAsync_PropagatesIsFinishedFilterOnClampedPage test operation.
+    /// </summary>
     public async Task GetPagedForApiAsync_PropagatesIsFinishedFilterOnClampedPage()
     {
         var repo = new InMemoryRentalContractRepository(SeedContracts(15));
@@ -73,6 +91,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_WhenClientDoesNotExist_ThrowsWithCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenClientDoesNotExist_ThrowsWithCode()
     {
         var repo = new InMemoryRentalContractRepository();
@@ -86,6 +107,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_WhenVehicleDoesNotExist_ThrowsWithCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenVehicleDoesNotExist_ThrowsWithCode()
     {
         var repo = new InMemoryRentalContractRepository();
@@ -99,6 +123,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_WhenOverlap_ThrowsWithCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenOverlap_ThrowsWithCode()
     {
         var repo = new InMemoryRentalContractRepository { ForceOverlap = true };
@@ -112,6 +139,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_Valid_CreatesContract test operation.
+    /// </summary>
     public async Task CreateAsync_Valid_CreatesContract()
     {
         var repo = new InMemoryRentalContractRepository();
@@ -126,6 +156,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_WhenEntityValidationFails_ReturnsMappedErrorCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenEntityValidationFails_ReturnsMappedErrorCode()
     {
         var repo = new InMemoryRentalContractRepository();
@@ -139,6 +172,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_WhenDbUpdateFails_ReturnsSaveFailedErrorCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenDbUpdateFails_ReturnsSaveFailedErrorCode()
     {
         var repo = new InMemoryRentalContractRepository { AddException = new DbUpdateException("db") };
@@ -152,6 +188,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the CreateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode()
     {
         var repo = new InMemoryRentalContractRepository { AddException = new ArgumentException("bad", "unexpected") };
@@ -165,6 +204,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_WhenNotFound_ThrowsEntityNotFound test operation.
+    /// </summary>
     public async Task UpdateAsync_WhenNotFound_ThrowsEntityNotFound()
     {
         var repo = new InMemoryRentalContractRepository();
@@ -176,6 +218,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_WhenEntityValidationFails_ReturnsMappedErrorCode test operation.
+    /// </summary>
     public async Task UpdateAsync_WhenEntityValidationFails_ReturnsMappedErrorCode()
     {
         var contract = SeedContracts(1).Single();
@@ -190,6 +235,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_WhenOverlap_ThrowsWithCode test operation.
+    /// </summary>
     public async Task UpdateAsync_WhenOverlap_ThrowsWithCode()
     {
         var contract = SeedContracts(1).Single();
@@ -204,6 +252,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the UpdateAsync_WhenDbUpdateFails_ReturnsUpdateFailedErrorCode test operation.
+    /// </summary>
     public async Task UpdateAsync_WhenDbUpdateFails_ReturnsUpdateFailedErrorCode()
     {
         var contract = SeedContracts(1).Single();
@@ -221,6 +272,9 @@ public class RentalContractServiceTests
     [InlineData("clientId", BusinessErrorCodes.RentalClientRequired)]
     [InlineData("vehicleId", BusinessErrorCodes.RentalVehicleRequired)]
     [InlineData("rentalStartDate", BusinessErrorCodes.RentalStartDatePast)]
+    /// <summary>
+    /// Executes the CreateAsync_WhenRepositoryThrowsMappedArgumentException_ReturnsExpectedCode test operation.
+    /// </summary>
     public async Task CreateAsync_WhenRepositoryThrowsMappedArgumentException_ReturnsExpectedCode(string paramName, string expectedCode)
     {
         var repo = new InMemoryRentalContractRepository { AddException = new ArgumentException("bad", paramName) };
@@ -234,6 +288,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_EnsureExistsTrue_WhenMissing_Throws test operation.
+    /// </summary>
     public async Task DeleteAsync_EnsureExistsTrue_WhenMissing_Throws()
     {
         var repo = new InMemoryRentalContractRepository();
@@ -243,6 +300,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetByIdAsync_WhenExists_ReturnsContract test operation.
+    /// </summary>
     public async Task GetByIdAsync_WhenExists_ReturnsContract()
     {
         var contract = SeedContracts(1).Single();
@@ -256,6 +316,9 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the DeleteAsync_WhenContractIsActive_ThrowsBusinessValidation test operation.
+    /// </summary>
     public async Task DeleteAsync_WhenContractIsActive_ThrowsBusinessValidation()
     {
         var contract = SeedContracts(1).Single();
