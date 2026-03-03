@@ -4,6 +4,14 @@ using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Repositories
 {
+    /// <summary>
+    /// Provides methods for managing client entities, including adding, retrieving, updating, and deleting clients in
+    /// the application database.
+    /// </summary>
+    /// <remarks>This repository supports asynchronous operations for improved scalability and responsiveness.
+    /// It enables filtering and pagination when retrieving clients, and ensures that client data is accessed and
+    /// modified in a consistent manner. Use this type to interact with client records without directly accessing the
+    /// database context.</remarks>
     public class ClientRepository : IClientRepository
     {
         private readonly ApplicationDbContext _dbContext;

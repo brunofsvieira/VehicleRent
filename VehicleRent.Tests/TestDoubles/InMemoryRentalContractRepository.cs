@@ -8,11 +8,13 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
 {
     private readonly List<RentalContract> _items = new();
     private long _nextId = 1;
-    private readonly List<(int page, int pageSize)> _pagedCalls = new();
+    private readonly List<(int page, int pageSize, bool? isFinished)> _pagedCalls = new();
 
     public bool ForceOverlap { get; set; }
+    public Exception? AddException { get; set; }
+    public Exception? UpdateException { get; set; }
     public HashSet<long> CurrentlyRentedVehicleIds { get; } = new();
-    public IReadOnlyList<(int page, int pageSize)> PagedCalls => _pagedCalls;
+    public IReadOnlyList<(int page, int pageSize, bool? isFinished)> PagedCalls => _pagedCalls;
 
     public InMemoryRentalContractRepository(IEnumerable<RentalContract>? seed = null)
     {
@@ -27,6 +29,7 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
 
     public Task AddAsync(RentalContract contract)
     {
+        if (AddException is not null) throw AddException;
         SetId(contract, _nextId++);
         _items.Add(contract);
         return Task.CompletedTask;
@@ -42,9 +45,9 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         return Task.FromResult(_items.FirstOrDefault(c => c.Id == id));
     }
 
-    public Task<PagedResult<RentalContract>> GetAllAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
+    public Task<PagedResult<RentalContract>> GetAllAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null, bool? isFinished = null)
     {
-        _pagedCalls.Add((page, pageSize));
+        _pagedCalls.Add((page, pageSize, isFinished));
 
         if (page <= 0) page = 1;
         if (pageSize <= 0) pageSize = 10;
@@ -58,6 +61,19 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         if (vehicleId.HasValue && vehicleId.Value > 0)
         {
             query = query.Where(c => c.VehicleId == vehicleId.Value);
+        }
+
+        if (isFinished.HasValue)
+        {
+            var today = DateTime.UtcNow.Date;
+            if (isFinished.Value)
+            {
+                query = query.Where(c => c.RentalEndDate.Date < today);
+            }
+            else
+            {
+                query = query.Where(c => c.RentalEndDate.Date >= today);
+            }
         }
 
         var filtered = query.OrderBy(c => c.Id).ToList();
@@ -74,6 +90,7 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
 
     public Task UpdateAsync(RentalContract contract)
     {
+        if (UpdateException is not null) throw UpdateException;
         return Task.CompletedTask;
     }
 

@@ -19,7 +19,6 @@ namespace VehicleRent.Data
 
             var vehicle = modelBuilder.Entity<Vehicle>();
             vehicle.HasKey(v => v.Id);
-            // Let the database generate the Id (IDENTITY/ValueGeneratedOnAdd)
             vehicle.Property(v => v.Id).ValueGeneratedOnAdd();
 
             vehicle.Property(v => v.Brand)

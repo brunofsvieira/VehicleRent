@@ -33,7 +33,7 @@ namespace VehicleRent.Repositories
             return _dbContext.RentalContracts.FirstOrDefaultAsync(rc => rc.Id == id);
         }
 
-        public async Task<PagedResult<RentalContract>> GetAllAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
+        public async Task<PagedResult<RentalContract>> GetAllAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null, bool? isFinished = null)
         {
             if (page <= 0) page = 1;
             if (pageSize <= 0) pageSize = 10;
@@ -54,6 +54,18 @@ namespace VehicleRent.Repositories
             {
                 var vid = vehicleId.Value;
                 query = query.Where(rc => rc.VehicleId == vid);
+            }
+
+            if (isFinished.HasValue)
+            {
+                if (isFinished.Value)
+                {
+                    query = query.Where(rc => rc.RentalEndDate.Date < DateTime.UtcNow.Date);
+                }
+                else
+                {
+                    query = query.Where(rc => rc.RentalEndDate.Date >= DateTime.UtcNow.Date);
+                }
             }
 
             var total = await query.CountAsync();

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using VehicleRent.Models.Entities;
 using VehicleRent.Services;
 using VehicleRent.Services.Exceptions;
@@ -76,6 +77,68 @@ public class ClientServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_DuplicateDriverLicense_ThrowsBusinessValidation()
+    {
+        var existing = SeedClients(1).Single();
+        var repo = new InMemoryClientRepository([existing]);
+        var sut = CreateSut(repo);
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.CreateAsync("Novo", "novo@example.com", "+351987654321", existing.DriverLicense));
+
+        Assert.Equal(BusinessErrorCodes.ClientDriverLicenseAlreadyExists, ex.ErrorCode);
+    }
+
+    [Theory]
+    [InlineData("", "ana@example.com", "+351912345678", "DL123", BusinessErrorCodes.ClientNameRequired)]
+    [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "ana@example.com", "+351912345678", "DL123", BusinessErrorCodes.ClientNameTooLong)]
+    [InlineData("Ana", "", "+351912345678", "DL123", BusinessErrorCodes.ClientEmailRequired)]
+    [InlineData("Ana", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@example.com", "+351912345678", "DL123", BusinessErrorCodes.ClientEmailTooLong)]
+    [InlineData("Ana", "mail-invalido", "+351912345678", "DL123", BusinessErrorCodes.ClientEmailInvalidFormat)]
+    [InlineData("Ana", "ana@example.com", "", "DL123", BusinessErrorCodes.ClientPhoneRequired)]
+    [InlineData("Ana", "ana@example.com", "912345678", "DL123", BusinessErrorCodes.ClientPhoneInvalidFormat)]
+    [InlineData("Ana", "ana@example.com", "+351912345678", "", BusinessErrorCodes.ClientDriverLicenseRequired)]
+    public async Task CreateAsync_InvalidPayload_ReturnsMappedBusinessError(
+        string name,
+        string email,
+        string phone,
+        string driverLicense,
+        string expectedErrorCode)
+    {
+        var repo = new InMemoryClientRepository();
+        var sut = CreateSut(repo);
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.CreateAsync(name, email, phone, driverLicense));
+
+        Assert.Equal(expectedErrorCode, ex.ErrorCode);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WhenDbUpdateFails_ReturnsCombinedDuplicateCode()
+    {
+        var repo = new InMemoryClientRepository { AddException = new DbUpdateException("db") };
+        var sut = CreateSut(repo);
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.CreateAsync("Ana", "ana@example.com", "+351912345678", "DL123"));
+
+        Assert.Equal(BusinessErrorCodes.ClientEmailOrDriverLicenseAlreadyExists, ex.ErrorCode);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode()
+    {
+        var repo = new InMemoryClientRepository { AddException = new ArgumentException("bad", "unknown") };
+        var sut = CreateSut(repo);
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.CreateAsync("Ana", "ana@example.com", "+351912345678", "DL123"));
+
+        Assert.Equal(BusinessErrorCodes.GenericValidation, ex.ErrorCode);
+    }
+
+    [Fact]
     public async Task UpdateAsync_NotFound_ThrowsEntityNotFound()
     {
         var repo = new InMemoryClientRepository();
@@ -97,6 +160,19 @@ public class ClientServiceTests
     }
 
     [Fact]
+    public async Task UpdateAsync_DuplicateDriverLicense_ThrowsBusinessValidation()
+    {
+        var clients = SeedClients(2).ToArray();
+        var repo = new InMemoryClientRepository(clients);
+        var sut = CreateSut(repo);
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.UpdateAsync(clients[1].Id, "Nome", "novo@example.com", "+351987654321", clients[0].DriverLicense));
+
+        Assert.Equal(BusinessErrorCodes.ClientDriverLicenseAlreadyExists, ex.ErrorCode);
+    }
+
+    [Fact]
     public async Task UpdateAsync_ValidPayload_UpdatesEntity()
     {
         var client = SeedClients(1).Single();
@@ -111,6 +187,32 @@ public class ClientServiceTests
         Assert.Equal("ana.maria@example.com", updated.Email);
         Assert.Equal("+351987654321", updated.PhoneNumber);
         Assert.Equal("DL777", updated.DriverLicense);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenDbUpdateFails_ReturnsCombinedDuplicateCode()
+    {
+        var client = SeedClients(1).Single();
+        var repo = new InMemoryClientRepository([client]) { UpdateException = new DbUpdateException("db") };
+        var sut = CreateSut(repo);
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.UpdateAsync(client.Id, "Ana Maria", "ana.maria@example.com", "+351987654321", "DL777"));
+
+        Assert.Equal(BusinessErrorCodes.ClientEmailOrDriverLicenseAlreadyExists, ex.ErrorCode);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode()
+    {
+        var client = SeedClients(1).Single();
+        var repo = new InMemoryClientRepository([client]) { UpdateException = new ArgumentException("bad", "unknown") };
+        var sut = CreateSut(repo);
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.UpdateAsync(client.Id, "Ana Maria", "ana.maria@example.com", "+351987654321", "DL777"));
+
+        Assert.Equal(BusinessErrorCodes.GenericValidation, ex.ErrorCode);
     }
 
     [Fact]

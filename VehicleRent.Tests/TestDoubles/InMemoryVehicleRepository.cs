@@ -8,6 +8,8 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
 {
     private readonly List<Vehicle> _items = new();
     private long _nextId = 1;
+    public Exception? AddException { get; set; }
+    public Exception? UpdateException { get; set; }
 
     public IReadOnlyList<(int page, int pageSize)> PagedCalls => _pagedCalls;
     public int GetByIdCalls { get; private set; }
@@ -27,6 +29,7 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
 
     public Task AddAsync(Vehicle vehicle)
     {
+        if (AddException is not null) throw AddException;
         SetId(vehicle, _nextId++);
         _items.Add(vehicle);
         return Task.CompletedTask;
@@ -87,6 +90,7 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
 
     public Task UpdateAsync(Vehicle vehicle)
     {
+        if (UpdateException is not null) throw UpdateException;
         // No-op: instance is already reference-updated in memory.
         return Task.CompletedTask;
     }

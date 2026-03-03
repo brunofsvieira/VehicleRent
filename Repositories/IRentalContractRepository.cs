@@ -7,7 +7,7 @@ namespace VehicleRent.Repositories
         Task AddAsync(RentalContract contract);
         Task<RentalContract?> GetByIdAsync(long id);
         Task<RentalContract?> GetByIdForWriteAsync(long id);
-        Task<PagedResult<RentalContract>> GetAllAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null);
+        Task<PagedResult<RentalContract>> GetAllAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null, bool? isFinished = null);
         Task UpdateAsync(RentalContract contract);
         Task DeleteAsync(long id);
         Task<bool> ExistsVehicleOverlapAsync(long vehicleId, DateTime rentalStartDate, DateTime rentalEndDate, long? excludingId = null);

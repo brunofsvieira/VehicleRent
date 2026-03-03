@@ -10,6 +10,7 @@
     var endPage = Math.Min(totalPages, currentPage + 2);
     var currentClientId = ViewBag.CurrentClientId as long?;
     var currentVehicleId = ViewBag.CurrentVehicleId as long?;
+    var currentIsFinished = ViewBag.CurrentIsFinished as bool?;
     var clientFilterOptions = ViewBag.ClientFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
     var vehicleFilterOptions = ViewBag.VehicleFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
 }
@@ -41,6 +42,14 @@
             </select>
           </div>
           <div class="col-12 col-md-5">
+            <label for="finishedFilter" class="form-label mb-1">Estado</label>
+            <select id="finishedFilter" name="isFinished" class="form-select">
+               <option value="">-- Estados --</option>
+                            <option value="true" selected="@(currentIsFinished == true)">Terminado</option>
+               <option value="false" selected="@(currentIsFinished == false)">Em curso</option>
+             </select>
+          </div>
+          <div class="col-12 col-md-5">
             <label for="vehicleIdFilter" class="form-label mb-1">Matrícula</label>
             <select id="vehicleIdFilter" name="vehicleId" class="form-select">
               <option value="">-- todas as matrículas --</option>
@@ -49,12 +58,12 @@
                   <option value="@item.Value" selected="@item.Selected">@item.Text</option>
               }
             </select>
-          </div>
-          <div class="col-12 col-md-2 d-flex gap-2">
-            <input type="hidden" name="pageSize" value="@pageSize" />
-            <button class="btn btn-primary flex-fill" type="submit">Filtrar</button>
-            <a class="btn btn-outline-secondary flex-fill" asp-action="Index" asp-route-pageSize="@pageSize">Limpar</a>
-          </div>
+            </div>
+            <div class="col-12 col-md-2 d-flex gap-2">
+                <input type="hidden" name="pageSize" value="@pageSize" />
+                <button class="btn btn-primary flex-fill" type="submit">Filtrar</button>
+                <a class="btn btn-outline-secondary flex-fill" asp-action="Index" asp-route-pageSize="@pageSize">Limpar</a>
+            </div>
         </div>
       </form>
 
@@ -104,6 +113,7 @@
                       <input type="hidden" name="pageSize" value="@pageSize" />
                       <input type="hidden" name="clientId" value="@currentClientId" />
                       <input type="hidden" name="vehicleId" value="@currentVehicleId" />
+                      <input type="hidden" name="isFinished" value="@((currentIsFinished.HasValue) ? currentIsFinished.Value.ToString().ToLowerInvariant() : "")" />
                       <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this rental contract?');">Apagar</button>
                     </form>
                   </td>

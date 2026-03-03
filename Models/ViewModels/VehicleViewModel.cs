@@ -15,11 +15,11 @@ namespace VehicleRent.Models.ViewModels
         public long? Id { get; set; }
 
         [Required(ErrorMessage = "O campo Marca e obrigatório.")]
-        [StringLength(30, ErrorMessage = "A Marca deve ter no maximo 30 caracteres.")]
+        [StringLength(30, ErrorMessage = "A Marca deve ter no máximo 30 caracteres.")]
         public required string Brand { get; set; }
 
         [Required(ErrorMessage = "O campo Modelo e obrigatório.")]
-        [StringLength(30, ErrorMessage = "O Modelo deve ter no maximo 30 caracteres.")]
+        [StringLength(30, ErrorMessage = "O Modelo deve ter no máximo 30 caracteres.")]
         public required string Model { get; set; }
 
         [Required(ErrorMessage = "O campo Matrícula e obrigatório.")]

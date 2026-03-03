@@ -15,7 +15,6 @@ namespace VehicleRent.Repositories
 
         public async Task AddAsync(Vehicle vehicle)
         {
-            // Let EF / database generate the Id (IDENTITY)
             _dbContext.Vehicles.Add(vehicle);
             await _dbContext.SaveChangesAsync();
         }
@@ -84,7 +83,6 @@ namespace VehicleRent.Repositories
 
         public async Task UpdateAsync(Vehicle vehicle)
         {
-            // Assumes vehicle.Id is set and valid
             _dbContext.Vehicles.Update(vehicle);
             await _dbContext.SaveChangesAsync();
         }

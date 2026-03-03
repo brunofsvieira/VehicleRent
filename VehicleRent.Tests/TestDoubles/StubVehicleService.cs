@@ -6,8 +6,12 @@ namespace VehicleRent.Tests.TestDoubles;
 
 internal sealed class StubVehicleService : IVehicleService
 {
+    // Legacy (4-arg) delegates kept for existing unit tests
     public Func<int, int, string?, long?, Task<PagedResult<Vehicle>>>? OnGetPagedForWeb { get; set; }
     public Func<int, int, string?, long?, Task<PagedResult<Vehicle>>>? OnGetPagedForApi { get; set; }
+    // New signature with availabilityStatus for newer tests
+    public Func<int, int, string?, long?, bool?, Task<PagedResult<Vehicle>>>? OnGetPagedForWebWithStatus { get; set; }
+    public Func<int, int, string?, long?, bool?, Task<PagedResult<Vehicle>>>? OnGetPagedForApiWithStatus { get; set; }
     public Func<Task<IReadOnlyList<Vehicle>>>? OnGetAllForSelection { get; set; }
     public Func<long, Task<Vehicle?>>? OnGetById { get; set; }
     public Func<string, string, string, FuelType, int, Task<Vehicle>>? OnCreate { get; set; }
@@ -32,16 +36,18 @@ internal sealed class StubVehicleService : IVehicleService
         return OnGetById(id);
     }
 
-    public Task<PagedResult<Vehicle>> GetPagedForApiAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
+    public Task<PagedResult<Vehicle>> GetPagedForApiAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null, bool? availabilityStatus = null)
     {
-        if (OnGetPagedForApi is null) throw new NotImplementedException();
-        return OnGetPagedForApi(page, pageSize, licensePlate, clientId);
+        if (OnGetPagedForApiWithStatus is not null) return OnGetPagedForApiWithStatus(page, pageSize, licensePlate, clientId, availabilityStatus);
+        if (OnGetPagedForApi is not null) return OnGetPagedForApi(page, pageSize, licensePlate, clientId);
+        throw new NotImplementedException();
     }
 
-    public Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
+    public Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null, bool? availabilityStatus = null)
     {
-        if (OnGetPagedForWeb is null) throw new NotImplementedException();
-        return OnGetPagedForWeb(page, pageSize, licensePlate, clientId);
+        if (OnGetPagedForWebWithStatus is not null) return OnGetPagedForWebWithStatus(page, pageSize, licensePlate, clientId, availabilityStatus);
+        if (OnGetPagedForWeb is not null) return OnGetPagedForWeb(page, pageSize, licensePlate, clientId);
+        throw new NotImplementedException();
     }
 
     public Task UpdateAsync(long id, string brand, string model, string licensePlate, FuelType fuel, int manufacturingYear)

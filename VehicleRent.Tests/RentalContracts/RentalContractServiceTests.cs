@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Services;
@@ -18,7 +19,7 @@ public class RentalContractServiceTests
 
         Assert.Equal(1, result.Page);
         Assert.Equal(10, result.PageSize);
-        Assert.Equal((1, 10), repo.PagedCalls[0]);
+        Assert.Equal((1, 10, null), repo.PagedCalls[0]);
     }
 
     [Fact]
@@ -31,8 +32,8 @@ public class RentalContractServiceTests
         var result = await sut.GetPagedForWebAsync(page: 99, pageSize: 10);
 
         Assert.Equal(2, result.Page);
-        Assert.Equal((99, 10), repo.PagedCalls[0]);
-        Assert.Equal((2, 10), repo.PagedCalls[1]);
+        Assert.Equal((99, 10, null), repo.PagedCalls[0]);
+        Assert.Equal((2, 10, null), repo.PagedCalls[1]);
     }
 
     [Fact]
@@ -44,7 +45,31 @@ public class RentalContractServiceTests
         var result = await sut.GetPagedForApiAsync(page: 1, pageSize: 500);
 
         Assert.Equal(10, result.PageSize);
-        Assert.Equal((1, 10), repo.PagedCalls[0]);
+        Assert.Equal((1, 10, null), repo.PagedCalls[0]);
+    }
+
+    [Fact]
+    public async Task GetPagedForWebAsync_PropagatesIsFinishedFilterOnClampedPage()
+    {
+        var repo = new InMemoryRentalContractRepository(SeedContracts(15));
+        var sut = CreateSut(repo);
+
+        _ = await sut.GetPagedForWebAsync(page: 99, pageSize: 10, isFinished: false);
+
+        Assert.Equal((99, 10, false), repo.PagedCalls[0]);
+        Assert.Equal((2, 10, false), repo.PagedCalls[1]);
+    }
+
+    [Fact]
+    public async Task GetPagedForApiAsync_PropagatesIsFinishedFilterOnClampedPage()
+    {
+        var repo = new InMemoryRentalContractRepository(SeedContracts(15));
+        var sut = CreateSut(repo);
+
+        _ = await sut.GetPagedForApiAsync(page: 99, pageSize: 10, isFinished: false);
+
+        Assert.Equal((99, 10, false), repo.PagedCalls[0]);
+        Assert.Equal((2, 10, false), repo.PagedCalls[1]);
     }
 
     [Fact]
@@ -101,6 +126,45 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    public async Task CreateAsync_WhenEntityValidationFails_ReturnsMappedErrorCode()
+    {
+        var repo = new InMemoryRentalContractRepository();
+        var sut = CreateSut(repo);
+        var today = DateTime.UtcNow.Date;
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.CreateAsync(1, 1, today, today.AddDays(1), -1));
+
+        Assert.Equal(BusinessErrorCodes.RentalInitialMileageInvalid, ex.ErrorCode);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WhenDbUpdateFails_ReturnsSaveFailedErrorCode()
+    {
+        var repo = new InMemoryRentalContractRepository { AddException = new DbUpdateException("db") };
+        var sut = CreateSut(repo);
+        var today = DateTime.UtcNow.Date;
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.CreateAsync(1, 1, today, today.AddDays(1), 0));
+
+        Assert.Equal(BusinessErrorCodes.RentalSaveFailed, ex.ErrorCode);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WhenUnexpectedArgumentException_ReturnsGenericValidationCode()
+    {
+        var repo = new InMemoryRentalContractRepository { AddException = new ArgumentException("bad", "unexpected") };
+        var sut = CreateSut(repo);
+        var today = DateTime.UtcNow.Date;
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.CreateAsync(1, 1, today, today.AddDays(1), 0));
+
+        Assert.Equal(BusinessErrorCodes.GenericValidation, ex.ErrorCode);
+    }
+
+    [Fact]
     public async Task UpdateAsync_WhenNotFound_ThrowsEntityNotFound()
     {
         var repo = new InMemoryRentalContractRepository();
@@ -126,12 +190,69 @@ public class RentalContractServiceTests
     }
 
     [Fact]
+    public async Task UpdateAsync_WhenOverlap_ThrowsWithCode()
+    {
+        var contract = SeedContracts(1).Single();
+        var repo = new InMemoryRentalContractRepository([contract]) { ForceOverlap = true };
+        var sut = CreateSut(repo);
+        var today = DateTime.UtcNow.Date;
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.UpdateAsync(contract.Id, 1, 1, today, today.AddDays(1), 0));
+
+        Assert.Equal(BusinessErrorCodes.RentalVehicleOverlap, ex.ErrorCode);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenDbUpdateFails_ReturnsUpdateFailedErrorCode()
+    {
+        var contract = SeedContracts(1).Single();
+        var repo = new InMemoryRentalContractRepository([contract]) { UpdateException = new DbUpdateException("db") };
+        var sut = CreateSut(repo);
+        var today = DateTime.UtcNow.Date;
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.UpdateAsync(contract.Id, 1, 1, today, today.AddDays(1), 0));
+
+        Assert.Equal(BusinessErrorCodes.RentalUpdateFailed, ex.ErrorCode);
+    }
+
+    [Theory]
+    [InlineData("clientId", BusinessErrorCodes.RentalClientRequired)]
+    [InlineData("vehicleId", BusinessErrorCodes.RentalVehicleRequired)]
+    [InlineData("rentalStartDate", BusinessErrorCodes.RentalStartDatePast)]
+    public async Task CreateAsync_WhenRepositoryThrowsMappedArgumentException_ReturnsExpectedCode(string paramName, string expectedCode)
+    {
+        var repo = new InMemoryRentalContractRepository { AddException = new ArgumentException("bad", paramName) };
+        var sut = CreateSut(repo);
+        var today = DateTime.UtcNow.Date;
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
+            sut.CreateAsync(1, 1, today, today.AddDays(1), 0));
+
+        Assert.Equal(expectedCode, ex.ErrorCode);
+    }
+
+    [Fact]
     public async Task DeleteAsync_EnsureExistsTrue_WhenMissing_Throws()
     {
         var repo = new InMemoryRentalContractRepository();
         var sut = CreateSut(repo);
 
         await Assert.ThrowsAsync<EntityNotFoundException>(() => sut.DeleteAsync(55, true));
+    }
+
+    [Fact]
+    public async Task GetByIdAsync_WhenExists_ReturnsContract()
+    {
+        var contract = SeedContracts(1).Single();
+        var repo = new InMemoryRentalContractRepository([contract]);
+        var sut = CreateSut(repo);
+
+        var loaded = await sut.GetByIdAsync(contract.Id);
+
+        Assert.NotNull(loaded);
+        Assert.Equal(contract.Id, loaded!.Id);
     }
 
     private static RentalContractService CreateSut(InMemoryRentalContractRepository repo, bool withClient = true, bool withVehicle = true)

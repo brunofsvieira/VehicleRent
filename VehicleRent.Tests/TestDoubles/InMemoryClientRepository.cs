@@ -9,6 +9,8 @@ internal sealed class InMemoryClientRepository : IClientRepository
     private readonly List<Client> _items = new();
     private long _nextId = 1;
     private readonly List<(int page, int pageSize)> _pagedCalls = new();
+    public Exception? AddException { get; set; }
+    public Exception? UpdateException { get; set; }
 
     public IReadOnlyList<(int page, int pageSize)> PagedCalls => _pagedCalls;
 
@@ -25,6 +27,7 @@ internal sealed class InMemoryClientRepository : IClientRepository
 
     public Task AddAsync(Client client)
     {
+        if (AddException is not null) throw AddException;
         SetId(client, _nextId++);
         _items.Add(client);
         return Task.CompletedTask;
@@ -52,7 +55,6 @@ internal sealed class InMemoryClientRepository : IClientRepository
                 c.Email.Contains(term, StringComparison.OrdinalIgnoreCase));
         }
 
-        // vehicleId filter is ignored in this in-memory double because there is no relation graph here.
         var filtered = query.ToList();
         var total = filtered.Count;
         var pageItems = filtered
@@ -97,6 +99,7 @@ internal sealed class InMemoryClientRepository : IClientRepository
 
     public Task UpdateAsync(Client client)
     {
+        if (UpdateException is not null) throw UpdateException;
         return Task.CompletedTask;
     }
 

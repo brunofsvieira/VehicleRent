@@ -21,9 +21,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedResult<RentalContractDto>>> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] long? clientId = null, [FromQuery] long? vehicleId = null)
+        public async Task<ActionResult<PagedResult<RentalContractDto>>> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] long? clientId = null, [FromQuery] long? vehicleId = null, [FromQuery] bool? isFinished = null)
         {
-            var paged = await _service.GetPagedForApiAsync(page, pageSize, clientId, vehicleId);
+            var paged = await _service.GetPagedForApiAsync(page, pageSize, clientId, vehicleId, isFinished);
 
             return Ok(new PagedResult<RentalContractDto>
             {

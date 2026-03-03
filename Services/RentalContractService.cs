@@ -22,7 +22,7 @@ namespace VehicleRent.Services
             _vehicleRepo = vehicleRepo;
         }
 
-        public async Task<PagedResult<RentalContract>> GetPagedForWebAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
+        public async Task<PagedResult<RentalContract>> GetPagedForWebAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null, bool? isFinished = null)
         {
             var normalizedPage = NormalizePage(page);
             var normalizedPageSize = WebPageSizes.Contains(pageSize) ? pageSize : 10;
@@ -30,16 +30,16 @@ namespace VehicleRent.Services
             var normalizedClientId = clientId.HasValue && clientId.Value > 0 ? clientId : null;
             var normalizedVehicleId = vehicleId.HasValue && vehicleId.Value > 0 ? vehicleId : null;
 
-            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize, normalizedClientId, normalizedVehicleId);
+            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize, normalizedClientId, normalizedVehicleId, isFinished);
             if (paged.TotalPages > 0 && normalizedPage > paged.TotalPages)
             {
-                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize, normalizedClientId, normalizedVehicleId);
+                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize, normalizedClientId, normalizedVehicleId, isFinished);
             }
 
             return paged;
         }
 
-        public async Task<PagedResult<RentalContract>> GetPagedForApiAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
+        public async Task<PagedResult<RentalContract>> GetPagedForApiAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null, bool? isFinished = null)
         {
             var normalizedPage = NormalizePage(page);
             var normalizedPageSize = pageSize <= 0 || pageSize > 100 ? 10 : pageSize;
@@ -47,10 +47,10 @@ namespace VehicleRent.Services
             var normalizedClientId = clientId.HasValue && clientId.Value > 0 ? clientId : null;
             var normalizedVehicleId = vehicleId.HasValue && vehicleId.Value > 0 ? vehicleId : null;
 
-            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize, normalizedClientId, normalizedVehicleId);
+            var paged = await _repo.GetAllAsync(normalizedPage, normalizedPageSize, normalizedClientId, normalizedVehicleId, isFinished);
             if (paged.TotalPages > 0 && normalizedPage > paged.TotalPages)
             {
-                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize, normalizedClientId, normalizedVehicleId);
+                paged = await _repo.GetAllAsync(paged.TotalPages, normalizedPageSize, normalizedClientId, normalizedVehicleId, isFinished);
             }
 
             return paged;

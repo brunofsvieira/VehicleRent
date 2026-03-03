@@ -34,6 +34,31 @@ public class RentalContractsControllerTests
     }
 
     [Fact]
+    public async Task Index_ForwardsIsFinishedFilterToService()
+    {
+        bool? capturedIsFinished = null;
+        var service = new StubRentalContractService
+        {
+            OnGetPagedForWebWithFinished = (_, _, _, _, isFinished) =>
+            {
+                capturedIsFinished = isFinished;
+                return Task.FromResult(new PagedResult<RentalContract>
+                {
+                    Items = Array.Empty<RentalContract>(),
+                    TotalCount = 0,
+                    Page = 1,
+                    PageSize = 10
+                });
+            }
+        };
+        var sut = CreateSut(service);
+
+        _ = await sut.Index(isFinished: true);
+
+        Assert.True(capturedIsFinished);
+    }
+
+    [Fact]
     public async Task Create_Post_WhenBusinessValidationFails_AddsTranslatedModelError()
     {
         var service = new StubRentalContractService
@@ -81,6 +106,49 @@ public class RentalContractsControllerTests
         var result = await sut.Update(vm);
 
         Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task Update_Get_WithoutId_ReturnsDefaultModel()
+    {
+        var service = new StubRentalContractService
+        {
+            OnGetPagedForWeb = (_, _, _, _) => Task.FromResult(new PagedResult<RentalContract>())
+        };
+        var sut = CreateSut(service);
+
+        var result = await sut.Update((long?)null);
+
+        var view = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsType<RentalContractViewModel>(view.Model);
+        Assert.Equal(0, model.ClientId);
+        Assert.Equal(0, model.VehicleId);
+    }
+
+    [Fact]
+    public async Task Update_Post_WhenBusinessValidationFails_ReturnsViewWithTranslatedError()
+    {
+        var service = new StubRentalContractService
+        {
+            OnUpdate = (_, _, _, _, _, _) => throw new BusinessValidationException(BusinessErrorCodes.RentalVehicleOverlap, "overlap")
+        };
+        var sut = CreateSut(service);
+        var today = DateTime.UtcNow.Date;
+        var vm = new RentalContractViewModel
+        {
+            Id = 1,
+            ClientId = 1,
+            VehicleId = 1,
+            RentalStartDate = today,
+            RentalEndDate = today.AddDays(1),
+            InitialMileage = 0
+        };
+
+        var result = await sut.Update(vm);
+
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Same(vm, view.Model);
+        Assert.False(sut.ModelState.IsValid);
     }
 
     [Fact]

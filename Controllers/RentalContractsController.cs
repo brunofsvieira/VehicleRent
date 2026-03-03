@@ -31,9 +31,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] long? clientId = null, [FromQuery] long? vehicleId = null)
+        public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] long? clientId = null, [FromQuery] long? vehicleId = null, [FromQuery] bool? isFinished = null)
         {
-            var paged = await _service.GetPagedForWebAsync(page, pageSize, clientId, vehicleId);
+            var paged = await _service.GetPagedForWebAsync(page, pageSize, clientId, vehicleId, isFinished);
 
             var cachedClients = await _cache.GetStringAsync(CacheKeys.RentalContractClientFilterOptions);
             List<ClientFilterCacheItem>? clientOptions = null;
@@ -102,6 +102,7 @@ namespace VehicleRent.Controllers
 
             ViewBag.CurrentClientId = clientId;
             ViewBag.CurrentVehicleId = vehicleId;
+            ViewBag.CurrentIsFinished = isFinished;
 
             var vmPaged = new PagedResult<RentalContractViewModel>
             {
