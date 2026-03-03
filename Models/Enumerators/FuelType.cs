@@ -1,5 +1,8 @@
 ﻿namespace VehicleRent.Models.Enumerators
 {
+    /// <summary>
+    /// Represents values for FuelType.
+    /// </summary>
     public enum FuelType
     {
         /// <summary>

@@ -1,5 +1,8 @@
-namespace VehicleRent.Services.Exceptions
+﻿namespace VehicleRent.Services.Exceptions
 {
+    /// <summary>
+    /// Represents the BusinessErrorCodes component.
+    /// </summary>
     public static class BusinessErrorCodes
     {
         public const string GenericValidation = "generic.validation";
@@ -11,6 +14,7 @@ namespace VehicleRent.Services.Exceptions
         public const string VehicleLicensePlateInvalidFormat = "vehicle.license_plate.invalid_format";
         public const string VehicleFuelInvalid = "vehicle.fuel.invalid";
         public const string VehicleManufacturingYearInvalid = "vehicle.manufacturing_year.invalid";
+        public const string VehicleDeleteBlockedActiveRental = "vehicle.delete.blocked.active_rental";
 
         public const string ClientEmailAlreadyExists = "client.email.already_exists";
         public const string ClientDriverLicenseAlreadyExists = "client.driver_license.already_exists";
@@ -23,6 +27,7 @@ namespace VehicleRent.Services.Exceptions
         public const string ClientPhoneRequired = "client.phone.required";
         public const string ClientPhoneInvalidFormat = "client.phone.invalid_format";
         public const string ClientDriverLicenseRequired = "client.driver_license.required";
+        public const string ClientDeleteBlockedActiveRental = "client.delete.blocked.active_rental";
 
         public const string RentalVehicleOverlap = "rental.vehicle.overlap";
         public const string RentalSaveFailed = "rental.save.failed";
@@ -34,5 +39,6 @@ namespace VehicleRent.Services.Exceptions
         public const string RentalStartDatePast = "rental.start_date.past";
         public const string RentalEndDateInvalid = "rental.end_date.invalid";
         public const string RentalInitialMileageInvalid = "rental.initial_mileage.invalid";
+        public const string RentalDeleteBlockedActiveContract = "rental.delete.blocked.active_contract";
     }
 }

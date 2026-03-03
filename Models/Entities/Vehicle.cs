@@ -1,10 +1,13 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 using VehicleRent.Models.Enumerators;
 
 namespace VehicleRent.Models.Entities
 {
+    /// <summary>
+    /// Represents the Vehicle component.
+    /// </summary>
     public class Vehicle : BaseEntity
     {
         private static readonly Regex LicensePlatePattern = new(
@@ -21,17 +24,26 @@ namespace VehicleRent.Models.Entities
 
         protected Vehicle() { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Vehicle"/> class.
+        /// </summary>
         public Vehicle(string brand, string model, FuelType fuelType, int manufacturingYear, string licensePlate)
         {
             ValidateAndSet(brand, model, fuelType, manufacturingYear, licensePlate);
         }
 
+        /// <summary>
+        /// Executes the UpdateVehicle operation.
+        /// </summary>
         public void UpdateVehicle(string brand, string model, FuelType fuelType, int manufacturingYear, string licensePlate)
         {
             ValidateAndSet(brand, model, fuelType, manufacturingYear, licensePlate);
             TouchUpdate();
         }
 
+        /// <summary>
+        /// Executes the SetRentalStatus operation.
+        /// </summary>
         public void SetRentalStatus(bool isCurrentlyRented)
         {
             IsCurrentlyRented = isCurrentlyRented;

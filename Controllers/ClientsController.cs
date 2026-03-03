@@ -1,29 +1,41 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 using VehicleRent.Infrastructure;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.ViewModels;
+using VehicleRent.Repositories;
 using VehicleRent.Services;
 using VehicleRent.Services.Exceptions;
 
 namespace VehicleRent.Controllers
 {
     [Route("Clients")]
+    /// <summary>
+    /// Represents the ClientsController component.
+    /// </summary>
     public class ClientsController : Controller
     {
         private readonly IClientService _service;
         private readonly IVehicleService _vehicleService;
+        private readonly IRentalContractRepository _rentalContractRepository;
         private readonly IDistributedCache _cache;
 
-        public ClientsController(IClientService service, IVehicleService vehicleService, IDistributedCache cache)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientsController"/> class.
+        /// </summary>
+        public ClientsController(IClientService service, IVehicleService vehicleService, IRentalContractRepository rentalContractRepository, IDistributedCache cache)
         {
             _service = service;
             _vehicleService = vehicleService;
+            _rentalContractRepository = rentalContractRepository;
             _cache = cache;
         }
 
         [HttpGet("")]
+        /// <summary>
+        /// Executes the Index operation.
+        /// </summary>
         public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] long? vehicleId = null, [FromQuery] string? nameOrEmail = null)
         {
             var paged = await _service.GetPagedForWebAsync(page, pageSize, nameOrEmail, vehicleId);
@@ -63,6 +75,7 @@ namespace VehicleRent.Controllers
             }).ToList();
             ViewBag.CurrentVehicleId = vehicleId;
             ViewBag.CurrentNameOrEmail = nameOrEmail ?? string.Empty;
+            ViewBag.ActiveClientIds = await _rentalContractRepository.GetCurrentlyActiveClientIdsAsync(DateTime.UtcNow.Date);
 
             var vmPaged = new PagedResult<ClientViewModel>
             {
@@ -76,6 +89,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet("Create")]
+        /// <summary>
+        /// Executes the Create operation.
+        /// </summary>
         public IActionResult Create()
         {
             return View(NewClientDefaults());
@@ -83,6 +99,9 @@ namespace VehicleRent.Controllers
 
         [HttpPost("Create")]
         [ValidateAntiForgeryToken]
+        /// <summary>
+        /// Executes the Create operation.
+        /// </summary>
         public async Task<IActionResult> Create([FromForm] ClientViewModel client)
         {
             if (!ModelState.IsValid) return View(client);
@@ -101,6 +120,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet("Update")]
+        /// <summary>
+        /// Executes the Update operation.
+        /// </summary>
         public async Task<IActionResult> Update(long? id)
         {
             if (!id.HasValue) return View(NewClientDefaults());
@@ -113,6 +135,9 @@ namespace VehicleRent.Controllers
 
         [HttpPost("Update")]
         [ValidateAntiForgeryToken]
+        /// <summary>
+        /// Executes the Update operation.
+        /// </summary>
         public async Task<IActionResult> Update([FromForm] ClientViewModel client)
         {
             if (!ModelState.IsValid) return View(client);
@@ -137,9 +162,19 @@ namespace VehicleRent.Controllers
 
         [HttpPost("Delete")]
         [ValidateAntiForgeryToken]
+        /// <summary>
+        /// Executes the Delete operation.
+        /// </summary>
         public async Task<IActionResult> Delete([FromForm] long id, [FromForm] int page = 1, [FromForm] int pageSize = 10, [FromForm] long? vehicleId = null, [FromForm] string? nameOrEmail = null)
         {
-            await _service.DeleteAsync(id, ensureExists: false);
+            try
+            {
+                await _service.DeleteAsync(id, ensureExists: false);
+            }
+            catch (BusinessValidationException ex)
+            {
+                TempData["ErrorMessage"] = FrontendErrorMessages.ToPt(ex.ErrorCode);
+            }
             return RedirectToAction(nameof(Index), new { page, pageSize, vehicleId, nameOrEmail });
         }
 

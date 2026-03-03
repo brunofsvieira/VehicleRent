@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using VehicleRent.Controllers;
@@ -11,10 +11,16 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for VehiclesApiControllerTests.
+/// </summary>
 public class VehiclesApiControllerTests
 {
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VehiclesApiControllerTests"/> class.
+    /// </summary>
     public VehiclesApiControllerTests()
     {
         var config = new MapperConfiguration(cfg => cfg.AddProfile<EntitiesProfile>(), NullLoggerFactory.Instance);
@@ -22,6 +28,9 @@ public class VehiclesApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Get_ReturnsOkWithPagedDtos test operation.
+    /// </summary>
     public async Task Get_ReturnsOkWithPagedDtos()
     {
         var service = new StubVehicleService
@@ -46,6 +55,9 @@ public class VehiclesApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetById_WhenMissing_ReturnsNotFound test operation.
+    /// </summary>
     public async Task GetById_WhenMissing_ReturnsNotFound()
     {
         var service = new StubVehicleService { OnGetById = _ => Task.FromResult<Vehicle?>(null) };
@@ -57,6 +69,9 @@ public class VehiclesApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the GetById_WhenExists_ReturnsOk test operation.
+    /// </summary>
     public async Task GetById_WhenExists_ReturnsOk()
     {
         var service = new StubVehicleService { OnGetById = _ => Task.FromResult<Vehicle?>(BuildVehicle(4, "B1", "M1")) };
@@ -70,6 +85,9 @@ public class VehiclesApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Post_WhenValid_ReturnsCreatedAtAction test operation.
+    /// </summary>
     public async Task Post_WhenValid_ReturnsCreatedAtAction()
     {
         var service = new StubVehicleService
@@ -92,6 +110,9 @@ public class VehiclesApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Post_WhenBusinessValidationFails_ReturnsValidationProblem test operation.
+    /// </summary>
     public async Task Post_WhenBusinessValidationFails_ReturnsValidationProblem()
     {
         var service = new StubVehicleService
@@ -115,6 +136,9 @@ public class VehiclesApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Put_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Put_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubVehicleService
@@ -136,6 +160,9 @@ public class VehiclesApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Put_WhenBusinessValidationFails_ReturnsValidationProblem test operation.
+    /// </summary>
     public async Task Put_WhenBusinessValidationFails_ReturnsValidationProblem()
     {
         var service = new StubVehicleService
@@ -159,6 +186,9 @@ public class VehiclesApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Delete_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubVehicleService
@@ -173,6 +203,9 @@ public class VehiclesApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenFound_ReturnsNoContent test operation.
+    /// </summary>
     public async Task Delete_WhenFound_ReturnsNoContent()
     {
         var service = new StubVehicleService
@@ -184,6 +217,25 @@ public class VehiclesApiControllerTests
         var response = await sut.Delete(3);
 
         Assert.IsType<NoContentResult>(response);
+    }
+
+    [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem test operation.
+    /// </summary>
+    public async Task Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem()
+    {
+        var service = new StubVehicleService
+        {
+            OnDelete = (_, _) => throw new BusinessValidationException(BusinessErrorCodes.VehicleDeleteBlockedActiveRental, "blocked")
+        };
+        var sut = new VehiclesApiController(service, _mapper);
+
+        var response = await sut.Delete(3);
+
+        var bad = Assert.IsType<ObjectResult>(response);
+        var details = Assert.IsType<ValidationProblemDetails>(bad.Value);
+        Assert.True(details.Errors.ContainsKey(BusinessErrorCodes.VehicleDeleteBlockedActiveRental));
     }
 
     private static Vehicle BuildVehicle(long id, string brand, string model, FuelType fuel = FuelType.Petrol, int year = 2022, string licensePlate = "AA-00-AA")

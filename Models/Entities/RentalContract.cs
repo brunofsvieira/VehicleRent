@@ -1,7 +1,10 @@
-using System;
+﻿using System;
 
 namespace VehicleRent.Models.Entities
 {
+    /// <summary>
+    /// Represents the RentalContract component.
+    /// </summary>
     public class RentalContract : BaseEntity
     {
         public long ClientId { get; private set; }
@@ -15,11 +18,17 @@ namespace VehicleRent.Models.Entities
 
         protected RentalContract() { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RentalContract"/> class.
+        /// </summary>
         public RentalContract(long clientId, long vehicleId, DateTime rentalStartDate, DateTime rentalEndDate, int initialMileage)
         {
             ValidateAndSet(clientId, vehicleId, rentalStartDate, rentalEndDate, initialMileage);
         }
 
+        /// <summary>
+        /// Executes the UpdateContract operation.
+        /// </summary>
         public void UpdateContract(long clientId, long vehicleId, DateTime rentalStartDate, DateTime rentalEndDate, int initialMileage)
         {
             ValidateAndSet(clientId, vehicleId, rentalStartDate, rentalEndDate, initialMileage);

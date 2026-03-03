@@ -1,12 +1,18 @@
-using AutoMapper;
+﻿using AutoMapper;
 using System;
 using VehicleRent.Models.DTOs;
 using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Profiles
 {
+    /// <summary>
+    /// Represents the EntitiesProfile component.
+    /// </summary>
     public class EntitiesProfile : Profile
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EntitiesProfile"/> class.
+        /// </summary>
         public EntitiesProfile()
         {
             CreateMap<Vehicle, VehicleDto>();

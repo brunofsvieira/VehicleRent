@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using VehicleRent.Controllers;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
@@ -8,9 +9,15 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for ClientsControllerTests.
+/// </summary>
 public class ClientsControllerTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the Index_ReturnsViewWithPagedViewModel test operation.
+    /// </summary>
     public async Task Index_ReturnsViewWithPagedViewModel()
     {
         var service = new StubClientService
@@ -33,6 +40,9 @@ public class ClientsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Create_Get_ReturnsDefaultModel test operation.
+    /// </summary>
     public void Create_Get_ReturnsDefaultModel()
     {
         var service = new StubClientService
@@ -50,6 +60,9 @@ public class ClientsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Create_Post_WhenBusinessValidationFails_ReturnsViewWithModelError test operation.
+    /// </summary>
     public async Task Create_Post_WhenBusinessValidationFails_ReturnsViewWithModelError()
     {
         var service = new StubClientService
@@ -73,6 +86,9 @@ public class ClientsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Update_Post_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Update_Post_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubClientService
@@ -95,6 +111,9 @@ public class ClientsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_Post_RedirectsToIndex test operation.
+    /// </summary>
     public async Task Delete_Post_RedirectsToIndex()
     {
         var service = new StubClientService
@@ -109,6 +128,30 @@ public class ClientsControllerTests
         Assert.Equal("Index", redirect.ActionName);
         Assert.Equal(2, redirect.RouteValues!["page"]);
         Assert.Equal(20, redirect.RouteValues["pageSize"]);
+    }
+
+    [Fact]
+    /// <summary>
+    /// Executes the Delete_Post_WhenBlockedByBusinessRule_RedirectsWithTempDataError test operation.
+    /// </summary>
+    public async Task Delete_Post_WhenBlockedByBusinessRule_RedirectsWithTempDataError()
+    {
+        var service = new StubClientService
+        {
+            OnDelete = (_, _) => throw new BusinessValidationException(BusinessErrorCodes.ClientDeleteBlockedActiveRental, "blocked")
+        };
+        var sut = CreateSut(service);
+
+        var tempData = new Microsoft.AspNetCore.Mvc.ViewFeatures.TempDataDictionary(
+            new DefaultHttpContext(),
+            new NullTempDataProvider());
+        sut.TempData = tempData;
+
+        var result = await sut.Delete(3, 2, 20);
+
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Index", redirect.ActionName);
+        Assert.True(sut.TempData.ContainsKey("ErrorMessage"));
     }
 
     private static ClientsController CreateSut(StubClientService service)
@@ -136,7 +179,7 @@ public class ClientsControllerTests
             OnDelete = (_, _) => Task.CompletedTask
         };
 
-        return new ClientsController(service, vehicleService, TestDistributedCacheFactory.Create());
+        return new ClientsController(service, vehicleService, new InMemoryRentalContractRepository(), TestDistributedCacheFactory.Create());
     }
 
     private static Client BuildClient(long id, string name, string email)
@@ -145,5 +188,17 @@ public class ClientsControllerTests
         typeof(BaseEntity).GetProperty("Id", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)!
             .SetValue(client, id);
         return client;
+    }
+
+    private sealed class NullTempDataProvider : Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataProvider
+    {
+        /// <summary>
+        /// Executes the LoadTempData test operation.
+        /// </summary>
+        public IDictionary<string, object> LoadTempData(HttpContext context) => new Dictionary<string, object>();
+        /// <summary>
+        /// Executes the SaveTempData test operation.
+        /// </summary>
+        public void SaveTempData(HttpContext context, IDictionary<string, object> values) { }
     }
 }

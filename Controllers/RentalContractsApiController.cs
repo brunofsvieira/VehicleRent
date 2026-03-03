@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using VehicleRent.Models.DTOs;
 using VehicleRent.Models.Entities;
@@ -9,11 +9,17 @@ namespace VehicleRent.Controllers
 {
     [ApiController]
     [Route("api/rental-contracts")]
+    /// <summary>
+    /// Represents the RentalContractsApiController component.
+    /// </summary>
     public class RentalContractsApiController : ControllerBase
     {
         private readonly IRentalContractService _service;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RentalContractsApiController"/> class.
+        /// </summary>
         public RentalContractsApiController(IRentalContractService service, IMapper mapper)
         {
             _service = service;
@@ -21,9 +27,12 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedResult<RentalContractDto>>> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] long? clientId = null, [FromQuery] long? vehicleId = null)
+        /// <summary>
+        /// Executes the Get operation.
+        /// </summary>
+        public async Task<ActionResult<PagedResult<RentalContractDto>>> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] long? clientId = null, [FromQuery] long? vehicleId = null, [FromQuery] bool? isFinished = null)
         {
-            var paged = await _service.GetPagedForApiAsync(page, pageSize, clientId, vehicleId);
+            var paged = await _service.GetPagedForApiAsync(page, pageSize, clientId, vehicleId, isFinished);
 
             return Ok(new PagedResult<RentalContractDto>
             {
@@ -35,6 +44,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpGet("{id:long}")]
+        /// <summary>
+        /// Executes the GetById operation.
+        /// </summary>
         public async Task<ActionResult<RentalContractDto>> GetById(long id)
         {
             var entity = await _service.GetByIdAsync(id);
@@ -43,6 +55,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpPost]
+        /// <summary>
+        /// Executes the Post operation.
+        /// </summary>
         public async Task<IActionResult> Post([FromBody] CreateRentalContractDto dto)
         {
             try
@@ -59,6 +74,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpPut("{id:long}")]
+        /// <summary>
+        /// Executes the Put operation.
+        /// </summary>
         public async Task<IActionResult> Put(long id, [FromBody] UpdateRentalContractDto dto)
         {
             try
@@ -78,6 +96,9 @@ namespace VehicleRent.Controllers
         }
 
         [HttpDelete("{id:long}")]
+        /// <summary>
+        /// Executes the Delete operation.
+        /// </summary>
         public async Task<IActionResult> Delete(long id)
         {
             try
@@ -88,6 +109,11 @@ namespace VehicleRent.Controllers
             catch (EntityNotFoundException)
             {
                 return NotFound();
+            }
+            catch (BusinessValidationException ex)
+            {
+                ModelState.AddModelError(ex.ErrorCode, ex.Message);
+                return ValidationProblem(ModelState);
             }
         }
     }

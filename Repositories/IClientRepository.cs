@@ -1,7 +1,10 @@
-using VehicleRent.Models.Entities;
+﻿using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Repositories
 {
+    /// <summary>
+    /// Defines operations for IClientRepository.
+    /// </summary>
     public interface IClientRepository
     {
         Task AddAsync(Client client);

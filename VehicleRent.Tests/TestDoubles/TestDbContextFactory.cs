@@ -1,10 +1,13 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VehicleRent.Data;
 
 namespace VehicleRent.Tests.TestDoubles;
 
 internal static class TestDbContextFactory
 {
+    /// <summary>
+    /// Executes the Create test operation.
+    /// </summary>
     public static ApplicationDbContext Create(string? dbName = null)
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()

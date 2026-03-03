@@ -1,19 +1,30 @@
-using System.Reflection;
+﻿using System.Reflection;
 using VehicleRent.Models.Entities;
 using VehicleRent.Repositories;
 
 namespace VehicleRent.Tests.TestDoubles;
 
+/// <summary>
+/// Represents a test double for InMemoryVehicleRepository.
+/// </summary>
 internal sealed class InMemoryVehicleRepository : IVehicleRepository
 {
     private readonly List<Vehicle> _items = new();
     private long _nextId = 1;
+    public Exception? AddException { get; set; }
+    public Exception? UpdateException { get; set; }
 
+    /// <summary>
+    /// Executes the member test operation.
+    /// </summary>
     public IReadOnlyList<(int page, int pageSize)> PagedCalls => _pagedCalls;
     public int GetByIdCalls { get; private set; }
 
     private readonly List<(int page, int pageSize)> _pagedCalls = new();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InMemoryVehicleRepository"/> class.
+    /// </summary>
     public InMemoryVehicleRepository(IEnumerable<Vehicle>? seed = null)
     {
         if (seed is null) return;
@@ -25,19 +36,29 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
         }
     }
 
+    /// <summary>
+    /// Executes the AddAsync test operation.
+    /// </summary>
     public Task AddAsync(Vehicle vehicle)
     {
+        if (AddException is not null) throw AddException;
         SetId(vehicle, _nextId++);
         _items.Add(vehicle);
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Executes the GetByIdAsync test operation.
+    /// </summary>
     public Task<Vehicle?> GetByIdAsync(long id)
     {
         GetByIdCalls++;
         return Task.FromResult(_items.FirstOrDefault(v => v.Id == id));
     }
 
+    /// <summary>
+    /// Executes the GetAllAsync test operation.
+    /// </summary>
     public Task<PagedResult<Vehicle>> GetAllAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
     {
         _pagedCalls.Add((page, pageSize));
@@ -70,6 +91,9 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
         });
     }
 
+    /// <summary>
+    /// Executes the ExistsByLicensePlateAsync test operation.
+    /// </summary>
     public Task<bool> ExistsByLicensePlateAsync(string licensePlate, long? excludingId = null)
     {
         var normalized = (licensePlate ?? string.Empty).Trim().ToUpperInvariant();
@@ -80,17 +104,27 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
         return Task.FromResult(exists);
     }
 
+    /// <summary>
+    /// Executes the GetAllForSelectionAsync test operation.
+    /// </summary>
     public Task<IReadOnlyList<Vehicle>> GetAllForSelectionAsync()
     {
         return Task.FromResult<IReadOnlyList<Vehicle>>(_items.OrderBy(v => v.Id).ToList());
     }
 
+    /// <summary>
+    /// Executes the UpdateAsync test operation.
+    /// </summary>
     public Task UpdateAsync(Vehicle vehicle)
     {
+        if (UpdateException is not null) throw UpdateException;
         // No-op: instance is already reference-updated in memory.
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Executes the DeleteAsync test operation.
+    /// </summary>
     public Task DeleteAsync(long id)
     {
         var existing = _items.FirstOrDefault(v => v.Id == id);
@@ -98,6 +132,9 @@ internal sealed class InMemoryVehicleRepository : IVehicleRepository
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Executes the Count test operation.
+    /// </summary>
     public int Count() => _items.Count;
 
     private static void SetId(Vehicle vehicle, long id)

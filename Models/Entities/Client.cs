@@ -1,9 +1,12 @@
-using System;
+﻿using System;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
 namespace VehicleRent.Models.Entities
 {
+    /// <summary>
+    /// Represents the Client component.
+    /// </summary>
     public class Client : BaseEntity
     {
         private static readonly Regex PhonePattern = new(@"^\+\d{1,3}\d{9}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -15,11 +18,17 @@ namespace VehicleRent.Models.Entities
 
         protected Client() { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Client"/> class.
+        /// </summary>
         public Client(string name, string email, string phoneNumber, string driverLicense)
         {
             ValidateAndSet(name, email, phoneNumber, driverLicense);
         }
 
+        /// <summary>
+        /// Executes the UpdateClient operation.
+        /// </summary>
         public void UpdateClient(string name, string email, string phoneNumber, string driverLicense)
         {
             ValidateAndSet(name, email, phoneNumber, driverLicense);

@@ -1,10 +1,16 @@
-using VehicleRent.Models.Entities;
+﻿using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for RentalContractEntityTests.
+/// </summary>
 public class RentalContractEntityTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the Constructor_WithValidData_CreatesEntity test operation.
+    /// </summary>
     public void Constructor_WithValidData_CreatesEntity()
     {
         var today = DateTime.UtcNow.Date;
@@ -18,6 +24,9 @@ public class RentalContractEntityTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Constructor_InvalidClient_Throws test operation.
+    /// </summary>
     public void Constructor_InvalidClient_Throws()
     {
         var today = DateTime.UtcNow.Date;
@@ -26,6 +35,9 @@ public class RentalContractEntityTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Constructor_InvalidVehicle_Throws test operation.
+    /// </summary>
     public void Constructor_InvalidVehicle_Throws()
     {
         var today = DateTime.UtcNow.Date;
@@ -34,6 +46,9 @@ public class RentalContractEntityTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Constructor_StartDateInPast_Throws test operation.
+    /// </summary>
     public void Constructor_StartDateInPast_Throws()
     {
         var today = DateTime.UtcNow.Date;
@@ -42,6 +57,9 @@ public class RentalContractEntityTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Constructor_EndDateBeforeOrEqualStart_Throws test operation.
+    /// </summary>
     public void Constructor_EndDateBeforeOrEqualStart_Throws()
     {
         var today = DateTime.UtcNow.Date;
@@ -50,6 +68,9 @@ public class RentalContractEntityTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Constructor_NegativeMileage_Throws test operation.
+    /// </summary>
     public void Constructor_NegativeMileage_Throws()
     {
         var today = DateTime.UtcNow.Date;

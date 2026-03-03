@@ -1,7 +1,10 @@
-using VehicleRent.Models.Enumerators;
+﻿using VehicleRent.Models.Enumerators;
 
 namespace VehicleRent.Models.DTOs
 {
+    /// <summary>
+    /// Represents the VehicleDto component.
+    /// </summary>
     public class VehicleDto
     {
         public long? Id { get; set; }

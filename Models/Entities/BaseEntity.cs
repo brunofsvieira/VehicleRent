@@ -14,6 +14,7 @@ namespace VehicleRent.Models.Entities
         public long Id { get; private set; }
         public DateTime InsertDate { get; private set; }
         public DateTime UpdateDate { get; private set; }
+        public bool Deleted { get; private set; }
 
         protected BaseEntity()
         {
@@ -29,6 +30,15 @@ namespace VehicleRent.Models.Entities
         public void TouchUpdate()
         {
             UpdateDate = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Executes the MarkDeleted operation.
+        /// </summary>
+        public void MarkDeleted()
+        {
+            Deleted = true;
+            TouchUpdate();
         }
     }
 }

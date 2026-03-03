@@ -1,5 +1,8 @@
-namespace VehicleRent.Models.DTOs
+﻿namespace VehicleRent.Models.DTOs
 {
+    /// <summary>
+    /// Represents the RentalContractDto component.
+    /// </summary>
     public class RentalContractDto
     {
         public long? Id { get; set; }

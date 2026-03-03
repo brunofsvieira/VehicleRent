@@ -1,5 +1,6 @@
 @model VehicleRent.Models.Entities.PagedResult<VehicleRent.Models.ViewModels.ClientViewModel>
 @using Microsoft.AspNetCore.Mvc.Rendering
+@using System.Collections.Generic
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Clientes";
@@ -11,6 +12,7 @@
     var currentVehicleId = ViewBag.CurrentVehicleId as long?;
     var currentNameOrEmail = ViewBag.CurrentNameOrEmail as string ?? string.Empty;
     var vehicleFilterOptions = ViewBag.VehicleFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var activeClientIds = ViewBag.ActiveClientIds as HashSet<long> ?? new HashSet<long>();
 }
 
 <section class="vehicle-page py-4 py-lg-5">
@@ -26,6 +28,10 @@
       </div>
 
       <div id="alerts"></div>
+      @if (TempData["ErrorMessage"] is string errorMessage)
+      {
+          <div class="alert alert-danger mb-3" role="alert">@errorMessage</div>
+      }
 
       <form method="get" asp-action="Index" class="module-head mb-3">
         <div class="row g-2 align-items-end">
@@ -80,17 +86,24 @@
                   <td data-label="Email">@c.Email</td>
                   <td data-label="Telefone"><span class="record-chip">@c.PhoneNumber</span></td>
                   <td data-label="Carta"><span class="record-chip">@c.DriverLicense</span></td>
-                  <td class="text-end record-actions" data-label="Acoes">
+                  <td class="text-end record-actions" data-label="Ações">
                     <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@c.Id">Editar</a>
-                    <form asp-action="Delete" method="post" class="d-inline-block">
-                      @Html.AntiForgeryToken()
-                      <input type="hidden" name="id" value="@c.Id" />
-                      <input type="hidden" name="page" value="@currentPage" />
-                      <input type="hidden" name="pageSize" value="@pageSize" />
-                      <input type="hidden" name="nameOrEmail" value="@currentNameOrEmail" />
-                      <input type="hidden" name="vehicleId" value="@currentVehicleId" />
-                      <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this client?');">Apagar</button>
-                    </form>
+                    @if (c.Id.HasValue && activeClientIds.Contains(c.Id.Value))
+                    {
+                        <button class="btn btn-sm btn-outline-secondary" type="button" disabled title="Nao e possivel apagar clientes com aluguer em curso.">Apagar</button>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete" method="post" class="d-inline-block">
+                          @Html.AntiForgeryToken()
+                          <input type="hidden" name="id" value="@c.Id" />
+                          <input type="hidden" name="page" value="@currentPage" />
+                          <input type="hidden" name="pageSize" value="@pageSize" />
+                          <input type="hidden" name="nameOrEmail" value="@currentNameOrEmail" />
+                          <input type="hidden" name="vehicleId" value="@currentVehicleId" />
+                          <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this client?');">Apagar</button>
+                        </form>
+                    }
                   </td>
                 </tr>
             }

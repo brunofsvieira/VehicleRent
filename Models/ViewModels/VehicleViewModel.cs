@@ -7,6 +7,9 @@ using VehicleRent.Models.Validation;
 
 namespace VehicleRent.Models.ViewModels
 {
+    /// <summary>
+    /// Represents the VehicleViewModel component.
+    /// </summary>
     public class VehicleViewModel
     {
         /// <summary>
@@ -15,11 +18,11 @@ namespace VehicleRent.Models.ViewModels
         public long? Id { get; set; }
 
         [Required(ErrorMessage = "O campo Marca e obrigatório.")]
-        [StringLength(30, ErrorMessage = "A Marca deve ter no maximo 30 caracteres.")]
+        [StringLength(30, ErrorMessage = "A Marca deve ter no máximo 30 caracteres.")]
         public required string Brand { get; set; }
 
         [Required(ErrorMessage = "O campo Modelo e obrigatório.")]
-        [StringLength(30, ErrorMessage = "O Modelo deve ter no maximo 30 caracteres.")]
+        [StringLength(30, ErrorMessage = "O Modelo deve ter no máximo 30 caracteres.")]
         public required string Model { get; set; }
 
         [Required(ErrorMessage = "O campo Matrícula e obrigatório.")]
@@ -31,18 +34,24 @@ namespace VehicleRent.Models.ViewModels
         [ManufacturingYearRange(ErrorMessage = "O ano de fabricacao deve estar entre 1900 e {1}.")]
         public int ManufacturingYear { get; set; }
 
-        [Required(ErrorMessage = "O campo Combustivel e obrigatório.")]
-        [EnsureFuelNotNone(ErrorMessage = "Selecione um tipo de combustivel válido.")]
+        [Required(ErrorMessage = "O campo Combustível e obrigatório.")]
+        [EnsureFuelNotNone(ErrorMessage = "Selecione um tipo de combustível válido.")]
         public required FuelType Fuel { get; set; }
 
         public bool IsCurrentlyRented { get; set; }
         public string AvailabilityStatus => IsCurrentlyRented ? "Alugado" : "disponível";
 
         // Map view model -> new entity (creates entity without Id; repository sets Id)
+        /// <summary>
+        /// Executes the ToEntity operation.
+        /// </summary>
         public Vehicle ToEntity() =>
             new Vehicle(Brand, Model, Fuel, ManufacturingYear, LicensePlate);
 
         // Map entity -> view model
+        /// <summary>
+        /// Executes the FromEntity operation.
+        /// </summary>
         public static VehicleViewModel FromEntity(Vehicle vehicle) =>
             new VehicleViewModel
             {

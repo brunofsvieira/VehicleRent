@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using VehicleRent.Controllers;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
@@ -8,9 +8,15 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for VehiclesControllerTests.
+/// </summary>
 public class VehiclesControllerTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the Index_ReturnsViewWithPagedViewModel test operation.
+    /// </summary>
     public async Task Index_ReturnsViewWithPagedViewModel()
     {
         var service = new StubVehicleService
@@ -33,6 +39,9 @@ public class VehiclesControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Create_Get_ReturnsDefaultModel test operation.
+    /// </summary>
     public void Create_Get_ReturnsDefaultModel()
     {
         var service = new StubVehicleService
@@ -50,6 +59,9 @@ public class VehiclesControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Create_Post_WhenBusinessValidationFails_ReturnsViewWithModelError test operation.
+    /// </summary>
     public async Task Create_Post_WhenBusinessValidationFails_ReturnsViewWithModelError()
     {
         var service = new StubVehicleService
@@ -67,6 +79,9 @@ public class VehiclesControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Update_Post_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Update_Post_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubVehicleService
@@ -82,6 +97,9 @@ public class VehiclesControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Delete_Post_RedirectsToIndex test operation.
+    /// </summary>
     public async Task Delete_Post_RedirectsToIndex()
     {
         var service = new StubVehicleService

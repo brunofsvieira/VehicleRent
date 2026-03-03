@@ -10,6 +10,7 @@
     var endPage = Math.Min(totalPages, currentPage + 2);
     var currentClientId = ViewBag.CurrentClientId as long?;
     var currentVehicleId = ViewBag.CurrentVehicleId as long?;
+    var currentIsFinished = ViewBag.CurrentIsFinished as bool?;
     var clientFilterOptions = ViewBag.ClientFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
     var vehicleFilterOptions = ViewBag.VehicleFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
 }
@@ -27,6 +28,10 @@
       </div>
 
       <div id="alerts"></div>
+      @if (TempData["ErrorMessage"] is string errorMessage)
+      {
+          <div class="alert alert-danger mb-3" role="alert">@errorMessage</div>
+      }
 
       <form method="get" asp-action="Index" class="module-head mb-3">
         <div class="row g-2 align-items-end">
@@ -41,6 +46,14 @@
             </select>
           </div>
           <div class="col-12 col-md-5">
+            <label for="finishedFilter" class="form-label mb-1">Estado</label>
+            <select id="finishedFilter" name="isFinished" class="form-select">
+               <option value="">-- Estados --</option>
+                            <option value="true" selected="@(currentIsFinished == true)">Terminado</option>
+               <option value="false" selected="@(currentIsFinished == false)">Em curso</option>
+             </select>
+          </div>
+          <div class="col-12 col-md-5">
             <label for="vehicleIdFilter" class="form-label mb-1">Matrícula</label>
             <select id="vehicleIdFilter" name="vehicleId" class="form-select">
               <option value="">-- todas as matrículas --</option>
@@ -49,12 +62,12 @@
                   <option value="@item.Value" selected="@item.Selected">@item.Text</option>
               }
             </select>
-          </div>
-          <div class="col-12 col-md-2 d-flex gap-2">
-            <input type="hidden" name="pageSize" value="@pageSize" />
-            <button class="btn btn-primary flex-fill" type="submit">Filtrar</button>
-            <a class="btn btn-outline-secondary flex-fill" asp-action="Index" asp-route-pageSize="@pageSize">Limpar</a>
-          </div>
+            </div>
+            <div class="col-12 col-md-2 d-flex gap-2">
+                <input type="hidden" name="pageSize" value="@pageSize" />
+                <button class="btn btn-primary flex-fill" type="submit">Filtrar</button>
+                <a class="btn btn-outline-secondary flex-fill" asp-action="Index" asp-route-pageSize="@pageSize">Limpar</a>
+            </div>
         </div>
       </form>
 
@@ -95,17 +108,25 @@
                     <span class="record-chip @(rc.IsFinished ? "status-finished" : "status-active")">@rc.ContractStatus</span>
                   </td>
                   <td data-label="Km Inicial"><span class="record-chip">@rc.InitialMileage</span></td>
-                  <td class="text-end record-actions" data-label="Acoes">
+                  <td class="text-end record-actions" data-label="Ações">
                     <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@rc.Id">Editar</a>
-                    <form asp-action="Delete" method="post" class="d-inline-block">
-                      @Html.AntiForgeryToken()
-                      <input type="hidden" name="id" value="@rc.Id" />
-                      <input type="hidden" name="page" value="@currentPage" />
-                      <input type="hidden" name="pageSize" value="@pageSize" />
-                      <input type="hidden" name="clientId" value="@currentClientId" />
-                      <input type="hidden" name="vehicleId" value="@currentVehicleId" />
-                      <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this rental contract?');">Apagar</button>
-                    </form>
+                    @if (!rc.IsFinished)
+                    {
+                        <button class="btn btn-sm btn-outline-secondary" type="button" disabled title="Nao e possivel apagar contratos em curso.">Apagar</button>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete" method="post" class="d-inline-block">
+                          @Html.AntiForgeryToken()
+                          <input type="hidden" name="id" value="@rc.Id" />
+                          <input type="hidden" name="page" value="@currentPage" />
+                          <input type="hidden" name="pageSize" value="@pageSize" />
+                          <input type="hidden" name="clientId" value="@currentClientId" />
+                          <input type="hidden" name="vehicleId" value="@currentVehicleId" />
+                          <input type="hidden" name="isFinished" value="@((currentIsFinished.HasValue) ? currentIsFinished.Value.ToString().ToLowerInvariant() : "")" />
+                          <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this rental contract?');">Apagar</button>
+                        </form>
+                    }
                   </td>
                 </tr>
             }

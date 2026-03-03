@@ -1,8 +1,11 @@
-using VehicleRent.Models.Entities;
+﻿using VehicleRent.Models.Entities;
 using System.Threading.Tasks;
 
 namespace VehicleRent.Repositories
 {
+    /// <summary>
+    /// Defines operations for IVehicleRepository.
+    /// </summary>
     public interface IVehicleRepository
     {
         /// <summary>

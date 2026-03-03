@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using VehicleRent.Controllers;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
@@ -8,9 +8,15 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for RentalContractsControllerTests.
+/// </summary>
 public class RentalContractsControllerTests
 {
     [Fact]
+    /// <summary>
+    /// Executes the Index_ReturnsViewWithPagedViewModel test operation.
+    /// </summary>
     public async Task Index_ReturnsViewWithPagedViewModel()
     {
         var today = DateTime.UtcNow.Date;
@@ -34,6 +40,37 @@ public class RentalContractsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Index_ForwardsIsFinishedFilterToService test operation.
+    /// </summary>
+    public async Task Index_ForwardsIsFinishedFilterToService()
+    {
+        bool? capturedIsFinished = null;
+        var service = new StubRentalContractService
+        {
+            OnGetPagedForWebWithFinished = (_, _, _, _, isFinished) =>
+            {
+                capturedIsFinished = isFinished;
+                return Task.FromResult(new PagedResult<RentalContract>
+                {
+                    Items = Array.Empty<RentalContract>(),
+                    TotalCount = 0,
+                    Page = 1,
+                    PageSize = 10
+                });
+            }
+        };
+        var sut = CreateSut(service);
+
+        _ = await sut.Index(isFinished: true);
+
+        Assert.True(capturedIsFinished);
+    }
+
+    [Fact]
+    /// <summary>
+    /// Executes the Create_Post_WhenBusinessValidationFails_AddsTranslatedModelError test operation.
+    /// </summary>
     public async Task Create_Post_WhenBusinessValidationFails_AddsTranslatedModelError()
     {
         var service = new StubRentalContractService
@@ -60,6 +97,9 @@ public class RentalContractsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Update_Post_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Update_Post_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubRentalContractService
@@ -84,6 +124,58 @@ public class RentalContractsControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Update_Get_WithoutId_ReturnsDefaultModel test operation.
+    /// </summary>
+    public async Task Update_Get_WithoutId_ReturnsDefaultModel()
+    {
+        var service = new StubRentalContractService
+        {
+            OnGetPagedForWeb = (_, _, _, _) => Task.FromResult(new PagedResult<RentalContract>())
+        };
+        var sut = CreateSut(service);
+
+        var result = await sut.Update((long?)null);
+
+        var view = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsType<RentalContractViewModel>(view.Model);
+        Assert.Equal(0, model.ClientId);
+        Assert.Equal(0, model.VehicleId);
+    }
+
+    [Fact]
+    /// <summary>
+    /// Executes the Update_Post_WhenBusinessValidationFails_ReturnsViewWithTranslatedError test operation.
+    /// </summary>
+    public async Task Update_Post_WhenBusinessValidationFails_ReturnsViewWithTranslatedError()
+    {
+        var service = new StubRentalContractService
+        {
+            OnUpdate = (_, _, _, _, _, _) => throw new BusinessValidationException(BusinessErrorCodes.RentalVehicleOverlap, "overlap")
+        };
+        var sut = CreateSut(service);
+        var today = DateTime.UtcNow.Date;
+        var vm = new RentalContractViewModel
+        {
+            Id = 1,
+            ClientId = 1,
+            VehicleId = 1,
+            RentalStartDate = today,
+            RentalEndDate = today.AddDays(1),
+            InitialMileage = 0
+        };
+
+        var result = await sut.Update(vm);
+
+        var view = Assert.IsType<ViewResult>(result);
+        Assert.Same(vm, view.Model);
+        Assert.False(sut.ModelState.IsValid);
+    }
+
+    [Fact]
+    /// <summary>
+    /// Executes the Delete_Post_RedirectsToIndex test operation.
+    /// </summary>
     public async Task Delete_Post_RedirectsToIndex()
     {
         var service = new StubRentalContractService

@@ -1,12 +1,15 @@
-using VehicleRent.Models.Entities;
+﻿using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
 
 namespace VehicleRent.Services
 {
+    /// <summary>
+    /// Defines operations for IVehicleService.
+    /// </summary>
     public interface IVehicleService
     {
-        Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null);
-        Task<PagedResult<Vehicle>> GetPagedForApiAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null);
+        Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null, bool? availabilityStatus = null);
+        Task<PagedResult<Vehicle>> GetPagedForApiAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null, bool? availabilityStatus = null);
         Task<IReadOnlyList<Vehicle>> GetAllForSelectionAsync();
         Task<Vehicle?> GetByIdAsync(long id);
         Task<Vehicle> CreateAsync(string brand, string model, string licensePlate, FuelType fuel, int manufacturingYear);

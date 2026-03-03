@@ -1,29 +1,49 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VehicleRent.Data;
 using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Repositories
 {
+    /// <summary>
+    /// Provides methods for managing client entities, including adding, retrieving, updating, and deleting clients in
+    /// the application database.
+    /// </summary>
+    /// <remarks>This repository supports asynchronous operations for improved scalability and responsiveness.
+    /// It enables filtering and pagination when retrieving clients, and ensures that client data is accessed and
+    /// modified in a consistent manner. Use this type to interact with client records without directly accessing the
+    /// database context.</remarks>
     public class ClientRepository : IClientRepository
     {
         private readonly ApplicationDbContext _dbContext;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientRepository"/> class.
+        /// </summary>
         public ClientRepository(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
+        /// <summary>
+        /// Executes the AddAsync operation.
+        /// </summary>
         public async Task AddAsync(Client client)
         {
             _dbContext.Clients.Add(client);
             await _dbContext.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Executes the GetByIdAsync operation.
+        /// </summary>
         public async Task<Client?> GetByIdAsync(long id)
         {
             return await _dbContext.Clients.FindAsync(id);
         }
 
+        /// <summary>
+        /// Executes the GetAllAsync operation.
+        /// </summary>
         public async Task<PagedResult<Client>> GetAllAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
         {
             if (page <= 0) page = 1;
@@ -60,6 +80,9 @@ namespace VehicleRent.Repositories
             };
         }
 
+        /// <summary>
+        /// Executes the GetAllForSelectionAsync operation.
+        /// </summary>
         public async Task<IReadOnlyList<Client>> GetAllForSelectionAsync()
         {
             return await _dbContext.Clients
@@ -69,6 +92,9 @@ namespace VehicleRent.Repositories
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Executes the ExistsByEmailAsync operation.
+        /// </summary>
         public async Task<bool> ExistsByEmailAsync(string email, long? excludingId = null)
         {
             var normalizedEmail = (email ?? string.Empty).Trim().ToLowerInvariant();
@@ -79,6 +105,9 @@ namespace VehicleRent.Repositories
             return await query.AnyAsync();
         }
 
+        /// <summary>
+        /// Executes the ExistsByDriverLicenseAsync operation.
+        /// </summary>
         public async Task<bool> ExistsByDriverLicenseAsync(string driverLicense, long? excludingId = null)
         {
             var normalizedLicense = (driverLicense ?? string.Empty).Trim().ToUpperInvariant();
@@ -89,17 +118,23 @@ namespace VehicleRent.Repositories
             return await query.AnyAsync();
         }
 
+        /// <summary>
+        /// Executes the UpdateAsync operation.
+        /// </summary>
         public async Task UpdateAsync(Client client)
         {
             _dbContext.Clients.Update(client);
             await _dbContext.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Executes the DeleteAsync operation.
+        /// </summary>
         public async Task DeleteAsync(long id)
         {
             var existing = await _dbContext.Clients.FindAsync(id);
             if (existing is null) return;
-            _dbContext.Clients.Remove(existing);
+            existing.MarkDeleted();
             await _dbContext.SaveChangesAsync();
         }
     }

@@ -1,7 +1,10 @@
-using VehicleRent.Models.Entities;
+﻿using VehicleRent.Models.Entities;
 
 namespace VehicleRent.Services
 {
+    /// <summary>
+    /// Defines operations for IClientService.
+    /// </summary>
     public interface IClientService
     {
         Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null);

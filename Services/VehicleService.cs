@@ -1,4 +1,4 @@
-using VehicleRent.Models.Entities;
+﻿using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Repositories;
 using VehicleRent.Services.Exceptions;
@@ -8,6 +8,9 @@ using VehicleRent.Infrastructure;
 
 namespace VehicleRent.Services
 {
+    /// <summary>
+    /// Represents the VehicleService component.
+    /// </summary>
     public class VehicleService : IVehicleService
     {
         private static readonly int[] WebPageSizes = [10, 20, 50];
@@ -15,6 +18,9 @@ namespace VehicleRent.Services
         private readonly IRentalContractRepository _rentalContractRepo;
         private readonly IDistributedCache _cache;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VehicleService"/> class.
+        /// </summary>
         public VehicleService(IVehicleRepository repo, IRentalContractRepository rentalContractRepo, IDistributedCache cache)
         {
             _repo = repo;
@@ -22,7 +28,10 @@ namespace VehicleRent.Services
             _cache = cache;
         }
 
-        public async Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
+        /// <summary>
+        /// Executes the GetPagedForWebAsync operation.
+        /// </summary>
+        public async Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null, bool? availabilityStatus = null)
         {
             var normalizedPage = NormalizePage(page);
             var normalizedPageSize = WebPageSizes.Contains(pageSize) ? pageSize : 10;
@@ -37,10 +46,15 @@ namespace VehicleRent.Services
             }
 
             await ApplyRentalStatusAsync(paged.Items);
+
+            paged.Items = availabilityStatus.HasValue ? paged.Items.Where(v => v.IsCurrentlyRented == availabilityStatus.Value).ToList() : paged.Items;
             return paged;
         }
 
-        public async Task<PagedResult<Vehicle>> GetPagedForApiAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
+        /// <summary>
+        /// Executes the GetPagedForApiAsync operation.
+        /// </summary>
+        public async Task<PagedResult<Vehicle>> GetPagedForApiAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null, bool? availabilityStatus = null)
         {
             var normalizedPage = NormalizePage(page);
             var normalizedPageSize = pageSize <= 0 || pageSize > 100 ? 10 : pageSize;
@@ -55,9 +69,14 @@ namespace VehicleRent.Services
             }
 
             await ApplyRentalStatusAsync(paged.Items);
+
+            paged.Items = availabilityStatus.HasValue ? paged.Items.Where(v => v.IsCurrentlyRented == availabilityStatus.Value).ToList() : paged.Items;
             return paged;
         }
 
+        /// <summary>
+        /// Executes the GetAllForSelectionAsync operation.
+        /// </summary>
         public async Task<IReadOnlyList<Vehicle>> GetAllForSelectionAsync()
         {
             var vehicles = await _repo.GetAllForSelectionAsync();
@@ -65,6 +84,9 @@ namespace VehicleRent.Services
             return vehicles;
         }
 
+        /// <summary>
+        /// Executes the GetByIdAsync operation.
+        /// </summary>
         public async Task<Vehicle?> GetByIdAsync(long id)
         {
             var vehicle = await _repo.GetByIdAsync(id);
@@ -74,6 +96,9 @@ namespace VehicleRent.Services
             return vehicle;
         }
 
+        /// <summary>
+        /// Executes the CreateAsync operation.
+        /// </summary>
         public async Task<Vehicle> CreateAsync(string brand, string model, string licensePlate, FuelType fuel, int manufacturingYear)
         {
             var normalizedPlate = (licensePlate ?? string.Empty).Trim().ToUpperInvariant();
@@ -99,6 +124,9 @@ namespace VehicleRent.Services
             }
         }
 
+        /// <summary>
+        /// Executes the UpdateAsync operation.
+        /// </summary>
         public async Task UpdateAsync(long id, string brand, string model, string licensePlate, FuelType fuel, int manufacturingYear)
         {
             var entity = await _repo.GetByIdAsync(id);
@@ -129,6 +157,9 @@ namespace VehicleRent.Services
             }
         }
 
+        /// <summary>
+        /// Executes the DeleteAsync operation.
+        /// </summary>
         public async Task DeleteAsync(long id, bool ensureExists)
         {
             if (ensureExists)
@@ -138,6 +169,10 @@ namespace VehicleRent.Services
                 {
                     throw new EntityNotFoundException($"Vehicle with id {id} was not found.");
                 }
+            }
+            if (await _rentalContractRepo.HasActiveRentalForVehicleAsync(id, DateTime.UtcNow.Date))
+            {
+                throw new BusinessValidationException(BusinessErrorCodes.VehicleDeleteBlockedActiveRental, "Cannot delete vehicle with active rental.");
             }
 
             await _repo.DeleteAsync(id);

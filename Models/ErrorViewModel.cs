@@ -1,5 +1,8 @@
-namespace VehicleRent.Models
+﻿namespace VehicleRent.Models
 {
+    /// <summary>
+    /// Represents the ErrorViewModel component.
+    /// </summary>
     public class ErrorViewModel
     {
         public string? RequestId { get; set; }

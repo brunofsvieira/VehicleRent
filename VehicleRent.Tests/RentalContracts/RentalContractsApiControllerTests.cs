@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using VehicleRent.Controllers;
@@ -11,10 +11,16 @@ using VehicleRent.Tests.TestDoubles;
 
 namespace VehicleRent.Tests;
 
+/// <summary>
+/// Represents unit tests for RentalContractsApiControllerTests.
+/// </summary>
 public class RentalContractsApiControllerTests
 {
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RentalContractsApiControllerTests"/> class.
+    /// </summary>
     public RentalContractsApiControllerTests()
     {
         var config = new MapperConfiguration(cfg => cfg.AddProfile<EntitiesProfile>(), NullLoggerFactory.Instance);
@@ -22,6 +28,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Get_ReturnsOkWithPagedDtos test operation.
+    /// </summary>
     public async Task Get_ReturnsOkWithPagedDtos()
     {
         var today = DateTime.UtcNow.Date;
@@ -45,6 +54,54 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Get_ForwardsIsFinishedFilterToService test operation.
+    /// </summary>
+    public async Task Get_ForwardsIsFinishedFilterToService()
+    {
+        bool? capturedIsFinished = null;
+        var service = new StubRentalContractService
+        {
+            OnGetPagedForApiWithFinished = (_, _, _, _, isFinished) =>
+            {
+                capturedIsFinished = isFinished;
+                return Task.FromResult(new PagedResult<RentalContract>
+                {
+                    Items = Array.Empty<RentalContract>(),
+                    TotalCount = 0,
+                    Page = 1,
+                    PageSize = 10
+                });
+            }
+        };
+        var sut = new RentalContractsApiController(service, _mapper);
+
+        _ = await sut.Get(isFinished: false);
+
+        Assert.False(capturedIsFinished);
+    }
+
+    [Fact]
+    /// <summary>
+    /// Executes the GetById_WhenMissing_ReturnsNotFound test operation.
+    /// </summary>
+    public async Task GetById_WhenMissing_ReturnsNotFound()
+    {
+        var service = new StubRentalContractService
+        {
+            OnGetById = _ => Task.FromResult<RentalContract?>(null)
+        };
+        var sut = new RentalContractsApiController(service, _mapper);
+
+        var response = await sut.GetById(99);
+
+        Assert.IsType<NotFoundResult>(response.Result);
+    }
+
+    [Fact]
+    /// <summary>
+    /// Executes the Post_WhenBusinessValidationFails_ReturnsValidationProblemWithErrorCodeKey test operation.
+    /// </summary>
     public async Task Post_WhenBusinessValidationFails_ReturnsValidationProblemWithErrorCodeKey()
     {
         var service = new StubRentalContractService
@@ -69,6 +126,9 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Put_WhenNotFound_ReturnsNotFound test operation.
+    /// </summary>
     public async Task Put_WhenNotFound_ReturnsNotFound()
     {
         var service = new StubRentalContractService
@@ -91,6 +151,36 @@ public class RentalContractsApiControllerTests
     }
 
     [Fact]
+    /// <summary>
+    /// Executes the Put_WhenBusinessValidationFails_ReturnsValidationProblem test operation.
+    /// </summary>
+    public async Task Put_WhenBusinessValidationFails_ReturnsValidationProblem()
+    {
+        var service = new StubRentalContractService
+        {
+            OnUpdate = (_, _, _, _, _, _) => throw new BusinessValidationException(BusinessErrorCodes.RentalVehicleOverlap, "overlap")
+        };
+        var sut = new RentalContractsApiController(service, _mapper);
+        var today = DateTime.UtcNow.Date;
+
+        var response = await sut.Put(1, new UpdateRentalContractDto
+        {
+            ClientId = 1,
+            VehicleId = 1,
+            RentalStartDate = today,
+            RentalEndDate = today.AddDays(1),
+            InitialMileage = 0
+        });
+
+        var bad = Assert.IsType<ObjectResult>(response);
+        var details = Assert.IsType<ValidationProblemDetails>(bad.Value);
+        Assert.True(details.Errors.ContainsKey(BusinessErrorCodes.RentalVehicleOverlap));
+    }
+
+    [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenFound_ReturnsNoContent test operation.
+    /// </summary>
     public async Task Delete_WhenFound_ReturnsNoContent()
     {
         var service = new StubRentalContractService
@@ -102,6 +192,42 @@ public class RentalContractsApiControllerTests
         var response = await sut.Delete(1);
 
         Assert.IsType<NoContentResult>(response);
+    }
+
+    [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenMissing_ReturnsNotFound test operation.
+    /// </summary>
+    public async Task Delete_WhenMissing_ReturnsNotFound()
+    {
+        var service = new StubRentalContractService
+        {
+            OnDelete = (_, _) => throw new EntityNotFoundException("missing")
+        };
+        var sut = new RentalContractsApiController(service, _mapper);
+
+        var response = await sut.Delete(999);
+
+        Assert.IsType<NotFoundResult>(response);
+    }
+
+    [Fact]
+    /// <summary>
+    /// Executes the Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem test operation.
+    /// </summary>
+    public async Task Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem()
+    {
+        var service = new StubRentalContractService
+        {
+            OnDelete = (_, _) => throw new BusinessValidationException(BusinessErrorCodes.RentalDeleteBlockedActiveContract, "blocked")
+        };
+        var sut = new RentalContractsApiController(service, _mapper);
+
+        var response = await sut.Delete(10);
+
+        var bad = Assert.IsType<ObjectResult>(response);
+        var details = Assert.IsType<ValidationProblemDetails>(bad.Value);
+        Assert.True(details.Errors.ContainsKey(BusinessErrorCodes.RentalDeleteBlockedActiveContract));
     }
 
     private static RentalContract BuildContract(long id, long clientId, long vehicleId, DateTime start, DateTime end, int mileage)
