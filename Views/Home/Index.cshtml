@@ -1,8 +1,82 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="home-page py-4 py-lg-5">
+    <div class="container">
+        <div class="home-hero home-hero-grid mx-auto mb-4" data-reveal>
+            <div>
+                <p class="page-eyebrow mb-2">Plataforma de aluguer de veículos</p>
+                <h1 class="home-title mb-3">Tudo o que precisas para gerir alugueres.</h1>
+                <p class="home-subtitle mb-4">Organiza clientes, veículos e contratos de forma simples, rapida e clara.</p>
+                <div class="d-flex flex-column flex-sm-row gap-2">
+                    <a class="btn btn-outline-secondary btn-lg" asp-controller="Vehicles" asp-action="Index">Gerir Veículos</a>
+                    <a class="btn btn-outline-secondary btn-lg" asp-controller="Clients" asp-action="Index">Gerir clientes</a>
+                    <a class="btn btn-outline-secondary btn-lg" asp-controller="RentalContracts" asp-action="Index">Gerir contratos</a>
+                </div>
+            </div>
+            <aside class="home-kpis" aria-label="Resumo da plataforma">
+                <div class="kpi-tile" data-reveal>
+                    <small>Gestão de</small>
+                    <strong>Veículos</strong>
+                </div>
+                <div class="kpi-tile" data-reveal>
+                    <small>Gestão de</small>
+                    <strong>Clientes</strong>
+                </div>
+                <div class="kpi-tile" data-reveal>
+                    <small>Gestão de</small>
+                    <strong>Contratos</strong>
+                </div>
+            </aside>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-md-4" data-reveal>
+                <article class="feature-card h-100">
+                    <h3>Registo rapido</h3>
+                    <p>Formulários com validação visual para preencher com menos erros.</p>
+                </article>
+            </div>
+            <div class="col-12 col-md-4" data-reveal>
+                <article class="feature-card h-100">
+                    <h3>Organizacao clara</h3>
+                    <p>Consulta rapidamente o que esta disponível e o que esta atualmente alugado.</p>
+                </article>
+            </div>
+            <div class="col-12 col-md-4" data-reveal>
+                <article class="feature-card h-100">
+                    <h3>Controlo total</h3>
+                    <p>Acompanha os contratos ativos e os terminados num único local.</p>
+                </article>
+            </div>
+        </div>
+
+        <section class="home-actions" data-reveal>
+            <div class="home-actions-head">
+                <h2>Atalhos rapidos</h2>
+                <p>Acede ao que usas mais no dia a dia.</p>
+            </div>
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <a class="action-tile" asp-controller="Vehicles" asp-action="Create">
+                        <h3>Novo Veículo</h3>
+                        <p>Adiciona um novo elemento a frota.</p>
+                    </a>
+                </div>
+                <div class="col-12 col-md-4">
+                    <a class="action-tile" asp-controller="Clients" asp-action="Create">
+                        <h3>Novo cliente</h3>
+                        <p>Regista o cliente com validação completa.</p>
+                    </a>
+                </div>
+                <div class="col-12 col-md-4">
+                    <a class="action-tile" asp-controller="RentalContracts" asp-action="Create">
+                        <h3>Novo contrato</h3>
+                        <p>Cria um aluguer com cliente, matrícula e datas.</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+</section>

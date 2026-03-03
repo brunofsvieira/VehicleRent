@@ -1,0 +1,23 @@
+﻿@model VehicleRent.Models.ViewModels.VehicleViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Criar Veículo";
+}
+
+<section class="vehicle-page py-4 py-lg-5">
+  <div class="container">
+    <div class="page-shell mx-auto" data-reveal>
+      <div class="module-head mb-4">
+        <p class="page-eyebrow mb-2">Gestão de frota</p>
+        <h1 class="page-title mb-2">Novo Veículo</h1>
+        <p class="page-subtitle mb-0">Preencha os dados abaixo para registar um novo Veículo.</p>
+      </div>
+      <div id="alerts"></div>
+      @await Html.PartialAsync("~/Views/Shared/_VehicleForm.cshtml", Model)
+    </div>
+  </div>
+</section>
+
+@section Scripts {
+  @await Html.PartialAsync("~/Views/Shared/_ValidationScriptsPartial.cshtml")
+}

@@ -1,0 +1,120 @@
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using VehicleRent.Models.DTOs;
+using VehicleRent.Models.Entities;
+using VehicleRent.Services;
+using VehicleRent.Services.Exceptions;
+
+namespace VehicleRent.Controllers
+{
+    [ApiController]
+    [Route("api/vehicles")]
+    /// <summary>
+    /// Represents the VehiclesApiController component.
+    /// </summary>
+    public class VehiclesApiController : ControllerBase
+    {
+        private readonly IVehicleService _service;
+        private readonly IMapper _mapper;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VehiclesApiController"/> class.
+        /// </summary>
+        public VehiclesApiController(IVehicleService service, IMapper mapper)
+        {
+            _service = service;
+            _mapper = mapper;
+        }
+
+        [HttpGet]
+        /// <summary>
+        /// Executes the Get operation.
+        /// </summary>
+        public async Task<ActionResult<PagedResult<VehicleDto>>> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? licensePlate = null, [FromQuery] long? clientId = null)
+        {
+            var paged = await _service.GetPagedForApiAsync(page, pageSize, licensePlate, clientId);
+
+            return Ok(new PagedResult<VehicleDto>
+            {
+                Items = paged.Items.Select(v => _mapper.Map<VehicleDto>(v)),
+                TotalCount = paged.TotalCount,
+                Page = paged.Page,
+                PageSize = paged.PageSize
+            });
+        }
+
+        [HttpGet("{id:long}")]
+        /// <summary>
+        /// Executes the GetById operation.
+        /// </summary>
+        public async Task<ActionResult<VehicleDto>> GetById(long id)
+        {
+            var entity = await _service.GetByIdAsync(id);
+            if (entity is null) return NotFound();
+            return Ok(_mapper.Map<VehicleDto>(entity));
+        }
+
+        [HttpPost]
+        /// <summary>
+        /// Executes the Post operation.
+        /// </summary>
+        public async Task<IActionResult> Post([FromBody] CreateVehicleDto dto)
+        {
+            try
+            {
+                var entity = await _service.CreateAsync(dto.Brand, dto.Model, dto.LicensePlate, dto.Fuel, dto.ManufacturingYear);
+                var result = _mapper.Map<VehicleDto>(entity);
+                return CreatedAtAction(nameof(GetById), new { id = entity.Id }, result);
+            }
+            catch (BusinessValidationException ex)
+            {
+                ModelState.AddModelError(ex.ErrorCode, ex.Message);
+                return ValidationProblem(ModelState);
+            }
+        }
+
+        [HttpPut("{id:long}")]
+        /// <summary>
+        /// Executes the Put operation.
+        /// </summary>
+        public async Task<IActionResult> Put(long id, [FromBody] UpdateVehicleDto dto)
+        {
+            try
+            {
+                await _service.UpdateAsync(id, dto.Brand, dto.Model, dto.LicensePlate, dto.Fuel, dto.ManufacturingYear);
+                return NoContent();
+            }
+            catch (EntityNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (BusinessValidationException ex)
+            {
+                ModelState.AddModelError(ex.ErrorCode, ex.Message);
+                return ValidationProblem(ModelState);
+            }
+        }
+
+        [HttpDelete("{id:long}")]
+        /// <summary>
+        /// Executes the Delete operation.
+        /// </summary>
+        public async Task<IActionResult> Delete(long id)
+        {
+            try
+            {
+                await _service.DeleteAsync(id, ensureExists: true);
+                return NoContent();
+            }
+            catch (EntityNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (BusinessValidationException ex)
+            {
+                ModelState.AddModelError(ex.ErrorCode, ex.Message);
+                return ValidationProblem(ModelState);
+            }
+        }
+    }
+}

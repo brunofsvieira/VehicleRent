@@ -1,0 +1,1 @@
+:root{--page-padding: 20px}html,body,#root{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica Neue,Arial}body{padding:var(--page-padding);background:#f8f9fa}table{border-collapse:collapse}input,button{font:inherit}

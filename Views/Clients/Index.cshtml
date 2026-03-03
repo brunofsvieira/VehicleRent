@@ -1,0 +1,168 @@
+@model VehicleRent.Models.Entities.PagedResult<VehicleRent.Models.ViewModels.ClientViewModel>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using System.Collections.Generic
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Clientes";
+    var totalPages = Model.TotalPages;
+    var currentPage = Model.Page <= 0 ? 1 : Model.Page;
+    var pageSize = (Model.PageSize == 10 || Model.PageSize == 20 || Model.PageSize == 50) ? Model.PageSize : 10;
+    var startPage = Math.Max(1, currentPage - 2);
+    var endPage = Math.Min(totalPages, currentPage + 2);
+    var currentVehicleId = ViewBag.CurrentVehicleId as long?;
+    var currentNameOrEmail = ViewBag.CurrentNameOrEmail as string ?? string.Empty;
+    var vehicleFilterOptions = ViewBag.VehicleFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var activeClientIds = ViewBag.ActiveClientIds as HashSet<long> ?? new HashSet<long>();
+}
+
+<section class="vehicle-page py-4 py-lg-5">
+  <div class="container">
+    <div class="page-shell page-shell-wide mx-auto" data-reveal>
+      <div class="module-head d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row gap-3 mb-4">
+        <div>
+          <p class="page-eyebrow mb-2">Gestão de clientes</p>
+          <h1 class="page-title mb-1">Clientes</h1>
+          <p class="page-subtitle mb-0">Lista atualizada dos clientes registados.</p>
+        </div>
+        <a class="btn btn-success" asp-controller="Clients" asp-action="Create">+ Novo cliente</a>
+      </div>
+
+      <div id="alerts"></div>
+      @if (TempData["ErrorMessage"] is string errorMessage)
+      {
+          <div class="alert alert-danger mb-3" role="alert">@errorMessage</div>
+      }
+
+      <form method="get" asp-action="Index" class="module-head mb-3">
+        <div class="row g-2 align-items-end">
+          <div class="col-12 col-md-5">
+            <label for="nameOrEmailFilter" class="form-label mb-1">Nome ou Email</label>
+            <input id="nameOrEmailFilter" name="nameOrEmail" class="form-control" value="@currentNameOrEmail" placeholder="Filtrar por nome ou email..." />
+          </div>
+          <div class="col-12 col-md-5">
+            <label for="vehicleIdFilter" class="form-label mb-1">Veículo</label>
+            <select id="vehicleIdFilter" name="vehicleId" class="form-select">
+              <option value="">-- todos os veículos --</option>
+              @foreach (var item in vehicleFilterOptions)
+              {
+                  <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+              }
+            </select>
+          </div>
+          <div class="col-12 col-md-2 d-flex gap-2">
+            <input type="hidden" name="pageSize" value="@pageSize" />
+            <button class="btn btn-primary flex-fill" type="submit">Filtrar</button>
+            <a class="btn btn-outline-secondary flex-fill" asp-action="Index" asp-route-pageSize="@pageSize">Limpar</a>
+          </div>
+        </div>
+      </form>
+
+      @if (!Model.Items.Any())
+      {
+          <div class="empty-state text-center" data-reveal>
+            <h2>Sem clientes registados</h2>
+            <p>Regista o primeiro cliente para iniciares os alugueres.</p>
+            <a class="btn btn-primary" asp-controller="Clients" asp-action="Create">Criar primeiro cliente</a>
+          </div>
+      }
+      else
+      {
+      <div class="table-shell" data-reveal>
+        <table class="table table-hover align-middle mb-0 records-table" id="clientsTable">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Telefone</th>
+              <th>Carta de Condução</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var c in Model.Items)
+            {
+                <tr>
+                  <td data-label="Nome">@c.Name</td>
+                  <td data-label="Email">@c.Email</td>
+                  <td data-label="Telefone"><span class="record-chip">@c.PhoneNumber</span></td>
+                  <td data-label="Carta"><span class="record-chip">@c.DriverLicense</span></td>
+                  <td class="text-end record-actions" data-label="Ações">
+                    <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@c.Id">Editar</a>
+                    @if (c.Id.HasValue && activeClientIds.Contains(c.Id.Value))
+                    {
+                        <button class="btn btn-sm btn-outline-secondary" type="button" disabled title="Nao e possivel apagar clientes com aluguer em curso.">Apagar</button>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete" method="post" class="d-inline-block">
+                          @Html.AntiForgeryToken()
+                          <input type="hidden" name="id" value="@c.Id" />
+                          <input type="hidden" name="page" value="@currentPage" />
+                          <input type="hidden" name="pageSize" value="@pageSize" />
+                          <input type="hidden" name="nameOrEmail" value="@currentNameOrEmail" />
+                          <input type="hidden" name="vehicleId" value="@currentVehicleId" />
+                          <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this client?');">Apagar</button>
+                        </form>
+                    }
+                  </td>
+                </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mt-3 pagination-shell" data-reveal>
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+          <label for="pageSize" class="paging-note mb-0">Registos por pagina</label>
+          <select id="pageSize" name="pageSize" class="form-select form-select-sm page-size-select" onchange="this.form.submit()">
+            <option value="10" selected="@(pageSize == 10)">10</option>
+            <option value="20" selected="@(pageSize == 20)">20</option>
+            <option value="50" selected="@(pageSize == 50)">50</option>
+          </select>
+          <input type="hidden" name="page" value="1" />
+          <input type="hidden" name="nameOrEmail" value="@currentNameOrEmail" />
+          <input type="hidden" name="vehicleId" value="@currentVehicleId" />
+        </form>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-md-end">
+          <span class="paging-note me-1">Pagina @currentPage de @(totalPages == 0 ? 1 : totalPages)</span>
+
+          <a class="btn btn-sm btn-outline-secondary @(currentPage <= 1 ? "disabled" : "")"
+             asp-action="Index"
+             asp-route-page="@(currentPage - 1)"
+             asp-route-pageSize="@pageSize"
+             asp-route-nameOrEmail="@currentNameOrEmail"
+             asp-route-vehicleId="@currentVehicleId"
+             aria-disabled="@(currentPage <= 1)">
+            Anterior
+          </a>
+
+          @if (totalPages > 0)
+          {
+              @for (var i = startPage; i <= endPage; i++)
+              {
+                  var activeClass = i == currentPage ? "btn-primary" : "btn-outline-secondary";
+                  <a class="btn btn-sm @activeClass"
+                     asp-action="Index"
+                     asp-route-page="@i"
+                     asp-route-nameOrEmail="@currentNameOrEmail"
+                     asp-route-vehicleId="@currentVehicleId"
+                     asp-route-pageSize="@pageSize">@i</a>
+              }
+          }
+
+          <a class="btn btn-sm btn-outline-secondary @(currentPage >= totalPages ? "disabled" : "")"
+             asp-action="Index"
+             asp-route-page="@(currentPage + 1)"
+             asp-route-pageSize="@pageSize"
+             asp-route-nameOrEmail="@currentNameOrEmail"
+             asp-route-vehicleId="@currentVehicleId"
+             aria-disabled="@(currentPage >= totalPages)">
+            Seguinte
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

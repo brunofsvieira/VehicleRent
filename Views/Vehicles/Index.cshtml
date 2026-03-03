@@ -1,0 +1,234 @@
+@model VehicleRent.Models.Entities.PagedResult<VehicleRent.Models.ViewModels.VehicleViewModel>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Veículos";
+    var totalPages = Model.TotalPages;
+    var currentPage = Model.Page <= 0 ? 1 : Model.Page;
+    var pageSize = (Model.PageSize == 10 || Model.PageSize == 20 || Model.PageSize == 50) ? Model.PageSize : 10;
+    var startPage = Math.Max(1, currentPage - 2);
+    var endPage = Math.Min(totalPages, currentPage + 2);
+    var currentClientId = ViewBag.CurrentClientId as long?;
+    var currentLicensePlate = ViewBag.CurrentLicensePlate as string ?? string.Empty;
+    var availabilityStatus = ViewBag.AvailabilityStatus as bool?;
+    var clientFilterOptions = ViewBag.ClientFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+    var vehicleFilterOptions = ViewBag.VehicleFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
+}
+
+<section class="vehicle-page py-4 py-lg-5">
+  <div class="container">
+    <div class="page-shell page-shell-wide mx-auto" data-reveal>
+      <div class="module-head d-flex justify-content-between align-items-start align-items-md-center flex-column flex-md-row gap-3 mb-4">
+        <div>
+          <p class="page-eyebrow mb-2">Gestão de frota</p>
+          <h1 class="page-title mb-1">Veículos</h1>
+          <p class="page-subtitle mb-0">Lista atualizada da frota.</p>
+        </div>
+        <a class="btn btn-success" asp-controller="Vehicles" asp-action="Create">+ Novo Veículo</a>
+      </div>
+
+      <div id="alerts"></div>
+      @if (TempData["ErrorMessage"] is string errorMessage)
+      {
+          <div class="alert alert-danger mb-3" role="alert">@errorMessage</div>
+      }
+
+      <form method="get" asp-action="Index" class="module-head mb-3">
+        <div class="row g-2 align-items-end">
+          <div class="col-12 col-md-5">
+              <label for="licensePlateFilter" class="form-label mb-1">Matrícula</label>
+              <select id="licensePlateFilter" name="licensePlate" class="form-select">
+                  <option value="">-- todas as matrículas --</option>
+                  @foreach (var item in vehicleFilterOptions)
+                  {
+                      <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                  }
+              </select>
+          </div>
+          <div class="col-12 col-md-5">
+            <label for="clientIdFilter" class="form-label mb-1">Cliente</label>
+            <select id="clientIdFilter" name="clientId" class="form-select">
+              <option value="">-- todos os clientes --</option>
+              @foreach (var item in clientFilterOptions)
+              {
+                  <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+              }
+            </select>
+          </div>
+          <div class="col-12 col-md-5">
+            <label for="statusFilter" class="form-label mb-1">Estado</label>
+            <select id="statusFilter" name="availabilityStatus" class="form-select">
+               <option value="">-- Estados --</option>
+               <option value="true" selected="@(availabilityStatus == true)">Alugado</option>
+               <option value="false" selected="@(availabilityStatus == false)">Disponível</option>
+             </select>
+          </div>
+          <div class="col-12 col-md-2 d-flex gap-2">
+            <input type="hidden" name="pageSize" value="@pageSize" />
+            <button class="btn btn-primary flex-fill" type="submit">Filtrar</button>
+            <a class="btn btn-outline-secondary flex-fill" asp-action="Index" asp-route-pageSize="@pageSize">Limpar</a>
+          </div>
+        </div>
+      </form>
+
+      @if (!Model.Items.Any())
+      {
+          <div class="empty-state text-center" data-reveal>
+            <h2>Sem veículos registados</h2>
+            <p>Começa por adicionar o primeiro veículo da frota.</p>
+            <a class="btn btn-primary" asp-controller="Vehicles" asp-action="Create">Criar primeiro veículo</a>
+          </div>
+      }
+      else
+      {
+      <div class="table-shell" data-reveal>
+        <table class="table table-hover align-middle mb-0 records-table" id="vehiclesTable">
+          <thead>
+            <tr>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Matrícula</th>
+              <th>Ano</th>
+              <th>Combustível</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var v in Model.Items)
+            {
+                <tr>
+                  <td data-label="Marca">@v.Brand</td>
+                  <td data-label="Modelo">@v.Model</td>
+                  <td data-label="Matrícula"><span class="record-chip">@v.LicensePlate</span></td>
+                  <td data-label="Ano">@v.ManufacturingYear</td>
+                  <td data-label="Combustível">@v.Fuel.ToString()</td>
+                  <td data-label="Estado">
+                    <span class="record-chip @(v.IsCurrentlyRented ? "status-rented" : "status-available")">@v.AvailabilityStatus</span>
+                  </td>
+                  <td class="text-end record-actions" data-label="Ações">
+                    <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@v.Id">Editar</a>
+                    @if (v.IsCurrentlyRented)
+                    {
+                        <button class="btn btn-sm btn-outline-secondary" type="button" disabled title="Nao e possivel apagar veiculos alugados.">Apagar</button>
+                    }
+                    else
+                    {
+                        <form asp-action="Delete" method="post" class="d-inline-block">
+                          @Html.AntiForgeryToken()
+                          <input type="hidden" name="id" value="@v.Id" />
+                          <input type="hidden" name="page" value="@currentPage" />
+                          <input type="hidden" name="pageSize" value="@pageSize" />
+                          <input type="hidden" name="licensePlate" value="@currentLicensePlate" />
+                          <input type="hidden" name="clientId" value="@currentClientId" />
+                          <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this vehicle?');">Apagar</button>
+                        </form>
+                    }
+                  </td>
+                </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mt-3 pagination-shell" data-reveal>
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+          <label for="pageSize" class="paging-note mb-0">Registos por pagina</label>
+          <select id="pageSize" name="pageSize" class="form-select form-select-sm page-size-select" onchange="this.form.submit()">
+            <option value="10" selected="@(pageSize == 10)">10</option>
+            <option value="20" selected="@(pageSize == 20)">20</option>
+            <option value="50" selected="@(pageSize == 50)">50</option>
+          </select>
+          <input type="hidden" name="page" value="1" />
+          <input type="hidden" name="licensePlate" value="@currentLicensePlate" />
+          <input type="hidden" name="status" value="@availabilityStatus" />
+          <input type="hidden" name="clientId" value="@currentClientId" />
+        </form>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-md-end">
+          <span class="paging-note me-1">Pagina @currentPage de @(totalPages == 0 ? 1 : totalPages)</span>
+
+          <a class="btn btn-sm btn-outline-secondary @(currentPage <= 1 ? "disabled" : "")"
+             asp-action="Index"
+             asp-route-page="@(currentPage - 1)"
+             asp-route-pageSize="@pageSize"
+             asp-route-licensePlate="@currentLicensePlate"
+             asp-route-availabilityStatus="@availabilityStatus"
+             asp-route-clientId="@currentClientId"
+             aria-disabled="@(currentPage <= 1)">
+            Anterior
+          </a>
+
+          @if (totalPages > 0)
+          {
+              @for (var i = startPage; i <= endPage; i++)
+              {
+                  var activeClass = i == currentPage ? "btn-primary" : "btn-outline-secondary";
+                  <a class="btn btn-sm @activeClass"
+                     asp-action="Index"
+                     asp-route-page="@i"
+                     asp-route-licensePlate="@currentLicensePlate"
+                     asp-route-availabilityStatus="@availabilityStatus"
+                     asp-route-clientId="@currentClientId"
+                     asp-route-pageSize="@pageSize">@i</a>
+              }
+          }
+
+          <a class="btn btn-sm btn-outline-secondary @(currentPage >= totalPages ? "disabled" : "")"
+             asp-action="Index"
+             asp-route-page="@(currentPage + 1)"
+             asp-route-pageSize="@pageSize"
+             asp-route-licensePlate="@currentLicensePlate"
+             asp-route-availabilityStatus="@availabilityStatus"
+             asp-route-clientId="@currentClientId"
+             aria-disabled="@(currentPage >= totalPages)">
+            Seguinte
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+@section Scripts {
+  <script>
+    (() => {
+      const clientSelect = document.getElementById('clientIdFilter');
+      const licenseSelect = document.getElementById('licensePlateFilter');
+      const statusSelect = document.getElementById('statusFilter');
+      if (!clientSelect || !licenseSelect || !statusSelect) {
+        return;
+      }
+
+      const setDisabled = (element, disabled, message) => {
+        element.disabled = disabled;
+        element.title = disabled ? message : '';
+        element.classList.toggle('disabled', disabled);
+      };
+
+      const updateStates = () => {
+        const hasClient = Boolean(clientSelect.value);
+        const hasLicense = Boolean(licenseSelect.value);
+        const hasStatus = Boolean(statusSelect.value);
+
+        setDisabled(clientSelect, hasLicense || hasStatus, 'Escolha matrícula ou estado para desbloquear o cliente.');
+        setDisabled(licenseSelect, hasClient, 'Escolha um cliente para desbloquear as matrículas.');
+        setDisabled(statusSelect, hasClient, 'Escolha um cliente para desbloquear os estados.');
+      };
+
+      [clientSelect, licenseSelect, statusSelect].forEach(el => el.addEventListener('change', () => {
+        // clear incompatible selects when selecting another filter
+        if (el === clientSelect && el.value) {
+          licenseSelect.value = '';
+          statusSelect.value = '';
+        } else if (el !== clientSelect) {
+          clientSelect.value = '';
+        }
+        updateStates();
+      }));
+
+      updateStates();
+    })();
+  </script>
+}
