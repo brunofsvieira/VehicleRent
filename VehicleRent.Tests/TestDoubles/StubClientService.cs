@@ -5,8 +5,9 @@ namespace VehicleRent.Tests.TestDoubles;
 
 internal sealed class StubClientService : IClientService
 {
-    public Func<int, int, Task<PagedResult<Client>>>? OnGetPagedForWeb { get; set; }
-    public Func<int, int, Task<PagedResult<Client>>>? OnGetPagedForApi { get; set; }
+    public Func<int, int, string?, long?, Task<PagedResult<Client>>>? OnGetPagedForWeb { get; set; }
+    public Func<int, int, string?, long?, Task<PagedResult<Client>>>? OnGetPagedForApi { get; set; }
+    public Func<Task<IReadOnlyList<Client>>>? OnGetAllForSelection { get; set; }
     public Func<long, Task<Client?>>? OnGetById { get; set; }
     public Func<string, string, string, string, Task<Client>>? OnCreate { get; set; }
     public Func<long, string, string, string, string, Task>? OnUpdate { get; set; }
@@ -30,21 +31,27 @@ internal sealed class StubClientService : IClientService
         return OnGetById(id);
     }
 
-    public Task<PagedResult<Client>> GetPagedForApiAsync(int page, int pageSize)
+    public Task<PagedResult<Client>> GetPagedForApiAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
     {
         if (OnGetPagedForApi is null) throw new NotImplementedException();
-        return OnGetPagedForApi(page, pageSize);
+        return OnGetPagedForApi(page, pageSize, nameOrEmail, vehicleId);
     }
 
-    public Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize)
+    public Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
     {
         if (OnGetPagedForWeb is null) throw new NotImplementedException();
-        return OnGetPagedForWeb(page, pageSize);
+        return OnGetPagedForWeb(page, pageSize, nameOrEmail, vehicleId);
     }
 
     public Task UpdateAsync(long id, string name, string email, string phoneNumber, string driverLicense)
     {
         if (OnUpdate is null) throw new NotImplementedException();
         return OnUpdate(id, name, email, phoneNumber, driverLicense);
+    }
+
+    public Task<IReadOnlyList<Client>> GetAllForSelectionAsync()
+    {
+        if (OnGetAllForSelection is null) return Task.FromResult<IReadOnlyList<Client>>(Array.Empty<Client>());
+        return OnGetAllForSelection();
     }
 }

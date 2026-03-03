@@ -14,26 +14,29 @@ namespace VehicleRent.Models.ViewModels
         /// </summary>
         public long? Id { get; set; }
 
-        [Required, StringLength(30)]
+        [Required(ErrorMessage = "O campo Marca e obrigatório.")]
+        [StringLength(30, ErrorMessage = "A Marca deve ter no maximo 30 caracteres.")]
         public required string Brand { get; set; }
 
-        [Required, StringLength(30)]
+        [Required(ErrorMessage = "O campo Modelo e obrigatório.")]
+        [StringLength(30, ErrorMessage = "O Modelo deve ter no maximo 30 caracteres.")]
         public required string Model { get; set; }
 
-        [Required, StringLength(8, MinimumLength = 8)]
-        [LicensePlateFormat]
+        [Required(ErrorMessage = "O campo Matrícula e obrigatório.")]
+        [StringLength(8, MinimumLength = 8, ErrorMessage = "A Matrícula deve ter exatamente 8 caracteres.")]
+        [LicensePlateFormat(ErrorMessage = "Formato de matrícula inválido.")]
         public required string LicensePlate { get; set; }
 
-        [Required]
-        [ManufacturingYearRange]
+        [Required(ErrorMessage = "O campo Ano de Fabricacao e obrigatório.")]
+        [ManufacturingYearRange(ErrorMessage = "O ano de fabricacao deve estar entre 1900 e {1}.")]
         public int ManufacturingYear { get; set; }
 
-        [Required]
-        [EnsureFuelNotNone]
+        [Required(ErrorMessage = "O campo Combustivel e obrigatório.")]
+        [EnsureFuelNotNone(ErrorMessage = "Selecione um tipo de combustivel válido.")]
         public required FuelType Fuel { get; set; }
 
         public bool IsCurrentlyRented { get; set; }
-        public string AvailabilityStatus => IsCurrentlyRented ? "Alugado" : "Disponivel";
+        public string AvailabilityStatus => IsCurrentlyRented ? "Alugado" : "disponível";
 
         // Map view model -> new entity (creates entity without Id; repository sets Id)
         public Vehicle ToEntity() =>

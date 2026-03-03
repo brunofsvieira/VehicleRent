@@ -8,11 +8,16 @@ namespace VehicleRent.Tests;
 
 public class VehicleServiceTests
 {
+    private static VehicleService CreateSut(InMemoryVehicleRepository repo, InMemoryRentalContractRepository? rentalRepo = null)
+    {
+        return new VehicleService(repo, rentalRepo ?? new InMemoryRentalContractRepository(), TestDistributedCacheFactory.Create());
+    }
+
     [Fact]
     public async Task GetPagedForWebAsync_NormalizesInvalidInput()
     {
         var repo = new InMemoryVehicleRepository(SeedVehicles(12));
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         var result = await sut.GetPagedForWebAsync(page: 0, pageSize: 13);
 
@@ -25,7 +30,7 @@ public class VehicleServiceTests
     public async Task GetPagedForWebAsync_ClampsPageToLastPage()
     {
         var repo = new InMemoryVehicleRepository(SeedVehicles(15));
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         var result = await sut.GetPagedForWebAsync(page: 99, pageSize: 10);
 
@@ -39,7 +44,7 @@ public class VehicleServiceTests
     public async Task GetPagedForApiAsync_NormalizesPageSize()
     {
         var repo = new InMemoryVehicleRepository(SeedVehicles(5));
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         var result = await sut.GetPagedForApiAsync(page: 1, pageSize: 500);
 
@@ -52,7 +57,7 @@ public class VehicleServiceTests
     {
         var vehicle = SeedVehicles(1).Single();
         var repo = new InMemoryVehicleRepository([vehicle]);
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         var found = await sut.GetByIdAsync(vehicle.Id);
 
@@ -64,7 +69,7 @@ public class VehicleServiceTests
     public async Task CreateAsync_PersistsAndReturnsEntity()
     {
         var repo = new InMemoryVehicleRepository();
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         var created = await sut.CreateAsync("Ford", "Fiesta", "AA-00-AA", FuelType.Petrol, 2020);
 
@@ -78,19 +83,19 @@ public class VehicleServiceTests
     public async Task CreateAsync_InvalidEntity_ThrowsBusinessValidation()
     {
         var repo = new InMemoryVehicleRepository();
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         var ex = await Assert.ThrowsAsync<BusinessValidationException>(() =>
             sut.CreateAsync("", "Fiesta", "AA-00-AA", FuelType.Petrol, 2020));
 
-        Assert.Contains("Brand", ex.Message);
+        Assert.Equal(BusinessErrorCodes.VehicleBrandRequired, ex.ErrorCode);
     }
 
     [Fact]
     public async Task UpdateAsync_NotFound_ThrowsEntityNotFound()
     {
         var repo = new InMemoryVehicleRepository();
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         await Assert.ThrowsAsync<EntityNotFoundException>(() =>
             sut.UpdateAsync(999, "Ford", "Fiesta", "AA-00-AA", FuelType.Petrol, 2020));
@@ -101,7 +106,7 @@ public class VehicleServiceTests
     {
         var vehicle = SeedVehicles(1).Single();
         var repo = new InMemoryVehicleRepository([vehicle]);
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         await Assert.ThrowsAsync<BusinessValidationException>(() =>
             sut.UpdateAsync(vehicle.Id, "Ford", "Fiesta", "AA-00-AA", FuelType.None, 2020));
@@ -112,7 +117,7 @@ public class VehicleServiceTests
     {
         var vehicle = SeedVehicles(1).Single();
         var repo = new InMemoryVehicleRepository([vehicle]);
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         await sut.UpdateAsync(vehicle.Id, "Tesla", "Model 3", "BB-11-BB", FuelType.Electric, 2022);
 
@@ -130,7 +135,7 @@ public class VehicleServiceTests
     {
         var existing = SeedVehicles(1).Single();
         var repo = new InMemoryVehicleRepository([existing]);
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         await Assert.ThrowsAsync<BusinessValidationException>(() =>
             sut.CreateAsync("Ford", "Focus", existing.LicensePlate, FuelType.Petrol, 2021));
@@ -141,7 +146,7 @@ public class VehicleServiceTests
     {
         var vehicles = SeedVehicles(2).ToArray();
         var repo = new InMemoryVehicleRepository(vehicles);
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         await Assert.ThrowsAsync<BusinessValidationException>(() =>
             sut.UpdateAsync(vehicles[1].Id, "B2", "M2", vehicles[0].LicensePlate, FuelType.Petrol, 2021));
@@ -151,7 +156,7 @@ public class VehicleServiceTests
     public async Task DeleteAsync_EnsureExistsTrue_NotFound_Throws()
     {
         var repo = new InMemoryVehicleRepository();
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         await Assert.ThrowsAsync<EntityNotFoundException>(() => sut.DeleteAsync(12, ensureExists: true));
     }
@@ -160,7 +165,7 @@ public class VehicleServiceTests
     public async Task DeleteAsync_EnsureExistsFalse_DoesNotThrowForMissing()
     {
         var repo = new InMemoryVehicleRepository();
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         await sut.DeleteAsync(12, ensureExists: false);
 
@@ -172,7 +177,7 @@ public class VehicleServiceTests
     {
         var vehicle = SeedVehicles(1).Single();
         var repo = new InMemoryVehicleRepository([vehicle]);
-        var sut = new VehicleService(repo);
+        var sut = CreateSut(repo);
 
         await sut.DeleteAsync(vehicle.Id, ensureExists: true);
 

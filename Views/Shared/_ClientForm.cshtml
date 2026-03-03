@@ -6,7 +6,7 @@
 <form id="clientFormStandalone" method="post" action="@formAction" class="vehicle-form card border-0 shadow-sm p-4 p-lg-5" novalidate>
   @Html.AntiForgeryToken()
   <input asp-for="Id" type="hidden" id="clientId" />
-  <p class="form-caption mb-4">Campos com <span class="req-mark">*</span> sao obrigatorios.</p>
+  <p class="form-caption mb-4">Campos com <span class="req-mark">*</span> sao obrigatórios.</p>
   <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
 
   <div class="row g-3">
@@ -22,7 +22,7 @@
       <div class="vehicle-field form-floating">
         <input asp-for="Email" type="email" class="form-control" id="clientEmail" placeholder="Email" required maxlength="100" />
         <label for="clientEmail">Email <span class="req-mark" aria-hidden="true">*</span></label>
-        <div class="field-hint" data-field-hint-for="clientEmail">Introduz um email valido.</div>
+        <div class="field-hint" data-field-hint-for="clientEmail">Introduz um email válido.</div>
       </div>
     </div>
 
@@ -36,8 +36,8 @@
 
     <div class="col-12 col-md-6">
       <div class="vehicle-field form-floating">
-        <input asp-for="DriverLicense" class="form-control" id="clientDriverLicense" placeholder="Carta de Conducao" required maxlength="30" />
-        <label for="clientDriverLicense">Carta de Conducao <span class="req-mark" aria-hidden="true">*</span></label>
+        <input asp-for="DriverLicense" class="form-control" id="clientDriverLicense" placeholder="Carta de Condução" required maxlength="30" />
+        <label for="clientDriverLicense">Carta de Condução <span class="req-mark" aria-hidden="true">*</span></label>
         <div class="field-hint" data-field-hint-for="clientDriverLicense">Preenche este campo.</div>
       </div>
     </div>

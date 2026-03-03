@@ -11,6 +11,6 @@ namespace VehicleRent.Models.DTOs
         public int ManufacturingYear { get; set; }
         public FuelType Fuel { get; set; }
         public bool IsCurrentlyRented { get; set; }
-        public string AvailabilityStatus => IsCurrentlyRented ? "Alugado" : "Disponivel";
+        public string AvailabilityStatus => IsCurrentlyRented ? "Alugado" : "disponível";
     }
 }

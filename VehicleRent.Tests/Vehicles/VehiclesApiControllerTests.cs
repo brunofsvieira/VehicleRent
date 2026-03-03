@@ -26,7 +26,7 @@ public class VehiclesApiControllerTests
     {
         var service = new StubVehicleService
         {
-            OnGetPagedForApi = (_, _) => Task.FromResult(new PagedResult<Vehicle>
+            OnGetPagedForApi = (_, _, _, _) => Task.FromResult(new PagedResult<Vehicle>
             {
                 Items = new[] { BuildVehicle(1, "B1", "M1") },
                 TotalCount = 1,

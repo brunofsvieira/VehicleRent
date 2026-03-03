@@ -22,11 +22,11 @@
     var nowYear = new Date().getFullYear();
     var licensePlatePattern = /^(?:\d{2}-[A-Z]{2}-\d{2}|[A-Z]{2}-\d{2}-\d{2}|\d{2}-\d{2}-[A-Z]{2}|[A-Z]{2}-\d{2}-[A-Z]{2})$/;
     var fields = [
-      { id: 'brand', missing: 'Obrigatorio.' },
-      { id: 'model', missing: 'Obrigatorio.' },
-      { id: 'licensePlate', missing: 'Obrigatorio.', invalid: 'Formato invalido.' },
-      { id: 'year', missing: 'Obrigatorio.', invalid: 'Ano entre 1901 e ' + nowYear + '.' },
-      { id: 'fuel', missing: 'Obrigatorio.' }
+      { id: 'brand', missing: 'obrigatório.' },
+      { id: 'model', missing: 'obrigatório.' },
+      { id: 'licensePlate', missing: 'obrigatório.', invalid: 'Formato inválido.' },
+      { id: 'year', missing: 'obrigatório.', invalid: 'Ano entre 1901 e ' + nowYear + '.' },
+      { id: 'fuel', missing: 'obrigatório.' }
     ].map(function(cfg){
       var el = form.querySelector('#' + cfg.id);
       var field = el ? el.closest('.vehicle-field') : null;
@@ -231,10 +231,10 @@
     var phonePattern = /^\+\d{1,3}\d{9}$/;
     var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     var fields = [
-      { id: 'clientName', missing: 'Obrigatorio.' },
-      { id: 'clientEmail', missing: 'Obrigatorio.', invalid: 'Email invalido.' },
-      { id: 'clientPhoneNumber', missing: 'Obrigatorio.', invalid: 'Formato: +351912345678' },
-      { id: 'clientDriverLicense', missing: 'Obrigatorio.' }
+      { id: 'clientName', missing: 'obrigatório.' },
+      { id: 'clientEmail', missing: 'obrigatório.', invalid: 'Email inválido.' },
+      { id: 'clientPhoneNumber', missing: 'obrigatório.', invalid: 'Formato: +351912345678' },
+      { id: 'clientDriverLicense', missing: 'obrigatório.' }
     ].map(function(cfg){
       var el = form.querySelector('#' + cfg.id);
       var field = el ? el.closest('.vehicle-field') : null;
@@ -363,11 +363,11 @@
     today.setHours(0, 0, 0, 0);
 
     var fields = [
-      { id: 'contractClientId', missing: 'Obrigatorio.' },
-      { id: 'contractVehicleId', missing: 'Obrigatorio.' },
-      { id: 'rentalStartDate', missing: 'Obrigatorio.', invalid: 'Nao pode ser anterior a hoje.' },
-      { id: 'rentalEndDate', missing: 'Obrigatorio.', invalid: 'Tem de ser posterior a data de inicio.' },
-      { id: 'initialMileage', missing: 'Obrigatorio.', invalid: 'Tem de ser 0 ou superior.' }
+      { id: 'contractClientId', missing: 'obrigatório.' },
+      { id: 'contractVehicleId', missing: 'obrigatório.' },
+      { id: 'rentalStartDate', missing: 'obrigatório.', invalid: 'Não pode ser anterior a hoje.' },
+      { id: 'rentalEndDate', missing: 'obrigatório.', invalid: 'Tem de ser posterior a data de inicio.' },
+      { id: 'initialMileage', missing: 'obrigatório.', invalid: 'Tem de ser 0 ou superior.' }
     ].map(function(cfg){
       var el = form.querySelector('#' + cfg.id);
       var field = el ? el.closest('.vehicle-field') : null;

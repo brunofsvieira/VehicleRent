@@ -139,7 +139,7 @@ namespace VehicleRent.Controllers
             }
             catch (BusinessValidationException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                ModelState.AddModelError(string.Empty, FrontendErrorMessages.ToPt(ex.ErrorCode));
                 await PopulateSelectionsAsync(contract.ClientId, contract.VehicleId);
                 return View(contract);
             }
@@ -185,7 +185,7 @@ namespace VehicleRent.Controllers
             }
             catch (BusinessValidationException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                ModelState.AddModelError(string.Empty, FrontendErrorMessages.ToPt(ex.ErrorCode));
                 await PopulateSelectionsAsync(contract.ClientId, contract.VehicleId);
                 return View(contract);
             }
