@@ -96,7 +96,7 @@ namespace VehicleRent.Repositories
             var existing = await _dbContext.RentalContracts.FindAsync(id);
             if (existing is null) return;
 
-            _dbContext.RentalContracts.Remove(existing);
+            existing.MarkDeleted();
             await _dbContext.SaveChangesAsync();
         }
 

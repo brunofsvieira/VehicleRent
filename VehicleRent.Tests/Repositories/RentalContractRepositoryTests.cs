@@ -203,7 +203,7 @@ public class RentalContractRepositoryTests
     }
 
     [Fact]
-    public async Task DeleteAsync_WhenMissing_DoesNothing_And_WhenExists_Removes()
+    public async Task DeleteAsync_WhenMissing_DoesNothing_And_WhenExists_SoftDeletes()
     {
         using var ctx = TestDbContextFactory.Create();
         var client = new Client("Ana", "ana@example.com", "+351912345678", "DL010");
@@ -224,5 +224,7 @@ public class RentalContractRepositoryTests
 
         await repo.DeleteAsync(contract.Id);
         Assert.Equal(0, await ctx.RentalContracts.CountAsync());
+        var deleted = await ctx.RentalContracts.IgnoreQueryFilters().SingleAsync(rc => rc.Id == contract.Id);
+        Assert.True(deleted.Deleted);
     }
 }

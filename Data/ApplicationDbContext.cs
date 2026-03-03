@@ -34,7 +34,8 @@ namespace VehicleRent.Data
                 .HasMaxLength(8);
 
             vehicle.HasIndex(v => v.LicensePlate)
-                .IsUnique();
+                .IsUnique()
+                .HasFilter("[Deleted] = 0");
 
             vehicle.Property(v => v.Fuel)
                 .HasConversion<string>()
@@ -43,6 +44,8 @@ namespace VehicleRent.Data
 
             vehicle.Property(v => v.ManufacturingYear)
                 .IsRequired();
+            vehicle.Property(v => v.Deleted).IsRequired();
+            vehicle.HasQueryFilter(v => !v.Deleted);
 
             var client = modelBuilder.Entity<Client>();
             client.HasKey(c => c.Id);
@@ -57,7 +60,8 @@ namespace VehicleRent.Data
                 .HasMaxLength(100);
 
             client.HasIndex(c => c.Email)
-                .IsUnique();
+                .IsUnique()
+                .HasFilter("[Deleted] = 0");
 
             client.Property(c => c.PhoneNumber)
                 .IsRequired()
@@ -66,9 +70,12 @@ namespace VehicleRent.Data
             client.Property(c => c.DriverLicense)
                 .IsRequired()
                 .HasMaxLength(30);
+            client.Property(c => c.Deleted).IsRequired();
+            client.HasQueryFilter(c => !c.Deleted);
 
             client.HasIndex(c => c.DriverLicense)
-                .IsUnique();
+                .IsUnique()
+                .HasFilter("[Deleted] = 0");
 
             var rentalContract = modelBuilder.Entity<RentalContract>();
             rentalContract.HasKey(rc => rc.Id);
@@ -79,6 +86,8 @@ namespace VehicleRent.Data
             rentalContract.Property(rc => rc.RentalStartDate).IsRequired();
             rentalContract.Property(rc => rc.RentalEndDate).IsRequired();
             rentalContract.Property(rc => rc.InitialMileage).IsRequired();
+            rentalContract.Property(rc => rc.Deleted).IsRequired();
+            rentalContract.HasQueryFilter(rc => !rc.Deleted);
 
             rentalContract.HasOne(rc => rc.Client)
                 .WithMany()

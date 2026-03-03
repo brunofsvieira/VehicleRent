@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Repositories;
@@ -66,5 +67,21 @@ public class VehicleRepositoryTests
         await repo.DeleteAsync(999);
 
         Assert.Empty(ctx.Vehicles);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_SoftDeletesVehicle()
+    {
+        using var ctx = TestDbContextFactory.Create();
+        var vehicle = new Vehicle("Ford", "Focus", FuelType.Petrol, 2022, "AA-11-AA");
+        ctx.Vehicles.Add(vehicle);
+        await ctx.SaveChangesAsync();
+        var repo = new VehicleRepository(ctx);
+
+        await repo.DeleteAsync(vehicle.Id);
+
+        Assert.Empty(ctx.Vehicles);
+        var deleted = await ctx.Vehicles.IgnoreQueryFilters().SingleAsync(v => v.Id == vehicle.Id);
+        Assert.True(deleted.Deleted);
     }
 }

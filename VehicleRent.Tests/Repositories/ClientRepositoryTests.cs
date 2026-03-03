@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
 using VehicleRent.Repositories;
@@ -65,5 +66,21 @@ public class ClientRepositoryTests
         await repo.DeleteAsync(999);
 
         Assert.Empty(ctx.Clients);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_SoftDeletesClient()
+    {
+        using var ctx = TestDbContextFactory.Create();
+        var client = new Client("Ana", "ana@example.com", "+351912345678", "DL001");
+        ctx.Clients.Add(client);
+        await ctx.SaveChangesAsync();
+        var repo = new ClientRepository(ctx);
+
+        await repo.DeleteAsync(client.Id);
+
+        Assert.Empty(ctx.Clients);
+        var deleted = await ctx.Clients.IgnoreQueryFilters().SingleAsync(c => c.Id == client.Id);
+        Assert.True(deleted.Deleted);
     }
 }
