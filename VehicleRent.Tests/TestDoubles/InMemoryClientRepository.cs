@@ -56,7 +56,7 @@ internal sealed class InMemoryClientRepository : IClientRepository
     /// <summary>
     /// Executes the GetAllAsync test operation.
     /// </summary>
-    public Task<PagedResult<Client>> GetAllAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
+    public Task<PagedResult<Client>> GetAllAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
     {
         _pagedCalls.Add((page, pageSize));
 
@@ -65,12 +65,9 @@ internal sealed class InMemoryClientRepository : IClientRepository
 
         IEnumerable<Client> query = _items;
 
-        if (!string.IsNullOrWhiteSpace(nameOrEmail))
+        if (clientId.HasValue && clientId.Value > 0)
         {
-            var term = nameOrEmail.Trim();
-            query = query.Where(c =>
-                c.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
-                c.Email.Contains(term, StringComparison.OrdinalIgnoreCase));
+            query = query.Where(c => c.Id == clientId.Value);
         }
 
         var filtered = query.ToList();

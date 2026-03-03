@@ -106,7 +106,7 @@
                           <input type="hidden" name="id" value="@c.Id" />
                           <input type="hidden" name="page" value="@currentPage" />
                           <input type="hidden" name="pageSize" value="@pageSize" />
-                          <input type="hidden" name="nameOrEmail" value="@currentClientId" />
+                          <input type="hidden" name="clientId" value="@currentClientId" />
                           <input type="hidden" name="vehicleId" value="@currentVehicleId" />
                           <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this client?');">Apagar</button>
                         </form>
@@ -128,7 +128,7 @@
             <option value="50" selected="@(pageSize == 50)">50</option>
           </select>
           <input type="hidden" name="page" value="1" />
-          <input type="hidden" name="nameOrEmail" value="@currentClientId" />
+          <input type="hidden" name="clientId" value="@currentClientId" />
           <input type="hidden" name="vehicleId" value="@currentVehicleId" />
         </form>
 
@@ -139,7 +139,7 @@
              asp-action="Index"
              asp-route-page="@(currentPage - 1)"
              asp-route-pageSize="@pageSize"
-             asp-route-nameOrEmail="@currentClientId"
+             asp-route-clientId="@currentClientId"
              asp-route-vehicleId="@currentVehicleId"
              aria-disabled="@(currentPage <= 1)">
             Anterior
@@ -153,7 +153,7 @@
                   <a class="btn btn-sm @activeClass"
                      asp-action="Index"
                      asp-route-page="@i"
-                     asp-route-nameOrEmail="@currentClientId"
+                     asp-route-clientId="@currentClientId"
                      asp-route-vehicleId="@currentVehicleId"
                      asp-route-pageSize="@pageSize">@i</a>
               }
@@ -163,7 +163,7 @@
              asp-action="Index"
              asp-route-page="@(currentPage + 1)"
              asp-route-pageSize="@pageSize"
-             asp-route-nameOrEmail="@currentClientId"
+             asp-route-clientId="@currentClientId"
              asp-route-vehicleId="@currentVehicleId"
              aria-disabled="@(currentPage >= totalPages)">
             Seguinte
@@ -173,3 +173,45 @@
     </div>
   </div>
 </section>
+
+@section Scripts {
+  <script>
+    (() => {
+      const clientSelect = document.getElementById('clientIdFilter');
+      const vehicleSelect = document.getElementById('vehicleIdFilter');
+      if (!clientSelect || !vehicleSelect) {
+        return;
+      }
+
+      const setDisabled = (element, disabled, message) => {
+        element.disabled = disabled;
+        element.title = disabled ? message : '';
+        element.classList.toggle('disabled', disabled);
+      };
+
+      const updateStates = () => {
+        const hasClient = Boolean(clientSelect.value);
+        const hasVehicle = Boolean(vehicleSelect.value);
+
+        setDisabled(clientSelect, hasVehicle, 'Escolha uma matricula para desbloquear o cliente.');
+        setDisabled(vehicleSelect, hasClient, 'Escolha um cliente para desbloquear a matricula.');
+      };
+
+      clientSelect.addEventListener('change', () => {
+        if (clientSelect.value) {
+          vehicleSelect.value = '';
+        }
+        updateStates();
+      });
+
+      vehicleSelect.addEventListener('change', () => {
+        if (vehicleSelect.value) {
+          clientSelect.value = '';
+        }
+        updateStates();
+      });
+
+      updateStates();
+    })();
+  </script>
+}

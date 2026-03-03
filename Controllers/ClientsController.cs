@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
@@ -210,7 +209,7 @@ namespace VehicleRent.Controllers
         /// <summary>
         /// Executes the Delete operation.
         /// </summary>
-        public async Task<IActionResult> Delete([FromForm] long id, [FromForm] int page = 1, [FromForm] int pageSize = 10, [FromForm] long? vehicleId = null, [FromForm] string? nameOrEmail = null)
+        public async Task<IActionResult> Delete([FromForm] long id, [FromForm] int page = 1, [FromForm] int pageSize = 10, [FromForm] long? vehicleId = null, [FromForm] long? clientId = null)
         {
             try
             {
@@ -220,7 +219,7 @@ namespace VehicleRent.Controllers
             {
                 TempData["ErrorMessage"] = FrontendErrorMessages.ToPt(ex.ErrorCode);
             }
-            return RedirectToAction(nameof(Index), new { page, pageSize, vehicleId, nameOrEmail });
+            return RedirectToAction(nameof(Index), new { page, pageSize, vehicleId, clientId });
         }
 
         private static ClientViewModel NewClientDefaults()
