@@ -10,9 +10,10 @@
     var startPage = Math.Max(1, currentPage - 2);
     var endPage = Math.Min(totalPages, currentPage + 2);
     var currentVehicleId = ViewBag.CurrentVehicleId as long?;
-    var currentNameOrEmail = ViewBag.CurrentNameOrEmail as string ?? string.Empty;
+    var currentClientId = ViewBag.CurrentClientId as long?;
     var vehicleFilterOptions = ViewBag.VehicleFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
     var activeClientIds = ViewBag.ActiveClientIds as HashSet<long> ?? new HashSet<long>();
+    var clientFilterOptions = ViewBag.ClientFilterOptions as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>();
 }
 
 <section class="vehicle-page py-4 py-lg-5">
@@ -35,9 +36,15 @@
 
       <form method="get" asp-action="Index" class="module-head mb-3">
         <div class="row g-2 align-items-end">
-          <div class="col-12 col-md-5">
-            <label for="nameOrEmailFilter" class="form-label mb-1">Nome ou Email</label>
-            <input id="nameOrEmailFilter" name="nameOrEmail" class="form-control" value="@currentNameOrEmail" placeholder="Filtrar por nome ou email..." />
+           <div class="col-12 col-md-5">
+            <label for="clientIdFilter" class="form-label mb-1">Cliente</label>
+            <select id="clientIdFilter" name="clientId" class="form-select">
+              <option value="">-- todos os clientes --</option>
+              @foreach (var item in clientFilterOptions)
+              {
+                  <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+              }
+            </select>
           </div>
           <div class="col-12 col-md-5">
             <label for="vehicleIdFilter" class="form-label mb-1">Veículo</label>
@@ -99,7 +106,7 @@
                           <input type="hidden" name="id" value="@c.Id" />
                           <input type="hidden" name="page" value="@currentPage" />
                           <input type="hidden" name="pageSize" value="@pageSize" />
-                          <input type="hidden" name="nameOrEmail" value="@currentNameOrEmail" />
+                          <input type="hidden" name="clientId" value="@currentClientId" />
                           <input type="hidden" name="vehicleId" value="@currentVehicleId" />
                           <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Delete this client?');">Apagar</button>
                         </form>
@@ -121,7 +128,7 @@
             <option value="50" selected="@(pageSize == 50)">50</option>
           </select>
           <input type="hidden" name="page" value="1" />
-          <input type="hidden" name="nameOrEmail" value="@currentNameOrEmail" />
+          <input type="hidden" name="clientId" value="@currentClientId" />
           <input type="hidden" name="vehicleId" value="@currentVehicleId" />
         </form>
 
@@ -132,7 +139,7 @@
              asp-action="Index"
              asp-route-page="@(currentPage - 1)"
              asp-route-pageSize="@pageSize"
-             asp-route-nameOrEmail="@currentNameOrEmail"
+             asp-route-clientId="@currentClientId"
              asp-route-vehicleId="@currentVehicleId"
              aria-disabled="@(currentPage <= 1)">
             Anterior
@@ -146,7 +153,7 @@
                   <a class="btn btn-sm @activeClass"
                      asp-action="Index"
                      asp-route-page="@i"
-                     asp-route-nameOrEmail="@currentNameOrEmail"
+                     asp-route-clientId="@currentClientId"
                      asp-route-vehicleId="@currentVehicleId"
                      asp-route-pageSize="@pageSize">@i</a>
               }
@@ -156,7 +163,7 @@
              asp-action="Index"
              asp-route-page="@(currentPage + 1)"
              asp-route-pageSize="@pageSize"
-             asp-route-nameOrEmail="@currentNameOrEmail"
+             asp-route-clientId="@currentClientId"
              asp-route-vehicleId="@currentVehicleId"
              aria-disabled="@(currentPage >= totalPages)">
             Seguinte
@@ -166,3 +173,45 @@
     </div>
   </div>
 </section>
+
+@section Scripts {
+  <script>
+    (() => {
+      const clientSelect = document.getElementById('clientIdFilter');
+      const vehicleSelect = document.getElementById('vehicleIdFilter');
+      if (!clientSelect || !vehicleSelect) {
+        return;
+      }
+
+      const setDisabled = (element, disabled, message) => {
+        element.disabled = disabled;
+        element.title = disabled ? message : '';
+        element.classList.toggle('disabled', disabled);
+      };
+
+      const updateStates = () => {
+        const hasClient = Boolean(clientSelect.value);
+        const hasVehicle = Boolean(vehicleSelect.value);
+
+        setDisabled(clientSelect, hasVehicle, 'Escolha uma matricula para desbloquear o cliente.');
+        setDisabled(vehicleSelect, hasClient, 'Escolha um cliente para desbloquear a matricula.');
+      };
+
+      clientSelect.addEventListener('change', () => {
+        if (clientSelect.value) {
+          vehicleSelect.value = '';
+        }
+        updateStates();
+      });
+
+      vehicleSelect.addEventListener('change', () => {
+        if (vehicleSelect.value) {
+          clientSelect.value = '';
+        }
+        updateStates();
+      });
+
+      updateStates();
+    })();
+  </script>
+}

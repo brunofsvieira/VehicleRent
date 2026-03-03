@@ -7,8 +7,8 @@ namespace VehicleRent.Services
     /// </summary>
     public interface IClientService
     {
-        Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null);
-        Task<PagedResult<Client>> GetPagedForApiAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null);
+        Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null);
+        Task<PagedResult<Client>> GetPagedForApiAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null);
         Task<IReadOnlyList<Client>> GetAllForSelectionAsync();
         Task<Client?> GetByIdAsync(long id);
         Task<Client> CreateAsync(string name, string email, string phoneNumber, string driverLicense);

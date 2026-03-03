@@ -8,8 +8,8 @@ namespace VehicleRent.Tests.TestDoubles;
 /// </summary>
 internal sealed class StubClientService : IClientService
 {
-    public Func<int, int, string?, long?, Task<PagedResult<Client>>>? OnGetPagedForWeb { get; set; }
-    public Func<int, int, string?, long?, Task<PagedResult<Client>>>? OnGetPagedForApi { get; set; }
+    public Func<int, int, long?, long?, Task<PagedResult<Client>>>? OnGetPagedForWeb { get; set; }
+    public Func<int, int, long?, long?, Task<PagedResult<Client>>>? OnGetPagedForApi { get; set; }
     public Func<Task<IReadOnlyList<Client>>>? OnGetAllForSelection { get; set; }
     public Func<long, Task<Client?>>? OnGetById { get; set; }
     public Func<string, string, string, string, Task<Client>>? OnCreate { get; set; }
@@ -46,19 +46,19 @@ internal sealed class StubClientService : IClientService
     /// <summary>
     /// Executes the GetPagedForApiAsync test operation.
     /// </summary>
-    public Task<PagedResult<Client>> GetPagedForApiAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
+    public Task<PagedResult<Client>> GetPagedForApiAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
     {
         if (OnGetPagedForApi is null) throw new NotImplementedException();
-        return OnGetPagedForApi(page, pageSize, nameOrEmail, vehicleId);
+        return OnGetPagedForApi(page, pageSize, clientId, vehicleId);
     }
 
     /// <summary>
     /// Executes the GetPagedForWebAsync test operation.
     /// </summary>
-    public Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
+    public Task<PagedResult<Client>> GetPagedForWebAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
     {
         if (OnGetPagedForWeb is null) throw new NotImplementedException();
-        return OnGetPagedForWeb(page, pageSize, nameOrEmail, vehicleId);
+        return OnGetPagedForWeb(page, pageSize, clientId, vehicleId);
     }
 
     /// <summary>

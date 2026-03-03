@@ -44,17 +44,17 @@ namespace VehicleRent.Repositories
         /// <summary>
         /// Executes the GetAllAsync operation.
         /// </summary>
-        public async Task<PagedResult<Client>> GetAllAsync(int page, int pageSize, string? nameOrEmail = null, long? vehicleId = null)
+        public async Task<PagedResult<Client>> GetAllAsync(int page, int pageSize, long? clientId = null, long? vehicleId = null)
         {
             if (page <= 0) page = 1;
             if (pageSize <= 0) pageSize = 10;
 
             var query = _dbContext.Clients.AsNoTracking().AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(nameOrEmail))
+            if (clientId.HasValue && clientId.Value > 0)
             {
-                var normalized = nameOrEmail.Trim().ToLowerInvariant();
-                query = query.Where(c => c.Name.ToLower().Contains(normalized) || c.Email.ToLower().Contains(normalized));
+                var cid = clientId.Value;
+                query = query.Where(c => c.Id == clientId);
             }
 
             if (vehicleId.HasValue && vehicleId.Value > 0)

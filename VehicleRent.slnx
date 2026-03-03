@@ -1,4 +1,6 @@
 <Solution>
   <Project Path="VehicleRent.csproj" />
-  <Project Path="VehicleRent.Tests/VehicleRent.Tests.csproj" />
+  <Project Path="VehicleRent.Tests/VehicleRent.Tests.csproj">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
 </Solution>
