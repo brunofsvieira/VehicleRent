@@ -95,7 +95,7 @@
                     <span class="record-chip @(rc.IsFinished ? "status-finished" : "status-active")">@rc.ContractStatus</span>
                   </td>
                   <td data-label="Km Inicial"><span class="record-chip">@rc.InitialMileage</span></td>
-                  <td class="text-end record-actions" data-label="Acoes">
+                  <td class="text-end record-actions" data-label="Ações">
                     <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@rc.Id">Editar</a>
                     <form asp-action="Delete" method="post" class="d-inline-block">
                       @Html.AntiForgeryToken()

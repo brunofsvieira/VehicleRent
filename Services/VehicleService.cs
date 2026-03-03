@@ -22,7 +22,7 @@ namespace VehicleRent.Services
             _cache = cache;
         }
 
-        public async Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
+        public async Task<PagedResult<Vehicle>> GetPagedForWebAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null, bool? availabilityStatus = null)
         {
             var normalizedPage = NormalizePage(page);
             var normalizedPageSize = WebPageSizes.Contains(pageSize) ? pageSize : 10;
@@ -37,10 +37,12 @@ namespace VehicleRent.Services
             }
 
             await ApplyRentalStatusAsync(paged.Items);
+
+            paged.Items = availabilityStatus.HasValue ? paged.Items.Where(v => v.IsCurrentlyRented == availabilityStatus.Value).ToList() : paged.Items;
             return paged;
         }
 
-        public async Task<PagedResult<Vehicle>> GetPagedForApiAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null)
+        public async Task<PagedResult<Vehicle>> GetPagedForApiAsync(int page, int pageSize, string? licensePlate = null, long? clientId = null, bool? availabilityStatus = null)
         {
             var normalizedPage = NormalizePage(page);
             var normalizedPageSize = pageSize <= 0 || pageSize > 100 ? 10 : pageSize;
@@ -55,6 +57,8 @@ namespace VehicleRent.Services
             }
 
             await ApplyRentalStatusAsync(paged.Items);
+
+            paged.Items = availabilityStatus.HasValue ? paged.Items.Where(v => v.IsCurrentlyRented == availabilityStatus.Value).ToList() : paged.Items;
             return paged;
         }
 

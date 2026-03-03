@@ -80,7 +80,7 @@
                   <td data-label="Email">@c.Email</td>
                   <td data-label="Telefone"><span class="record-chip">@c.PhoneNumber</span></td>
                   <td data-label="Carta"><span class="record-chip">@c.DriverLicense</span></td>
-                  <td class="text-end record-actions" data-label="Acoes">
+                  <td class="text-end record-actions" data-label="Ações">
                     <a class="btn btn-sm btn-primary" asp-action="Update" asp-route-id="@c.Id">Editar</a>
                     <form asp-action="Delete" method="post" class="d-inline-block">
                       @Html.AntiForgeryToken()
