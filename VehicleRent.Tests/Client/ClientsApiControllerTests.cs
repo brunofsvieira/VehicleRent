@@ -180,6 +180,22 @@ public class ClientsApiControllerTests
         Assert.IsType<NoContentResult>(response);
     }
 
+    [Fact]
+    public async Task Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem()
+    {
+        var service = new StubClientService
+        {
+            OnDelete = (_, _) => throw new BusinessValidationException(BusinessErrorCodes.ClientDeleteBlockedActiveRental, "blocked")
+        };
+        var sut = new ClientsApiController(service, _mapper);
+
+        var response = await sut.Delete(3);
+
+        var bad = Assert.IsType<ObjectResult>(response);
+        var details = Assert.IsType<ValidationProblemDetails>(bad.Value);
+        Assert.True(details.Errors.ContainsKey(BusinessErrorCodes.ClientDeleteBlockedActiveRental));
+    }
+
     private static Client BuildClient(long id, string name, string email)
     {
         var client = new Client(name, email, "+351912345678", "DL123");

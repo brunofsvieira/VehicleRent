@@ -186,6 +186,22 @@ public class VehiclesApiControllerTests
         Assert.IsType<NoContentResult>(response);
     }
 
+    [Fact]
+    public async Task Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem()
+    {
+        var service = new StubVehicleService
+        {
+            OnDelete = (_, _) => throw new BusinessValidationException(BusinessErrorCodes.VehicleDeleteBlockedActiveRental, "blocked")
+        };
+        var sut = new VehiclesApiController(service, _mapper);
+
+        var response = await sut.Delete(3);
+
+        var bad = Assert.IsType<ObjectResult>(response);
+        var details = Assert.IsType<ValidationProblemDetails>(bad.Value);
+        Assert.True(details.Errors.ContainsKey(BusinessErrorCodes.VehicleDeleteBlockedActiveRental));
+    }
+
     private static Vehicle BuildVehicle(long id, string brand, string model, FuelType fuel = FuelType.Petrol, int year = 2022, string licensePlate = "AA-00-AA")
     {
         var vehicle = new Vehicle(brand, model, fuel, year, licensePlate);

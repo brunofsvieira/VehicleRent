@@ -10,7 +10,7 @@ public class ClientServiceTests
 {
     private static ClientService CreateSut(InMemoryClientRepository repo)
     {
-        return new ClientService(repo, TestDistributedCacheFactory.Create());
+        return new ClientService(repo, new InMemoryRentalContractRepository(), TestDistributedCacheFactory.Create());
     }
 
     [Fact]
@@ -245,6 +245,23 @@ public class ClientServiceTests
         await sut.DeleteAsync(client.Id, ensureExists: true);
 
         Assert.Equal(0, repo.Count());
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenClientHasActiveRental_ThrowsBusinessValidation()
+    {
+        var client = SeedClients(1).Single();
+        var repo = new InMemoryClientRepository([client]);
+        var today = DateTime.UtcNow.Date;
+        var activeContract = new RentalContract(client.Id, 10, today, today.AddDays(1), 0);
+        typeof(BaseEntity).GetProperty("Id", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)!
+            .SetValue(activeContract, 1L);
+        var rentalRepo = new InMemoryRentalContractRepository([activeContract]);
+        var sut = new ClientService(repo, rentalRepo, TestDistributedCacheFactory.Create());
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() => sut.DeleteAsync(client.Id, ensureExists: true));
+
+        Assert.Equal(BusinessErrorCodes.ClientDeleteBlockedActiveRental, ex.ErrorCode);
     }
 
     private static IEnumerable<Client> SeedClients(int count)

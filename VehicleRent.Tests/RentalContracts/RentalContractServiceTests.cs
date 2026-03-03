@@ -255,6 +255,18 @@ public class RentalContractServiceTests
         Assert.Equal(contract.Id, loaded!.Id);
     }
 
+    [Fact]
+    public async Task DeleteAsync_WhenContractIsActive_ThrowsBusinessValidation()
+    {
+        var contract = SeedContracts(1).Single();
+        var repo = new InMemoryRentalContractRepository([contract]);
+        var sut = CreateSut(repo);
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() => sut.DeleteAsync(contract.Id, ensureExists: true));
+
+        Assert.Equal(BusinessErrorCodes.RentalDeleteBlockedActiveContract, ex.ErrorCode);
+    }
+
     private static RentalContractService CreateSut(InMemoryRentalContractRepository repo, bool withClient = true, bool withVehicle = true)
     {
         var clientSeed = withClient ? new[] { BuildClient(1) } : Array.Empty<Client>();

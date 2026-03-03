@@ -289,6 +289,20 @@ public class VehicleServiceTests
         Assert.Equal(0, repo.Count());
     }
 
+    [Fact]
+    public async Task DeleteAsync_WhenVehicleIsRented_ThrowsBusinessValidation()
+    {
+        var vehicle = SeedVehicles(1).Single();
+        var repo = new InMemoryVehicleRepository([vehicle]);
+        var rentalRepo = new InMemoryRentalContractRepository();
+        rentalRepo.CurrentlyRentedVehicleIds.Add(vehicle.Id);
+        var sut = CreateSut(repo, rentalRepo);
+
+        var ex = await Assert.ThrowsAsync<BusinessValidationException>(() => sut.DeleteAsync(vehicle.Id, ensureExists: true));
+
+        Assert.Equal(BusinessErrorCodes.VehicleDeleteBlockedActiveRental, ex.ErrorCode);
+    }
+
     private static IEnumerable<Vehicle> SeedVehicles(int count)
     {
         for (var i = 1; i <= count; i++)

@@ -176,7 +176,14 @@ namespace VehicleRent.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] long id, [FromForm] int page = 1, [FromForm] int pageSize = 10, [FromForm] long? clientId = null, [FromForm] string? licensePlate = null)
         {
-            await _service.DeleteAsync(id, ensureExists: false);
+            try
+            {
+                await _service.DeleteAsync(id, ensureExists: false);
+            }
+            catch (BusinessValidationException ex)
+            {
+                TempData["ErrorMessage"] = FrontendErrorMessages.ToPt(ex.ErrorCode);
+            }
             return RedirectToAction(nameof(Index), new { page, pageSize, clientId, licensePlate });
         }
 

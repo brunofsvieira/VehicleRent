@@ -181,6 +181,22 @@ public class RentalContractsApiControllerTests
         Assert.IsType<NotFoundResult>(response);
     }
 
+    [Fact]
+    public async Task Delete_WhenBlockedByBusinessRule_ReturnsValidationProblem()
+    {
+        var service = new StubRentalContractService
+        {
+            OnDelete = (_, _) => throw new BusinessValidationException(BusinessErrorCodes.RentalDeleteBlockedActiveContract, "blocked")
+        };
+        var sut = new RentalContractsApiController(service, _mapper);
+
+        var response = await sut.Delete(10);
+
+        var bad = Assert.IsType<ObjectResult>(response);
+        var details = Assert.IsType<ValidationProblemDetails>(bad.Value);
+        Assert.True(details.Errors.ContainsKey(BusinessErrorCodes.RentalDeleteBlockedActiveContract));
+    }
+
     private static RentalContract BuildContract(long id, long clientId, long vehicleId, DateTime start, DateTime end, int mileage)
     {
         var contract = new RentalContract(clientId, vehicleId, start, end, mileage);

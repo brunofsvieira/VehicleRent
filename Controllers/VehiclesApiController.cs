@@ -89,6 +89,11 @@ namespace VehicleRent.Controllers
             {
                 return NotFound();
             }
+            catch (BusinessValidationException ex)
+            {
+                ModelState.AddModelError(ex.ErrorCode, ex.Message);
+                return ValidationProblem(ModelState);
+            }
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Text.Json;
 using VehicleRent.Infrastructure;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.ViewModels;
+using VehicleRent.Repositories;
 using VehicleRent.Services;
 using VehicleRent.Services.Exceptions;
 
@@ -14,12 +15,14 @@ namespace VehicleRent.Controllers
     {
         private readonly IClientService _service;
         private readonly IVehicleService _vehicleService;
+        private readonly IRentalContractRepository _rentalContractRepository;
         private readonly IDistributedCache _cache;
 
-        public ClientsController(IClientService service, IVehicleService vehicleService, IDistributedCache cache)
+        public ClientsController(IClientService service, IVehicleService vehicleService, IRentalContractRepository rentalContractRepository, IDistributedCache cache)
         {
             _service = service;
             _vehicleService = vehicleService;
+            _rentalContractRepository = rentalContractRepository;
             _cache = cache;
         }
 
@@ -63,6 +66,7 @@ namespace VehicleRent.Controllers
             }).ToList();
             ViewBag.CurrentVehicleId = vehicleId;
             ViewBag.CurrentNameOrEmail = nameOrEmail ?? string.Empty;
+            ViewBag.ActiveClientIds = await _rentalContractRepository.GetCurrentlyActiveClientIdsAsync(DateTime.UtcNow.Date);
 
             var vmPaged = new PagedResult<ClientViewModel>
             {
@@ -139,7 +143,14 @@ namespace VehicleRent.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete([FromForm] long id, [FromForm] int page = 1, [FromForm] int pageSize = 10, [FromForm] long? vehicleId = null, [FromForm] string? nameOrEmail = null)
         {
-            await _service.DeleteAsync(id, ensureExists: false);
+            try
+            {
+                await _service.DeleteAsync(id, ensureExists: false);
+            }
+            catch (BusinessValidationException ex)
+            {
+                TempData["ErrorMessage"] = FrontendErrorMessages.ToPt(ex.ErrorCode);
+            }
             return RedirectToAction(nameof(Index), new { page, pageSize, vehicleId, nameOrEmail });
         }
 

@@ -119,6 +119,39 @@ internal sealed class InMemoryRentalContractRepository : IRentalContractReposito
         return Task.FromResult(new HashSet<long>(CurrentlyRentedVehicleIds));
     }
 
+    public Task<HashSet<long>> GetCurrentlyActiveClientIdsAsync(DateTime onDate)
+    {
+        var date = onDate.Date;
+        var ids = _items
+            .Where(c => c.RentalStartDate.Date <= date && c.RentalEndDate.Date >= date)
+            .Select(c => c.ClientId)
+            .Distinct()
+            .ToHashSet();
+        return Task.FromResult(ids);
+    }
+
+    public Task<bool> HasActiveRentalForVehicleAsync(long vehicleId, DateTime onDate)
+    {
+        var date = onDate.Date;
+        var activeFromItems = _items.Any(c => c.VehicleId == vehicleId && c.RentalStartDate.Date <= date && c.RentalEndDate.Date >= date);
+        var activeFromSet = CurrentlyRentedVehicleIds.Contains(vehicleId);
+        return Task.FromResult(activeFromItems || activeFromSet);
+    }
+
+    public Task<bool> HasActiveRentalForClientAsync(long clientId, DateTime onDate)
+    {
+        var date = onDate.Date;
+        var active = _items.Any(c => c.ClientId == clientId && c.RentalStartDate.Date <= date && c.RentalEndDate.Date >= date);
+        return Task.FromResult(active);
+    }
+
+    public Task<bool> IsContractActiveAsync(long contractId, DateTime onDate)
+    {
+        var date = onDate.Date;
+        var active = _items.Any(c => c.Id == contractId && c.RentalStartDate.Date <= date && c.RentalEndDate.Date >= date);
+        return Task.FromResult(active);
+    }
+
     private static void SetId(RentalContract contract, long id)
     {
         var prop = typeof(BaseEntity).GetProperty("Id", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);

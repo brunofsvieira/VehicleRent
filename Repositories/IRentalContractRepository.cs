@@ -12,5 +12,9 @@ namespace VehicleRent.Repositories
         Task DeleteAsync(long id);
         Task<bool> ExistsVehicleOverlapAsync(long vehicleId, DateTime rentalStartDate, DateTime rentalEndDate, long? excludingId = null);
         Task<HashSet<long>> GetCurrentlyRentedVehicleIdsAsync(DateTime onDate);
+        Task<HashSet<long>> GetCurrentlyActiveClientIdsAsync(DateTime onDate);
+        Task<bool> HasActiveRentalForVehicleAsync(long vehicleId, DateTime onDate);
+        Task<bool> HasActiveRentalForClientAsync(long clientId, DateTime onDate);
+        Task<bool> IsContractActiveAsync(long contractId, DateTime onDate);
     }
 }

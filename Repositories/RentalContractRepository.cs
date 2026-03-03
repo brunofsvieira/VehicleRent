@@ -128,5 +128,37 @@ namespace VehicleRent.Repositories
 
             return ids.ToHashSet();
         }
+
+        public async Task<HashSet<long>> GetCurrentlyActiveClientIdsAsync(DateTime onDate)
+        {
+            var date = onDate.Date;
+            var ids = await _dbContext.RentalContracts.AsNoTracking()
+                .Where(rc => rc.RentalStartDate <= date && rc.RentalEndDate >= date)
+                .Select(rc => rc.ClientId)
+                .Distinct()
+                .ToListAsync();
+            return ids.ToHashSet();
+        }
+
+        public Task<bool> HasActiveRentalForVehicleAsync(long vehicleId, DateTime onDate)
+        {
+            var date = onDate.Date;
+            return _dbContext.RentalContracts.AsNoTracking()
+                .AnyAsync(rc => rc.VehicleId == vehicleId && rc.RentalStartDate <= date && rc.RentalEndDate >= date);
+        }
+
+        public Task<bool> HasActiveRentalForClientAsync(long clientId, DateTime onDate)
+        {
+            var date = onDate.Date;
+            return _dbContext.RentalContracts.AsNoTracking()
+                .AnyAsync(rc => rc.ClientId == clientId && rc.RentalStartDate <= date && rc.RentalEndDate >= date);
+        }
+
+        public Task<bool> IsContractActiveAsync(long contractId, DateTime onDate)
+        {
+            var date = onDate.Date;
+            return _dbContext.RentalContracts.AsNoTracking()
+                .AnyAsync(rc => rc.Id == contractId && rc.RentalStartDate <= date && rc.RentalEndDate >= date);
+        }
     }
 }

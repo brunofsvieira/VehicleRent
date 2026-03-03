@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using VehicleRent.Controllers;
 using VehicleRent.Models.Entities;
 using VehicleRent.Models.Enumerators;
@@ -111,6 +112,27 @@ public class ClientsControllerTests
         Assert.Equal(20, redirect.RouteValues["pageSize"]);
     }
 
+    [Fact]
+    public async Task Delete_Post_WhenBlockedByBusinessRule_RedirectsWithTempDataError()
+    {
+        var service = new StubClientService
+        {
+            OnDelete = (_, _) => throw new BusinessValidationException(BusinessErrorCodes.ClientDeleteBlockedActiveRental, "blocked")
+        };
+        var sut = CreateSut(service);
+
+        var tempData = new Microsoft.AspNetCore.Mvc.ViewFeatures.TempDataDictionary(
+            new DefaultHttpContext(),
+            new NullTempDataProvider());
+        sut.TempData = tempData;
+
+        var result = await sut.Delete(3, 2, 20);
+
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Index", redirect.ActionName);
+        Assert.True(sut.TempData.ContainsKey("ErrorMessage"));
+    }
+
     private static ClientsController CreateSut(StubClientService service)
     {
         var vehicleService = new StubVehicleService
@@ -136,7 +158,7 @@ public class ClientsControllerTests
             OnDelete = (_, _) => Task.CompletedTask
         };
 
-        return new ClientsController(service, vehicleService, TestDistributedCacheFactory.Create());
+        return new ClientsController(service, vehicleService, new InMemoryRentalContractRepository(), TestDistributedCacheFactory.Create());
     }
 
     private static Client BuildClient(long id, string name, string email)
@@ -145,5 +167,11 @@ public class ClientsControllerTests
         typeof(BaseEntity).GetProperty("Id", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)!
             .SetValue(client, id);
         return client;
+    }
+
+    private sealed class NullTempDataProvider : Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataProvider
+    {
+        public IDictionary<string, object> LoadTempData(HttpContext context) => new Dictionary<string, object>();
+        public void SaveTempData(HttpContext context, IDictionary<string, object> values) { }
     }
 }

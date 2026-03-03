@@ -143,6 +143,10 @@ namespace VehicleRent.Services
                     throw new EntityNotFoundException($"Vehicle with id {id} was not found.");
                 }
             }
+            if (await _rentalContractRepo.HasActiveRentalForVehicleAsync(id, DateTime.UtcNow.Date))
+            {
+                throw new BusinessValidationException(BusinessErrorCodes.VehicleDeleteBlockedActiveRental, "Cannot delete vehicle with active rental.");
+            }
 
             await _repo.DeleteAsync(id);
             await InvalidateVehicleFilterCachesAsync();

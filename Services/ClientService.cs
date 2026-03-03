@@ -11,11 +11,13 @@ namespace VehicleRent.Services
     {
         private static readonly int[] WebPageSizes = [10, 20, 50];
         private readonly IClientRepository _repo;
+        private readonly IRentalContractRepository _rentalContractRepo;
         private readonly IDistributedCache _cache;
 
-        public ClientService(IClientRepository repo, IDistributedCache cache)
+        public ClientService(IClientRepository repo, IRentalContractRepository rentalContractRepo, IDistributedCache cache)
         {
             _repo = repo;
+            _rentalContractRepo = rentalContractRepo;
             _cache = cache;
         }
 
@@ -137,6 +139,10 @@ namespace VehicleRent.Services
                 {
                     throw new EntityNotFoundException($"Client with id {id} was not found.");
                 }
+            }
+            if (await _rentalContractRepo.HasActiveRentalForClientAsync(id, DateTime.UtcNow.Date))
+            {
+                throw new BusinessValidationException(BusinessErrorCodes.ClientDeleteBlockedActiveRental, "Cannot delete client with active rental.");
             }
 
             await _repo.DeleteAsync(id);
